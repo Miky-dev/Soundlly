@@ -56,17 +56,27 @@ Soundlly/
 │   ├── home.ejs                        # Layout Home per utente loggato
 │   ├── upload.ejs                      # Pagina caricamento file (Role-protected)
 │   ├── pagamento.ejs                   # Pagina simulazione pagamento
-│   ├── profile.ejs                     # Profilo utente
+│   ├── profilo.ejs                     # Profilo utente
 │   ├── login.ejs                       # Login/registrazione
 │   └── stats.ejs                       # Dashboard statistiche personali
 │
 ├── 📂 routes/                          # Definizione percorsi API e Pagine
 │   ├── auth.js                         # Rotte autenticazione (Passport)
 │   ├── focus.js                        # API Focus Session (Start/Stop/Stats)
-│   ├── pages.js                        # Rotte frontend (Views)
-│   ├── payment.js                      # Rotte pagamenti
 │   ├── profile.js                      # Rotte profilo utente
-│   └── upload.js                       # Rotte upload
+│   ├── stats.js                        # Rotte statistiche personali
+│   ├── upload.js                       # Rotte upload
+│   └── subscription.js                 # Rotte abbonamento
+│
+├── 📂 scripts/                          
+│   ├── add_category_column.js                         
+│   ├── Create_test_user.js                        
+│   ├── migrate_sounds.js                      
+│   ├── migrate_timer.js                        
+│   ├── populate_admin.js                   
+│   ├── seed.js                        
+│   ├── populate_schema_profile.js                       
+│   └── update_schema_stats.js                 
 │
 ├── 📂 auth/                            # Moduli autenticazione
 │   └── passport-setup.js               # Strategia Passport Local
@@ -75,11 +85,11 @@ Soundlly/
 │   └── sqlite.js                       # Wrapper SQLite3
 │
 ├── 📂 models/                          # Data Access Layer
+│   ├── AmbientModel.js                 # Gestione suoni ambientali
 │   └── UserModel.js                    # Gestione utenti
 │
 ├── 📂 migrations/                      # Schema Database
-│   ├── init.sql                        # Schema base (utenti, suoni)
-│   └── init-v3.sql                     # Schema esteso (focus_sessions, focus_goals)
+│   └── init-v3.sql                     # Schema esteso
 │
 ├── 📂 scripts/                         # Script di utilità
 │   ├── create_test_user.js
@@ -171,4 +181,4 @@ Il database utilizza SQLite. Le migrazioni sono disponibili in `migrations/`.
 ---
 
 **Autore**: Team Soundlly  
-**Anno**: 2025
+**Anno**: 2025-2026
