@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soundlly Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/styleHome.css" />
+    <style>
+        .admin-container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            color: #fff;
+        }
+
+        .admin-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .table-dark-transparent {
+            --bs-table-bg: transparent;
+            --bs-table-color: #fff;
+            --bs-table-border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .icon-preview {
+            width: 30px;
+            text-align: center;
+        }
+
+        .nav-pills .nav-link {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+            margin-right: 0.5rem;
+        }
+
+        .nav-pills .nav-link.active {
+            background: #2a9d8f;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-dark bg-transparent mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/home">
+                <img src="/immagini/logo2.png" alt="Logo" class="d-inline-block align-text-top">
+                Admin Panel
+            </a>
+            <a href="/home" class="btn btn-outline-light btn-sm">Torna alla Home</a>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+        <h1>Dashboard Amministrazione</h1>
+        <p class="lead">Gestisci i contenuti della piattaforma.</p>
+
+        <ul class="nav nav-pills mb-4" id="adminTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="ambient-tab" data-bs-toggle="pill" data-bs-target="#ambient"
+                    type="button" role="tab">Suoni Ambientali</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="usersongs-tab" data-bs-toggle="pill" data-bs-target="#usersongs"
+                    type="button" role="tab">Canzoni Utenti</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="adminTabsContent">
+
+            <!-- AMBIENT SOUNDS TAB -->
+            <div class="tab-pane fade show active" id="ambient" role="tabpanel">
+                <div class="admin-card">
+                    <h3>Aggiungi Suono Ambientale</h3>
+                    <form id="addSoundForm" class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label">Nome</label>
+                            <input type="text" class="form-control" name="title" placeholder="Es. Pioggia" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Icona (FontAwesome)</label>
+                            <input type="text" class="form-control" name="icon" placeholder="Es. fa-cloud-rain"
+                                required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">File Audio (MP3)</label>
+                            <input type="file" class="form-control" name="audioFile" accept="audio/*" required>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-success w-100">Aggiungi</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="admin-card">
+                    <h3>Lista Suoni</h3>
+                    <table class="table table-dark-transparent align-middle">
+                        <thead>
+                            <tr>
+                                <th>Icona</th>
+                                <th>Nome</th>
+                                <th>File</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% ambientSounds.forEach(sound=> { %>
+                                <tr>
+                                    <td><i class="fa-solid <%= sound.icon %> fa-lg"></i></td>
+                                    <td>
+                                        <!-- Edit Mode Toggle -->
+                                        <span class="view-mode">
+                                            <%= sound.title %>
+                                        </span>
+                                        <input type="text" class="form-control edit-mode d-none form-control-sm"
+                                            value="<%= sound.title %>">
+                                    </td>
+                                    <td>
+                                        <%= sound.filename %>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-warning btn-edit"
+                                            data-id="<%= sound.id %>">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-success btn-save d-none"
+                                            data-id="<%= sound.id %>">
+                                            <i class="fa-solid fa-check"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger btn-delete"
+                                            data-id="<%= sound.id %>">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- USER SONGS TAB -->
+            <div class="tab-pane fade" id="usersongs" role="tabpanel">
+                <div class="admin-card">
+                    <h3>Canzoni Caricate dagli Utenti</h3>
+                    <table class="table table-dark-transparent">
+                        <thead>
+                            <tr>
+                                <th>Titolo</th>
+                                <th>Proprietario (ID)</th>
+                                <th>Data</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% userSongs.forEach(song=> { %>
+                                <tr>
+                                    <td>
+                                        <%= song.title %>
+                                    </td>
+                                    <td>
+                                        <%= song.owner_id %>
+                                    </td>
+                                    <td>
+                                        <%= song.created_at %>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-danger btn-delete"
+                                            data-id="<%= song.id %>">
+                                            Elimina
+                                        </button>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // --- ADD SOUND ---
+        document.getElementById('addSoundForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            formData.append('description', 'Suono Ambientale');
+
+            try {
+                const res = await fetch('/admin/sounds', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.ok) location.reload();
+                else alert('Errore: ' + data.error);
+            } catch (err) {
+                console.error(err);
+                alert('Errore di connessione');
+            }
+        });
+
+        // --- DELETE ---
+        document.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                if (!confirm('Sei sicuro di voler eliminare questo elemento?')) return;
+                const id = btn.dataset.id;
+                try {
+                    const res = await fetch(`/admin/sounds/${id}`, { method: 'DELETE' });
+                    const data = await res.json();
+                    if (data.ok) location.reload();
+                    else alert('Errore: ' + data.error);
+                } catch (err) {
+                    alert('Errore network');
+                }
+            });
+        });
+
+        // --- EDIT ---
+        document.querySelectorAll('.btn-edit').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const row = btn.closest('tr');
+                row.querySelector('.view-mode').classList.add('d-none');
+                row.querySelector('.edit-mode').classList.remove('d-none');
+                btn.classList.add('d-none');
+                row.querySelector('.btn-save').classList.remove('d-none');
+            });
+        });
+
+        document.querySelectorAll('.btn-save').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const row = btn.closest('tr');
+                const id = btn.dataset.id;
+                const title = row.querySelector('.edit-mode').value;
+
+                try {
+                    const res = await fetch(`/admin/sounds/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title })
+                    });
+                    const data = await res.json();
+                    if (data.ok) location.reload();
+                } catch (e) { alert('Errore'); }
+            });
+        });
+    </script>
+</body>
+
+</html>

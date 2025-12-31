@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Soundlly - Carica Contenuto</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/styleHome.css" />
+    <link rel="stylesheet" href="/css/upload.css" />
+</head>
+
+<body>
+
+    <!-- Navbar (Simplified) -->
+    <!-- Navbar (Simplified) -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent fixed-top">
+        <div class="container-fluid">
+            <a href="/home">
+                <img src="/immagini/logo2.png" alt="Soundlly">
+            </a>
+            <a href="/home" class="btn btn-outline-light btn-sm"><i class="fa-solid fa-arrow-left"></i> Torna alla
+                Home</a>
+        </div>
+    </nav>
+
+    <div class="upload-container">
+        <div class="upload-card">
+            <h2 class="text-center mb-4">Carica Nuovo Contenuto</h2>
+
+            <% if (typeof message !=='undefined' && message) { %>
+                <div class="alert alert-<%= typeof messageType !== 'undefined' ? messageType : 'info' %> alert-dismissible fade show"
+                    role="alert">
+                    <%= message %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <% } %>
+
+                    <form action="/upload/api/upload" method="POST" enctype="multipart/form-data">
+
+                        <!-- Category Selection -->
+                        <label class="form-label mb-2">Categoria</label>
+                        <div class="category-selector">
+                            <div class="category-option">
+                                <input type="radio" id="cat-ambient" name="category" value="ambient" checked>
+                                <label for="cat-ambient"><i class="fa-solid fa-cloud-moon me-2"></i>Suoni
+                                    Ambientali</label>
+                            </div>
+                            <div class="category-option">
+                                <input type="radio" id="cat-music" name="category" value="music">
+                                <label for="cat-music"><i class="fa-solid fa-music me-2"></i>Musica</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Titolo</label>
+                            <input type="text" class="form-control" id="title" name="title" required
+                                placeholder="Es. Pioggia Rilassante">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Descrizione (Opzionale)</label>
+                            <textarea class="form-control" id="description" name="description" rows="2"
+                                placeholder="Breve descrizione..."></textarea>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="mood" class="form-label">Mood</label>
+                                <input type="text" class="form-control" id="mood" name="mood"
+                                    placeholder="Es. Rilassante">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="genre" class="form-label">Genere</label>
+                                <input type="text" class="form-control" id="genre" name="genre" placeholder="Es. Piano">
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="access_level" class="form-label">Visibilità</label>
+                                <select class="form-select" id="access_level" name="access_level">
+                                    <option value="public" selected>Pubblico</option>
+                                    <option value="registered">Solo Registrati</option>
+                                    <option value="premium">Solo Premium</option>
+                                    <option value="private">Privato</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6" id="icon-container">
+                                <label for="icon" class="form-label">Icona (FontAwesome) <small class="text-muted">-
+                                        Solo Ambient</small></label>
+                                <input type="text" class="form-control" id="icon" name="icon"
+                                    placeholder="Es. fa-cloud-rain">
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">File Audio (MP3)</label>
+                            <div class="drop-zone" id="drop-zone">
+                                <div class="drop-zone-content">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                    <p id="file-label">Trascina qui il file o clicca per selezionare</p>
+                                    <p class="small text-muted" id="file-name"></p>
+                                </div>
+                                <input type="file" id="audio" name="audio" accept="audio/mp3,audio/mpeg" required>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">Carica</button>
+                        </div>
+
+                    </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('audio');
+        const fileLabel = document.getElementById('file-label');
+        const fileNameDisplay = document.getElementById('file-name');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            dropZone.classList.add('drag-over');
+        }
+
+        function unhighlight(e) {
+            dropZone.classList.remove('drag-over');
+        }
+
+        dropZone.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            fileInput.files = files;
+            updateFileName(files[0]);
+        }
+
+        fileInput.addEventListener('change', function () {
+            if (this.files && this.files[0]) {
+                updateFileName(this.files[0]);
+            }
+        });
+
+        function updateFileName(file) {
+            if (file) {
+                fileLabel.style.display = 'none';
+                fileNameDisplay.textContent = `File selezionato: ${file.name}`;
+                fileNameDisplay.style.color = '#2a9d8f';
+                fileNameDisplay.style.fontWeight = 'bold';
+            }
+        }
+
+        // Toggle Icon field based on category
+        const catAmbient = document.getElementById('cat-ambient');
+        const catMusic = document.getElementById('cat-music');
+        const iconContainer = document.getElementById('icon-container');
+
+        function toggleIconField() {
+            if (catMusic.checked) {
+                iconContainer.style.opacity = '0.5';
+                document.getElementById('icon').disabled = true;
+            } else {
+                iconContainer.style.opacity = '1';
+                document.getElementById('icon').disabled = false;
+            }
+        }
+
+        catAmbient.addEventListener('change', toggleIconField);
+        catMusic.addEventListener('change', toggleIconField);
+
+        // Init
+        toggleIconField();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,285 @@
+/* ==========================================================================
+   Profilo Styles (Merged)
+   ========================================================================== */
+
+/* ----------------------------- Design tokens ------------------------------ */
+:root {
+    --bg: #0b0f14;
+    --brand-1: #2a9d8f;
+    --brand-2: #153040;
+    --brand-2-900: #35546b;
+    --glass: rgba(255, 255, 255, 0.282);
+    --text-muted: rgb(141, 152, 161);
+    --white: #fff;
+}
+
+/* ------------------------------- Base ------------------------------------- */
+* {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+*::-webkit-scrollbar {
+    display: none;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+        linear-gradient(180deg, rgba(42, 157, 143, 0.06), rgba(21, 48, 64, 0.04)),
+        radial-gradient(800px 400px at 10% 10%, rgba(42, 157, 143, 0.10), transparent 30%),
+        radial-gradient(600px 300px at 85% 80%, rgba(21, 48, 64, 0.08), transparent 30%),
+        var(--bg);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center center;
+    font-family: 'Lexend', sans-serif;
+    color: #fff;
+}
+
+/* ------------------------------ Navbar ------------------------------------ */
+.navbar {
+    position: static;
+    top: auto;
+    left: auto;
+    width: 100%;
+    z-index: 1000;
+    background: transparent !important;
+    backdrop-filter: none;
+    box-shadow: none;
+    margin-bottom: 0;
+}
+
+.nav-item.mix-2:hover {
+    color: var(--brand-1);
+    text-decoration: underline;
+}
+
+.sidebar {
+    background-color: var(--glass);
+    backdrop-filter: blur(10px);
+}
+
+/* ------------------------------- Buttons ---------------------------------- */
+.btn-primary {
+    background-color: var(--brand-2) !important;
+    color: #fff !important;
+    border: none !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: var(--brand-2-900) !important;
+    color: #fff !important;
+}
+
+/* --------------------------- Custom Profile Styles ------------------------ */
+.profile-container {
+    max-width: 900px;
+    margin: 20px auto 40px auto;
+    padding: 20px;
+}
+
+.profile-header {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 30px;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #2a9d8f;
+}
+
+.profile-info h1 {
+    margin: 0;
+    color: #e9c46a;
+}
+
+.profile-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 20px;
+    background: #264653;
+    color: #fff;
+    font-size: 0.9em;
+    margin-top: 5px;
+}
+
+.profile-badge.premium {
+    background: linear-gradient(45deg, #e9c46a, #f4a261);
+    color: #000;
+    font-weight: bold;
+}
+
+.profile-details {
+    color: #ccc;
+    margin-top: 10px;
+}
+
+.section-box {
+    background: rgba(26, 42, 51, 0.8);
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.section-title {
+    color: #2a9d8f;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 10px;
+}
+
+.form-dark input,
+.form-dark textarea,
+.form-dark select {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid #444;
+    color: #fff;
+    margin-bottom: 15px;
+}
+
+.form-dark input:focus,
+.form-dark textarea:focus {
+    background: rgba(0, 0, 0, 0.5);
+    border-color: #2a9d8f;
+    color: #fff;
+    box-shadow: none;
+}
+
+.btn-save {
+    background: #2a9d8f;
+    border: none;
+    padding: 10px 30px;
+    color: #fff;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.btn-save:hover {
+    background: #21cfbd;
+    transform: translateY(-2px);
+}
+
+.sound-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.sound-card {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.sound-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.sound-icon {
+    font-size: 2rem;
+    color: #e9c46a;
+    margin-bottom: 10px;
+}
+
+/* ------------------------------- Footer ----------------------------------- */
+.site-footer {
+    background: linear-gradient(to bottom, #ffffff0f, #00000000);
+    color: #c7c7c7;
+    font-family: Arial, sans-serif;
+    padding: 2rem 1rem;
+}
+
+.footer-container {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 0 auto 1.5rem;
+    gap: 2rem;
+}
+
+.footer-column {
+    flex: 1 1 200px;
+}
+
+.footer-column h4 {
+    color: #fff;
+    margin-bottom: .75rem;
+    font-size: 1.1rem;
+}
+
+.footer-column p,
+.footer-column li {
+    font-size: .9rem;
+    line-height: 1.5;
+}
+
+.footer-column ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-column ul li+li {
+    margin-top: .5rem;
+}
+
+.footer-column a {
+    color: #c7c7c7;
+    text-decoration: none;
+    transition: color .2s;
+}
+
+.footer-column a:hover {
+    color: var(--brand-1);
+}
+
+.social-icons a {
+    display: inline-block;
+    margin-right: .5rem;
+}
+
+.social-icons img {
+    width: 24px;
+    height: 24px;
+}
+
+.footer-bottom {
+    border-top: 1px solid #ddd;
+    padding-top: 1rem;
+    text-align: center;
+    font-size: .85rem;
+}
+
+@media (max-width:600px) {
+    .footer-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .footer-column {
+        text-align: center;
+        max-height: 150px;
+    }
+}

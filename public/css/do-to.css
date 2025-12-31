@@ -1,0 +1,531 @@
+/* ------------------------------ To-do list -------------------------------- */
+
+
+.box-3 {
+    position: relative;
+    container-type: inline-size;
+    --gutter: clamp(12px, 2.5vw, 24px);
+}
+
+/* Header ancorato: titolo a sx, giorno a dx */
+.box-3 .todo-app {
+    position: relative;
+    min-width: 0;
+    padding-top: 4.2rem;
+    padding-bottom: 4.5rem;
+    /* spazio per il footer fisso */
+    padding-left: var(--gutter);
+    padding-right: var(--gutter);
+}
+
+.box-3 .todo-app header {
+    position: absolute;
+    inset: .7rem var(--gutter) auto var(--gutter);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    margin: 0;
+}
+
+.box-3 .todo-app header h1 {
+    margin: 0;
+    line-height: 1;
+    font-weight: 700;
+    font-size: 2rem;
+    color: var(--text-muted);
+}
+
+.box-3 .todo-app .today {
+    color: var(--text-muted);
+    font-size: 1rem;
+    opacity: .95;
+    white-space: nowrap;
+}
+
+/* Barra input + pulsante “+” (quasi full width) */
+.box-3 .add-box {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: .65rem;
+    align-items: center;
+    width: 100%;
+    margin: 0;
+    padding: .85rem;
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .02));
+    border: 1px solid rgba(255, 255, 255, .08);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .18);
+}
+
+.box-3 .add-input {
+    width: 100%;
+    padding: .9rem 1rem;
+    background: rgba(255, 255, 255, .90);
+    border: 1px solid rgba(0, 0, 0, .12);
+    border-radius: 12px;
+    font-size: 1rem;
+    line-height: 1.1;
+    color: #153040;
+    outline: none;
+    transition: box-shadow .15s ease, border-color .15s ease;
+}
+
+.box-3 .add-input:focus {
+    border-color: var(--brand-1);
+    box-shadow: 0 0 0 3px rgba(42, 157, 143, .25);
+}
+
+/* Bottone + (testo nascosto, emoji via ::before) */
+.box-3 .add-btn {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    align-self: center;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    overflow: hidden;
+    background: var(--brand-1);
+    color: transparent;
+    text-indent: -9999px;
+    transition: transform .06s ease, filter .2s ease, background .2s ease;
+}
+
+.box-3 .add-btn::before {
+    content: "+";
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-size: 1.6rem;
+    font-weight: 700;
+    text-indent: 0;
+}
+
+.box-3 .add-btn:hover {
+    filter: brightness(2);
+}
+
+.box-3 .add-btn:active {
+    transform: translateY(1px) scale(.98);
+}
+
+/* Toolbar: “attività totali” a sinistra */
+.box-3 .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--text-muted);
+    margin-top: .75rem;
+    margin-bottom: .25rem;
+    width: 100%;
+}
+
+.box-3 .toolbar .count {
+    font-weight: 700;
+}
+
+/* Lista attività (card stile Spotify) */
+.box-3 #list {
+    list-style: none;
+    margin: .25rem 0 0 0;
+    padding: .5rem 0 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    max-height: min(56vh, 620px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.box-3 #list::-webkit-scrollbar {
+    display: none;
+}
+
+/* Card base */
+.box-3 #list li {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    /* testo elastico */
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .04));
+    border: 1px solid rgba(255, 255, 255, .08);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .18);
+    color: #eaeaea;
+}
+
+.box-3 #list li:hover {
+    background: linear-gradient(180deg, rgba(255, 255, 255, .10), rgba(255, 255, 255, .05));
+}
+
+/* “Cover” = checkbox */
+.box-3 #list li .left {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.box-3 #list li .left input[type="checkbox"] {
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    margin: 0;
+    border: 1.6px solid rgba(255, 255, 255, .35);
+    background: rgba(0, 0, 0, .15);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: background .15s, border-color .15s, transform .06s;
+}
+
+.box-3 #list li .left input[type="checkbox"]:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(42, 157, 143, .28);
+}
+
+.box-3 #list li .left input[type="checkbox"]:active {
+    transform: scale(.98);
+}
+
+.box-3 #list li .left input[type="checkbox"]:checked {
+    background: linear-gradient(135deg, #2a9d8f, #74d1c4);
+    border-color: rgba(255, 255, 255, .7);
+}
+
+.box-3 #list li .left input[type="checkbox"]:checked::after {
+    content: "✓";
+    color: #102a28;
+    font-weight: 900;
+    font-size: .9rem;
+    line-height: 1;
+}
+
+/* Testo titolo + pill categoria; testo sempre dentro il box */
+.box-3 #list li .text {
+    font-weight: 700;
+    letter-spacing: .2px;
+    color: #f5f8ff;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+}
+
+.box-3 #list li[data-tag] .text::after {
+    content: "  ·  " attr(data-tag);
+    color: #9bb3cc;
+    font-weight: 600;
+}
+
+.box-3 #list li.done .text {
+    color: #a9b7c7;
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+}
+
+/* Colonna destra: minutaggio (opz.) e azioni */
+.box-3 #list li .right {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.box-3 #list li .duration {
+    font-variant-numeric: tabular-nums;
+    opacity: .9;
+    color: #c7d3df;
+    font-weight: 600;
+}
+
+/* Minutaggio via attributo opzionale: <li data-duration="3:45"> */
+.box-3 #list li:not(:has(.duration))[data-duration]::after {
+    content: attr(data-duration);
+    grid-column: 3;
+    justify-self: end;
+    align-self: center;
+    font-variant-numeric: tabular-nums;
+    opacity: .9;
+    color: #c7d3df;
+    font-weight: 600;
+}
+
+/* Pulsanti azione */
+.box-3 #list li .actions {
+    display: inline-flex;
+    gap: 8px;
+}
+
+.box-3 #list li .actions .complete {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    padding: 0;
+    border: none;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, #2a9d8f, #74d1c4);
+    color: #0b1514;
+    box-shadow: 0 8px 20px rgba(42, 157, 143, .35);
+    transition: transform .06s ease, filter .2s ease;
+}
+
+.box-3 #list li .actions .complete::before {
+    content: "►";
+    font-weight: 900;
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.box-3 #list li .actions .complete:hover {
+    filter: brightness(1.06);
+}
+
+.box-3 #list li .actions .complete:active {
+    transform: translateY(1px) scale(.98);
+}
+
+.box-3 #list li .actions .delete {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    padding: 0;
+    border: none;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, .08);
+    color: #ff6b6b;
+    transition: background .2s ease, transform .06s;
+}
+
+.box-3 #list li .actions .delete:hover {
+    background: rgba(255, 255, 255, .14);
+}
+
+.box-3 #list li .actions .delete:active {
+    transform: translateY(1px) scale(.98);
+}
+
+/* Stato vuoto */
+.box-3 .empty {
+    width: 100%;
+    margin-top: .5rem;
+    color: var(--text-muted);
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+/* Footer: “Cancella completate” centrato a filo del margine inferiore */
+.box-3 footer {
+    position: absolute;
+    left: var(--gutter);
+    right: var(--gutter);
+    bottom: 0;
+    width: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    padding-bottom: .35rem;
+}
+
+.box-3 .clear-btn {
+    padding: .6rem .95rem;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background: rgba(128, 23, 23, 0.274);
+    color: #fff;
+    transition: background .2s, transform .06s;
+}
+
+.box-3 .clear-btn:hover {
+    background: rgba(150, 12, 12, 0.549);
+}
+
+.box-3 .clear-btn:active {
+    transform: translateY(1px) scale(.98);
+}
+
+/* To-Do (box-3): icon buttons senza sfondo */
+.box-3 .icon-btn {
+    background: transparent !important;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    /* mantieni se vuoi più hit-area */
+    width: 36px;
+    height: 36px;
+    /* come prima: solo icona centrata */
+    display: grid;
+    place-items: center;
+    color: inherit;
+}
+
+.box-3 .icon-btn:hover,
+.box-3 .icon-btn:active {
+    background: transparent !important;
+    transform: translateY(0);
+    /* niente “press” se non desiderato */
+}
+
+/* Variante danger: solo colore, nessuno sfondo */
+.box-3 .icon-btn.danger {
+    color: #dc3545;
+}
+
+/* Accessibilità: focus ring visibile senza sfondo */
+.box-3 .icon-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(42, 157, 143, .25);
+    border-radius: 8px;
+}
+
+
+
+
+/* === Pulsante flip in alto al centro dentro il box-3 === */
+.box-3 {
+    position: relative;
+}
+
+/* il wrapper non deve spingere layout */
+.box-3 .box-3-actions {
+    position: absolute;
+    top: 0rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    width: 0;
+    height: 0;
+    /* evita occupazione spazio */
+    pointer-events: none;
+    /* passa eventi solo al bottone */
+}
+
+/* il bottone resta cliccabile e rotondo */
+#flipBtnExternal {
+    pointer-events: auto;
+    /* riabilita sul bottone */
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0);
+    backdrop-filter: blur(4px);
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background .2s, transform .06s, filter .2s;
+}
+
+#flipBtnExternal:hover {
+    filter: brightness(1.1);
+}
+
+#flipBtnExternal:active {
+    transform: translateY(1px) scale(.98);
+}
+
+#flipBtnExternal:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(42, 157, 143, .25);
+}
+
+
+
+/* ------------------------- Responsività “box-aware” ----------------------- */
+@container (max-width: 560px) {
+    .box-3 .todo-app {
+        padding-top: 3.6rem;
+    }
+
+    .box-3 .todo-app header {
+        inset: .7rem var(--gutter) auto var(--gutter);
+    }
+
+    .box-3 .todo-app header h1 {
+        font-size: 1.6rem;
+    }
+
+    .box-3 .add-box {
+        grid-template-columns: 1fr auto;
+        padding: .7rem;
+    }
+
+    .box-3 .add-btn {
+        width: 44px;
+        height: 44px;
+    }
+
+    .box-3 #list {
+        max-height: min(50vh, 520px);
+    }
+
+    .box-3 #list li {
+        grid-template-columns: 32px minmax(0, 1fr) auto;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: 14px;
+    }
+
+    .box-3 #list li .left input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        border-radius: 5px;
+    }
+
+    .box-3 #list li .actions .complete {
+        width: 36px;
+        height: 36px;
+    }
+
+    .box-3 #list li .actions .delete {
+        width: 34px;
+        height: 34px;
+    }
+
+    .box-3 #list li .duration {
+        display: none;
+    }
+
+    /* nasconde minutaggio quando spazio è poco */
+}
+
+@container (max-width: 380px) {
+    .box-3 .add-box {
+        grid-template-columns: 1fr;
+    }
+
+    .box-3 .add-btn {
+        width: 100%;
+        height: 44px;
+    }
+
+    .box-3 .toolbar {
+        padding: 0 .25rem;
+    }
+
+    .box-3 #list li {
+        grid-template-columns: 28px minmax(0, 1fr) auto;
+        gap: 8px;
+        padding: 10px;
+    }
+}

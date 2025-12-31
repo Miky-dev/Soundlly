@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <!-- =================================================================
+       HEAD - Contiene i metadati, i link ai fogli di stile e il titolo della pagina.
+       ================================================================== -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Fogli di stile esterni e locali -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/styleHome.css" />
+  <link rel="stylesheet" href="/css/timer.css" />
+  <link rel="stylesheet" href="/css/do-to.css" />
+
+  <!-- Favicon: l'icona che appare nella linguetta del browser -->
+  <link rel="icon" href="immagini/logo3.png" type="image/png">
+
+  <title>Soundlly - La tua oasi di suoni e produttività</title>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-transaparent">
+    <div class="container-fluid">
+      <!-- Logo del sito -->
+      <img src="/immagini/logo2.png" alt="Soundlly Logo" />
+
+      <!-- Pulsante "hamburger" per aprire la sidebar su schermi piccoli -->
+      <button class="navbar-toggler shadow-none border-0" type="button" data-bs-toggle="offcanvas"
+        data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+
+      <!-- Sidebar (menu laterale) che appare su mobile, gestita da Bootstrap Offcanvas -->
+      <div class="sidebar offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar"
+        aria-labelledby="offcanvasNavbarLabel">
+        <div class="offcanvas-header text-#1a2a33 border-bottom">
+          <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Navigation bar</h5>
+          <button type="button" class="btn-close btn-close-#1a2a33 shadow-none" data-bs-dismiss="offcanvas"
+            aria-label="Close"></button>
+        </div>
+
+        <!-- Corpo della sidebar con i link di navigazione -->
+        <div class="offcanvas-body">
+          <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+            <li class="nav-item mix-2">
+              <!-- Link per la pagina di caricamento file -->
+              <a class="nav-link" href="/upload">Crea</a>
+            </li>
+
+            <% if (!user) { %>
+              <li class="nav-item mix-2">
+                <a class="nav-link" href="/login">Accedi</a>
+              </li>
+              <% } else { %>
+                <!-- Se l'utente è loggato, mostra i link al profilo e al logout -->
+                <li class="nav-item mix-2">
+                  <a class="nav-link" href="/profilo">Profilo</a>
+                </li>
+                <!--<li class=" nav-item mix-2">
+                  <a class="nav-link" href="/logout">Logout</a>
+                </li>-->
+                <% } %>
+
+                  <!-- Link statici sempre visibili -->
+                  <li class="nav-item mix-2">
+                    <a class="nav-link" href="/abbonamento">Abbonati</a>
+                  </li>
+                  <li class="nav-item mix-2">
+                    <a class="nav-link" href="/about.html">About</a>
+                  </li>
+
+                  <!-- Link alla pagina di amministrazione (visibile solo agli admin) -->
+                  <% if (isAdmin) { %>
+                    <li class="nav-item mix-2">
+                      <a class="nav-link" href="/admin">Admin</a>
+                    </li>
+                    <% } %>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+
+
+  <!-- =================================================================
+       GRID CONTAINER - Layout principale della dashboard, organizzato in box.
+       ================================================================== -->
+  <div class="grid-container">
+    <!-- Box 1: Messaggio di benvenuto personalizzato -->
+    <div class="box box-1">
+      <h1 class="text">Benvenuto <%= user?.username %>
+      </h1>
+    </div>
+
+    <!-- Box 2: Banner decorativo -->
+    <div class="box box-2">
+      <img src="/immagini/banner.png" alt="Banner" />
+      <div class="inner-shadow"></div>
+    </div>
+
+    <!-- =================================================================
+       BOX 3: FLIP CARD - Card interattiva che si gira per mostrare
+       il Timer Pomodoro o la To-Do List.
+       ================================================================== -->
+    <div class="box box-3">
+      <!-- Pulsante esterno per girare la card.
+       Controlla la card con `aria-controls="flipCard"`. -->
+      <div class="box-3-actions" style="display:flex;justify-content:center;margin-top:8px;">
+        <button id="flipBtnExternal" class="flip-btn" type="button" aria-controls="flipCard" aria-label="Inverti lato"
+          title="Inverti lato">
+          <span aria-hidden="true">🔄</span>
+        </button>
+      </div>
+
+      <!-- Contenitore della flip-card -->
+      <section class="flip" aria-label="Card a due facce">
+        <div class="flip-card" id="flipCard" aria-live="polite">
+          <!-- Faccia frontale: contiene il Timer Pomodoro -->
+          <div class="face is-front" aria-hidden="false">
+            <p class="mini" style="margin:0">
+
+              <!-- Widget del Timer Pomodoro -->
+            <section id="pane-timer" class="prod-pane active" role="region" aria-label="Timer Pomodoro">
+              <div class="timer" id="pomoCard">
+                <!-- Dial (quadrante) del timer -->
+                <div class="dial">
+                  <svg viewBox="0 0 120 120" aria-hidden="true">
+                    <defs>
+                      <linearGradient id="pomoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#2a9d8f; stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#21cfbd; stop-opacity:1" />
+                      </linearGradient>
+                    </defs>
+                    <!-- Cerchio di sfondo (grigio) -->
+                    <circle cx="60" cy="60" r="50"></circle>
+                    <!-- Cerchio di progresso (verde), animato via CSS/JS -->
+                    <circle id="pomoProgress" cx="60" cy="60" r="50" pathLength="100" stroke="url(#pomoGradient)">
+                    </circle>
+                  </svg>
+                  <!-- Display del tempo rimanente -->
+                  <div class="time" id="pomoTime">25:00</div>
+                </div>
+
+                <div class="label" id="pomoMode">Modalità: Pomodoro</div>
+
+                <!-- Pulsanti di controllo del timer -->
+                <div class="controls">
+                  <button class="btn good" id="pomoStart"><i class="fa-solid fa-play"></i> Avvia</button>
+                  <button class="btn" id="pomoPause"><i class="fa-solid fa-pause"></i> Pausa</button>
+                  <button class="btn danger" id="pomoReset"><i class="fa-solid fa-rotate-right"></i> Reset</button>
+                  <button class="btn" id="pomoSkip" title="Salta allo step successivo"><i
+                      class="fa-solid fa-forward-step"></i> Salta</button>
+                  <button class="btn" id="pomoSettingsBtn" title="Impostazioni"
+                    style="background:transparent; border:none; color:inherit; transform: scale(0.9);"><i
+                      class="fa-solid fa-gear"></i></button>
+                </div>
+
+                <!-- Settings Panel (Hidden by default) -->
+                <div id="pomoSettingsPanel"
+                  style="display:none; margin-top:1rem; padding:1rem; background:rgba(255,255,255,0.1); border-radius:8px; text-align:left;">
+                  <div style="margin-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;">
+                    <label style="font-size:0.9rem; color:#fff;">Pomodoro (min)</label>
+                    <input type="number" id="setPomo" value="25" min="1" max="60"
+                      style="width:60px; border-radius:4px; border:1px solid #ccc; padding:2px 5px;">
+                  </div>
+                  <div style="margin-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;">
+                    <label style="font-size:0.9rem; color:#fff;">Pausa Breve</label>
+                    <input type="number" id="setShort" value="5" min="1" max="60"
+                      style="width:60px; border-radius:4px; border:1px solid #ccc; padding:2px 5px;">
+                  </div>
+                  <div style="text-align:center; margin-top:0.5rem;">
+                    <button id="saveSettingsBtn" class="btn btn-sm btn-primary"
+                      style="padding:4px 12px; font-size:0.8rem;">Salva</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Elemento audio per il suono di notifica del timer -->
+            <audio id="pomoDing" preload="auto">
+              <source src="/audio/ding.mp3" type="audio/mp3">
+            </audio>
+            </p>
+          </div>
+          <!-- Faccia posteriore: contiene la To-Do List -->
+          <div class="face is-back" aria-hidden="true">
+            <p class="mini" style="margin:0">
+
+              <!-- Widget della To-Do List -->
+            <section id="pane-todo" class="prod-pane" role="region" aria-label="To-Do List">
+              <div class="todo-app" aria-label="To-Do List">
+                <header>
+                  <h1>To-Do</h1>
+                  <div class="today" id="today"></div>
+                </header>
+
+                <!-- Box per aggiungere nuove attività -->
+                <div class="add-box">
+                  <input id="newTask" class="add-input" type="text"
+                    placeholder="Aggiungi una nuova attività e premi Invio…" aria-label="Nuova attività" />
+                  <button id="addBtn" class="add-btn" type="button" aria-label="Aggiungi attività">Aggiungi</button>
+                </div>
+
+                <!-- Barra degli strumenti con il conteggio delle attività -->
+                <div class="toolbar" aria-label="Conteggio">
+                  <div class="count"><span id="count"></span> attività totali</div>
+                </div>
+
+                <!-- Lista delle attività, popolata dinamicamente da todo.js -->
+                <ul id="list" aria-live="polite" aria-label="Elenco attività"></ul>
+                <!-- Messaggio mostrato quando la lista è vuota -->
+                <div id="empty" class="empty" hidden>Nessuna attività. Inizia aggiungendone una qui sopra ✅</div>
+
+                <footer>
+                  <button id="clearDone" class="clear-btn" type="button">Cancella completate</button>
+                </footer>
+              </div>
+            </section>
+
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Box 4: Griglia per i suoni ambientali, popolata dinamicamente da loadSounds.js -->
+    <div class="box box-4">
+      <div class="box-4-header">
+        <h2 class="section-title">Suoni</h2>
+      </div>
+      <div id="sounds-container"></div>
+    </div>
+
+    <!-- Box 5: Slideshow di immagini, gestito da main.js -->
+    <div class="box box-5">
+      <img id="slideshow-img" src="/immagini/IMG_1941.jpg" alt="Slideshow" />
+    </div>
+
+    <!-- Box 6: Widget con statistiche rapide dell'utente.
+         Cliccando, si viene reindirizzati alla pagina completa delle statistiche. -->
+    <div class="box box-6" onclick="window.location.href='/stats';" role="region" aria-label="Statistiche rapide">
+      <div class="mini-duo mini-duo--compact udash">
+        <!-- Header del widget -->
+        <header class="mini-duo__header">
+          <h3 class="mini-duo__title">Rapide</h3>
+          <div class="mini-duo__cta">↗</div>
+        </header>
+
+        <div class="mini-duo__grid mini-duo__grid--compact">
+          <!-- Stat 1 -->
+          <div class="mini-stat" aria-label="Preferiti">
+            <span class="mini-stat__icon" aria-hidden="true">⭐</span>
+            <div class="mini-stat__main">
+              <span class="mini-stat__value" id="duo-favs">—</span>
+              <span class="mini-stat__label">Preferiti</span>
+            </div>
+          </div>
+
+          <!-- Statistica 2: Numero di playlist -->
+          <div class="mini-stat" aria-label="Playlist">
+            <span class="mini-stat__icon" aria-hidden="true">🎛️</span>
+            <div class="mini-stat__main">
+              <span class="mini-stat__value" id="duo-pls">—</span>
+              <span class="mini-stat__label">Playlist</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-3 px-1">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span style="font-size: 0.8rem; color: #bdc3c7;">Focus Giornaliero</span>
+            <span style="font-size: 0.8rem; color: #2a9d8f;">
+              <%= todayMinutes %>/<%= dailyGoal %> min
+            </span>
+          </div>
+          <div class="progress" style="height: 6px; background-color: rgba(255,255,255,0.1);">
+            <div class="progress-bar" role="progressbar"
+              style="width: <%= Math.min((todayMinutes / dailyGoal) * 100, 100) %>%; background-color: #2a9d8f;">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+  </div>
+
+  <!-- =================================================================
+         HORIZONTAL BOX - Contiene la barra di ricerca e le liste di brani a scorrimento orizzontale.
+         ================================================================== -->
+  <div class="horizontal-box">
+    <form id="footer-searchbar" class="d-flex search-bar-navbar" onsubmit="event.preventDefault();">
+      <input class="form-control rounded-pill px-2" type="search" placeholder="Cerca brani, artisti o album…"
+        aria-label="Cerca">
+      <button type="submit" class="search-btn" aria-label="Cerca">
+        <i class="fas fa-search"></i>
+      </button>
+    </form>
+
+    <!-- Sezione per i risultati della ricerca, inizialmente nascosta e mostrata dopo una ricerca -->
+    <section class="horizontal-scroll-container" id="search-results-section" hidden>
+      <h2 class="scroll-title">Risultati ricerca</h2>
+      <div class="horizontal-wrapper" data-grid="search"></div>
+    </section>
+
+    <!-- Sezione per le ultime uscite, popolata da music-search.js -->
+    <section class="horizontal-scroll-container">
+      <h2 class="scroll-title">Ultime uscite</h2>
+      <div class="horizontal-wrapper" data-grid="latest"></div>
+    </section>
+
+    <!-- Sezione per i brani Premium -->
+    <section class="horizontal-scroll-container" id="premium-section">
+      <h2 class="scroll-title">Solo Premium</h2>
+      <div class="horizontal-wrapper" data-grid="search-premium"></div>
+    </section>
+
+    <!-- Sezione per i suoni caricati dai creator -->
+    <section class="horizontal-scroll-container" id="suoni">
+      <h2 class="scroll-title">Suoni dei creatori</h2>
+      <div class="horizontal-wrapper" data-grid="suoni"></div>
+    </section>
+
+    <!-- Sezione per i suoni caricati dai creator -->
+    <section class="horizontal-scroll-container" id="pref">
+      <h2 class="scroll-title">Preferiti</h2>
+      <div class="horizontal-wrapper" data-grid="pref"></div>
+    </section>
+  </div>
+
+
+  <!-- =================================================================
+       FOOTER IMMERSIVO - Immagine interattiva in fondo alla pagina.
+       Cliccando il pulsante "IMMERGITI", si apre un'esperienza a schermo intero.
+       ================================================================== -->
+  <div class="footer-image-wrapper">
+    <img src="immagini/relax.png" alt="footer background" class="footer-full-img cursor-pointer"
+      id="footer-img-clickable" />
+    <button class="enter-button" id="enter-button">IMMERGITI</button>
+  </div>
+
+  <!-- =================================================================
+       FOOTER - Piè di pagina del sito con informazioni, link e contatti.
+       ================================================================== -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-column">
+        <h4>Informazioni</h4>
+        <p>La nostra azienda si impegna a fornire i migliori servizi dal 2025. I nostri servizi si basano
+          sull'intratteminemto multimediale, all'interno della piattaforma sei in grado di ascoltare suoni rilassanti e
+          musica mentre studi in completa tranquillità.</p>
+      </div>
+      <div class="footer-column">
+        <h4>Link Rapidi</h4>
+        <ul>
+          <li><a href="/about.html#about">Chi Siamo</a></li>
+          <li><a href="/about.html#servizi">Servizi</a></li>
+          <li><a href="/about.html#contatti">Contatti</a></li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h4>Contatti</h4>
+        <p>Email: info@abcd.com</p>
+        <p>Tel: +39 0123 456789</p>
+        <p>Via Roma 123, Milano</p>
+      </div>
+      <div class="footer-column">
+        <h4>Seguici</h4>
+        <div class="social-icons">
+          <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+          <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Soundlly. Tutti i diritti riservati.</p>
+    </div>
+  </footer>
+
+  <!-- =================================================================
+       SCRIPT - Caricamento degli script JavaScript che gestiscono le funzionalità della pagina.
+       L'attributo 'defer' assicura che vengano eseguiti dopo il parsing dell'HTML.
+       ================================================================== -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
+    crossorigin="anonymous"></script>
+  <script src="/js/timer.js"></script>
+  <script src="/js/todo.js"></script>
+  <script src="/js/flip-card.js"></script>
+  <script src="/js/loadSounds.js"></script>
+
+
+
+
+</body>
+
+</html>

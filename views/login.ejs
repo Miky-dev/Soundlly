@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
+    crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <title>Soundlly Login</title>
+
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-transaparent">
+    <div class="container-fluid">
+      <img src="/immagini/logo.png" alt="Soundlly Logo" />
+      <button class="navbar-toggler shadow-none border-0" type="button" data-bs-toggle="offcanvas"
+        data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+        <i class="fa-solid fa-bars" style="font-size: 2rem; color: #153040;"></i>
+      </button>
+      <div class="sidebar offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar"
+        aria-labelledby="offcanvasNavbarLabel">
+        <div class="offcanvas-header text-#1a2a33 border-bottom">
+          <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Sidebar</h5>
+          <button type="button" class="btn-close btn-close-#1a2a33 shadow-none" data-bs-dismiss="offcanvas"
+            aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+          <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+            <li class="nav-item mix-2"><a class="nav-link" href="/about.html#about">About</a></li>
+            <li class="nav-item mix-2"><a class="nav-link" href="/about.html#support">Support</a></li>
+            <li class="nav-item mix-2"><a class="nav-link" href="/about.html#contact">Contact</a></li>
+          </ul>
+          <div class="d-flex justify-content-center align-items-center gap-4">
+            <a href="/" class="text-white text-decoration-none px-3 py-2 rounded-4"
+              style="background-color: #153040">continua senza registrarti</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+
+  <!-- Main -->
+  <div class="container d-flex justify-content-center align-items-center vh-10">
+    <div class="row border rounded-5 p-3 shadow box-area"
+      style="background: rgba(255,255,255,0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 1.5rem;">
+      <!-- Left -->
+      <div class="col-md-6 rounded-4 d-flex justify-content-center align-items-center flex-column left-box">
+        <div class="featured-image">
+          <img src="/immagini/background1f2.png" alt="Login Image" class="img-fluid w-100 rounded-4" />
+        </div>
+      </div>
+
+      <!-- Right -->
+      <div class="col-md-6 right-box">
+        <div class="row align-items-center">
+          <div class="header-etxt mb-4 text-center">
+            <h2 class="login-title" id="form-title">Login</h2>
+          </div>
+
+          <!-- Alert -->
+          <div id="login-alert" class="hidden" role="alert" aria-live="assertive"></div>
+
+          <!-- LOGIN -->
+          <form id="login-form" action="/login" method="post" novalidate>
+            <!-- CSRF -->
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+
+            <div class="input-group mb-4">
+              <input name="username" type="text" class="form-control form-control-lg fs-6" placeholder="Username"
+                autocomplete="username" required />
+            </div>
+            <div class="input-group mb-1">
+              <input name="password" type="password" class="form-control form-cotrol-lg fs-6" placeholder="Password"
+                autocomplete="current-password" required />
+            </div>
+
+            <div class="input-group mb-4 d-flex justify-content-between align-items-center">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="rememberCheck" name="remember" value="1" />
+                <label for="rememberCheck" class="form-check-label text-secondary"><small>Ricordami</small></label>
+              </div>
+              <div class="forgot">
+                <small><a href="#" aria-disabled="true">Forgot Password?</a></small>
+              </div>
+            </div>
+
+            <div class="input-group mb-3">
+              <button type="submit" class="btn btn-primary btn-lg w-100 rounded-4 fs-6">Login</button>
+            </div>
+
+            <div class="input-group mb-3">
+              <button type="button" id="show-register"
+                class="btn btn-outline-primary btn-lg w-100 rounded-4 fs-6">Registrati</button>
+            </div>
+          </form>
+
+          <!-- REGISTER -->
+          <!-- REGISTER -->
+          <form id="register-form" action="/register" method="post" style="display:none;" novalidate>
+            <!-- CSRF -->
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+            <div class="row g-2">
+              <div class="col-md-6 mb-3">
+                <input name="first_name" type="text" class="form-control form-control-lg fs-6" placeholder="Nome"
+                  required />
+              </div>
+              <div class="col-md-6 mb-3">
+                <input name="last_name" type="text" class="form-control form-control-lg fs-6" placeholder="Cognome"
+                  required />
+              </div>
+            </div>
+
+            <div class="row g-2">
+              <div class="col-md-6 mb-3">
+                <label class="form-label mb-1">Data di nascita</label>
+                <input name="birth_date" type="date" class="form-control form-control-lg fs-6" required />
+                <div class="form-text">Devi avere almeno 14 anni.</div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label mb-1">Sesso</label>
+                <select name="sex" class="form-select form-select-lg fs-6" required>
+                  <option value="" selected disabled>Seleziona…</option>
+                  <option>Maschio</option>
+                  <option>Femmina</option>
+                  <option>Non binario</option>
+                  <option>Preferisco non dirlo</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <input name="music_prefs" type="text" class="form-control form-control-lg fs-6"
+                placeholder="Preferenze musicali (es. rock, pop, jazz)" />
+              <div class="form-text">Separale con virgole.</div>
+            </div>
+
+            <div class="mb-3">
+              <input name="email" type="email" class="form-control form-control-lg fs-6" placeholder="Email"
+                autocomplete="email" required />
+            </div>
+
+            <div class="mb-3">
+              <input name="username" type="text" class="form-control form-control-lg fs-6" placeholder="Username"
+                autocomplete="username" required />
+            </div>
+
+            <div class="mb-3">
+              <input name="password" type="password" class="form-control form-control-lg fs-6"
+                placeholder="Password (min 6)" minlength="6" autocomplete="new-password" required />
+            </div>
+
+            <div id="register-error" class="text-danger small mb-2" style="display:none;"></div>
+
+            <div class="input-group mb-3">
+              <button type="submit" class="btn btn-primary btn-lg w-100 rounded-4 fs-6">Registrati</button>
+            </div>
+            <div class="input-group mb-3">
+              <button type="button" id="back-to-login" class="btn btn-outline-primary btn-lg w-100 rounded-4 fs-6">Torna
+                al Login</button>
+            </div>
+          </form>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS esterno -->
+  <script src="/js/auth-login.js"></script>
+</body>
+
+</html>

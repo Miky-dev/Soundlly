@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <!-- Metadati di base e configurazione della pagina -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Collegamenti ai fogli di stile: Bootstrap, Font Awesome e il nostro CSS personalizzato -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/styleHome.css" />
+  <link rel="stylesheet" href="/css/timer.css" />
+  <link rel="stylesheet" href="/css/do-to.css" />
+
+  <!-- Icona del sito (favicon) visualizzata nella scheda del browser -->
+  <link rel="icon" href="immagini/icona.png" type="image/png">
+
+  <title>Soundlly - La tua oasi di suoni e produttività</title>
+</head>
+
+<body class="no-favs">
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-transaparent">
+    <div class="container-fluid">
+      <!-- Logo -->
+      <img src="immagini/logo2.png" alt="Soundlly Logo" />
+
+      <button class="navbar-toggler shadow-none border-0" type="button" data-bs-toggle="offcanvas"
+        data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+
+      <!-- Sidebar -->
+      <div class="sidebar offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar"
+        aria-labelledby="offcanvasNavbarLabel">
+        <div class="offcanvas-header text-#1a2a33 border-bottom">
+          <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Navigation bar</h5>
+          <button type="button" class="btn-close btn-close-#1a2a33 shadow-none" data-bs-dismiss="offcanvas"
+            aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+          <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+            <li class="nav-item mix-2">
+              <a class="nav-link" href="/login">Crea</a>
+            </li>
+            <li class="nav-item mix-2">
+              <a class="nav-link" href="/login ">Accedi</a>
+            </li>
+            <li class="nav-item mix-2">
+              <a class="nav-link" href="about.html">About</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Contenitore principale del layout a griglia che organizza i vari widget della dashboard -->
+  <div class="grid-container">
+    <!-- Box 1: Messaggio di benvenuto -->
+    <div class="box box-1">
+      <h1 class="text">Benvenuto</h1>
+    </div>
+
+    <!-- Box 2: Banner decorativo -->
+    <div class="box box-2">
+      <img src="immagini/banner.png" alt="Banner" />
+      <div class="inner-shadow"></div>
+    </div>
+
+    <!-- Box 3: Card interattiva che si gira (flip-card) -->
+    <div class="box box-3">
+      <!-- Pulsante per girare la card, che reindirizza anche al login se l'utente non è autenticato -->
+      <div class="box-3-actions" style="display:flex;justify-content:center;margin-top:8px;">
+        <form action="login" method="get">
+          <button id="flipBtnExternal" class="flip-btn" type="submit" aria-label="Vai al login" title="Vai al login">
+            <span aria-hidden="true">🔄</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Contenitore della flip-card -->
+      <section class="flip" aria-label="Card a due facce">
+        <div class="flip-card" id="flipCard" aria-live="polite">
+          <!-- Faccia frontale: contiene il Timer Pomodoro -->
+          <div class="face is-front" aria-hidden="false">
+            <p class="mini" style="margin:0">
+            <section id="pane-timer" class="prod-pane active" role="region" aria-label="Timer Pomodoro">
+              <div class="timer" id="pomoCard">
+                <div class="dial">
+                  <svg viewBox="0 0 120 120" aria-hidden="true">
+                    <circle cx="60" cy="60" r="50"></circle>
+                    <circle id="pomoProgress" cx="60" cy="60" r="50" pathLength="100"></circle>
+                  </svg>
+                  <div class="time" id="pomoTime">25:00</div>
+                </div>
+
+                <div class="label" id="pomoMode">Modalità: Pomodoro</div>
+
+                <div class="controls">
+                  <button class="btn good" id="pomoStart">Avvia</button>
+                  <button class="btn" id="pomoPause">Pausa</button>
+                  <button class="btn danger" id="pomoReset">Reset</button>
+                  <button class="btn" id="pomoSkip" title="Salta allo step successivo">Salta »</button>
+                </div>
+              </div>
+            </section>
+
+            <audio id="pomoDing" preload="auto">
+              <source src="data:audio/mp3;base64,//uQZAAAAAAAAAAAA..." type="audio/mp3">
+            </audio>
+            </p>
+          </div>
+          <!-- Faccia posteriore: contiene la To-Do List -->
+          <div class="face is-back" aria-hidden="true">
+            <p class="mini" style="margin:0">
+              <!-- Widget della To-Do List -->
+            <section id="pane-todo" class="prod-pane" role="region" aria-label="To-Do List">
+              <div class="todo-app" aria-label="To-Do List">
+                <header>
+                  <h1>To-Do</h1>
+                  <div class="today" id="today"></div>
+                </header>
+
+                <div class="add-box">
+                  <input id="newTask" class="add-input" type="text" placeholder="Aggiungi una nuova attività"
+                    aria-label="Nuova attività" />
+                  <button id="addBtn" class="add-btn" type="button" aria-label="Aggiungi attività">Aggiungi</button>
+                </div>
+
+                <div class="toolbar" aria-label="Conteggio">
+                  <div class="count"><span id="count"></span> attività totali</div>
+                </div>
+
+                <ul id="list" aria-live="polite" aria-label="Elenco attività"></ul>
+                <div id="empty" class="empty" hidden>Nessuna attività. Inizia aggiungendone una qui sopra ✅</div>
+
+                <footer>
+                  <button id="clearDone" class="clear-btn" type="button">Cancella completate</button>
+                </footer>
+              </div>
+            </section>
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Box 4: Griglia per i suoni ambientali, popolata dinamicamente da loadSounds.js -->
+    <div class="box box-4">
+      <div class="box-4-header">
+        <h2 class="section-title">Suoni</h2>
+      </div>
+      <div id="sounds-container"></div>
+    </div>
+
+    <!-- Box 5: Slideshow di immagini -->
+    <div class="box box-5">
+      <img id="slideshow-img" src="immagini/IMG_1941.jpg" alt="Slideshow" />
+    </div>
+
+    <!-- Box 6: Placeholder per le statistiche utente. Se cliccato, porta al login. -->
+    <div class="box box-6" onclick="window.location.href='/login';">
+      <h3 class="section-title">Le Tue Statistiche</h3>
+      <div class="stat">
+        <div class="label">Effettua l'accesso</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sezione contenente le liste di brani a scorrimento orizzontale e la barra di ricerca -->
+  <div class="horizontal-box">
+    <form id="footer-searchbar" class="d-flex search-bar-navbar" onsubmit="event.preventDefault();">
+      <input class="form-control rounded-pill px-2" type="search" placeholder="Cerca brani, artisti o album…"
+        aria-label="Cerca">
+      <button type="submit" class="search-btn" aria-label="Cerca">
+        <i class="fas fa-search"></i>
+      </button>
+    </form>
+
+    <!-- Sezione per i risultati della ricerca, inizialmente nascosta -->
+    <section class="horizontal-scroll-container" id="search-results-section" hidden>
+      <h2 class="scroll-title">Risultati ricerca</h2>
+      <div class="horizontal-wrapper" data-grid="search"></div>
+    </section>
+
+    <!-- Sezione per le ultime uscite, popolata da music-search.js -->
+    <section class="horizontal-scroll-container">
+      <h2 class="scroll-title">Ultime uscite</h2>
+      <div class="horizontal-wrapper" data-grid="latest"></div>
+    </section>
+
+    <!-- Sezione per i brani Premium -->
+    <section class="horizontal-scroll-container" id="premium-section">
+      <h2 class="scroll-title">Solo Premium</h2>
+      <div class="horizontal-wrapper" data-grid="search-premium"></div>
+    </section>
+
+    <!-- Sezione per i suoni caricati dai creator -->
+    <section class="horizontal-scroll-container" id="suoni">
+      <h2 class="scroll-title">Suoni dei creatori</h2>
+      <div class="horizontal-wrapper" data-grid="suoni"></div>
+    </section>
+
+    <!-- Sezione per i suoni caricati dai creator -->
+    <section class="horizontal-scroll-container" id="pref">
+      <h2 class="scroll-title">Preferiti</h2>
+      <div>
+        <h3>accedi per poter visualizzare i preferiti</h3>
+      </div>
+    </section>
+  </div>
+
+  <!-- Immagine interattiva in fondo alla pagina. Cliccandola, si apre un'esperienza immersiva. -->
+  <div class="footer-image-wrapper">
+    <img src="immagini/relax.png" alt="footer background" class="footer-full-img cursor-pointer"
+      id="footer-img-clickable" />
+    <button class="enter-button" id="enter-button">IMMERGITI</button>
+  </div>
+
+  <!-- Footer del sito con informazioni, link utili e contatti -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-column">
+        <h4>Informazioni</h4>
+        <p>La nostra azienda si impegna a fornire i migliori servizi dal 2025. I nostri servizi si basano
+          sull'intratteminemto multimediale, all'interno della piattaforma sei in grado di ascoltare suoni rilassanti e
+          musica mentre studi in completa tranquillità.</p>
+      </div>
+      <div class="footer-column">
+        <h4>Link Rapidi</h4>
+        <ul>
+          <li><a href="/about.html#about">Chi Siamo</a></li>
+          <li><a href="/about.html#servizi">Servizi</a></li>
+          <li><a href="/about.html#contatti">Contatti</a></li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h4>Contatti</h4>
+        <p>Email: info@abcd.com</p>
+        <p>Tel: +39 0123 456789</p>
+        <p>Via Roma 123, Milano</p>
+      </div>
+      <div class="footer-column">
+        <h4>Seguici</h4>
+        <div class="social-icons">
+          <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+          <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Soundlly. Tutti i diritti riservati.</p>
+    </div>
+  </footer>
+
+  <!-- Caricamento degli script JavaScript che gestiscono le funzionalità della pagina -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
+    crossorigin="anonymous"></script>
+  <script src="/js/timer.js"></script>
+  <script src="/js/todo.js"></script>
+  <script src="/js/flip-card.js"></script>
+  <script src="/js/loadSounds.js"></script>
+
+</body>
+
+</html>
