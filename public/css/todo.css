@@ -1,0 +1,256 @@
+/* --- CSS STILE TO-DO LIST --- */
+
+:root {
+    --primary-color: #2a9d8f;
+    --secondary-color: #264653;
+    --bg-color: #f4f4f9;
+    --text-color: #2d3436;
+    --completed-color: #b2bec3;
+    --delete-color: #ff7675;
+    --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Ensure parent containers propagate height for scrolling to work */
+.flip {
+    perspective: 1000px;
+    position: relative;
+    width: 100%;
+    /* Changed from height: 100% to fill available space */
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.flip-card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    flex-grow: 1;
+}
+
+.flip-card.is-back {
+    transform: rotateY(180deg);
+}
+
+.face {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* Center content vertically if needed */
+}
+
+/* Front face (Timer) */
+.face.is-front {
+    z-index: 2;
+}
+
+/* Back face (Todo) */
+.face.is-back {
+    transform: rotateY(180deg);
+}
+
+.prod-pane {
+    width: 100%;
+    height: 100%;
+}
+
+.todo-app {
+    background: #ffffff;
+    width: 100%;
+    height: 100%;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    /* Ensure the container takes full height and manages its children */
+    border-radius: 15px;
+    box-sizing: border-box;
+    /* Include padding in height calculation */
+}
+
+.todo-app header h1 {
+    text-align: center;
+    color: var(--text-color);
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    font-size: 1.8rem;
+}
+
+.input-group,
+.add-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+    /* Impedisce che l'input si schiacci */
+}
+
+#todo-input,
+#newTask {
+    flex-grow: 1;
+    padding: 12px 15px;
+    border: 2px solid #dfe6e9;
+    border-radius: 10px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s;
+    font-family: inherit;
+}
+
+#todo-input:focus,
+#newTask:focus {
+    border-color: #2a9d8f;
+    /* Project Teal */
+}
+
+#add-btn,
+#addBtn {
+    background-color: #2a9d8f;
+    /* Project Teal */
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s;
+    font-family: inherit;
+}
+
+#add-btn:hover,
+#addBtn:hover {
+    background-color: #21867a;
+    /* Darker Teal */
+}
+
+/* --- MODIFICA PRINCIPALE: LISTA SCORREVOLE --- */
+#todo-list,
+#list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    overflow-y: auto;
+    /* Abilita lo scroll verticale */
+    flex-grow: 1;
+    /* Occupa tutto lo spazio rimanente nel box */
+    padding-right: 5px;
+    /* Spazio per non coprire il testo con la scrollbar */
+    min-height: 0;
+}
+
+/* --- STILE SCROLLBAR MODERNA (Webkit: Chrome, Safari, Edge) --- */
+#todo-list::-webkit-scrollbar,
+#list::-webkit-scrollbar {
+    width: 6px;
+}
+
+#todo-list::-webkit-scrollbar-track,
+#list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+#todo-list::-webkit-scrollbar-thumb,
+#list::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 10px;
+}
+
+#todo-list::-webkit-scrollbar-thumb:hover,
+#list::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0;
+}
+
+.todo-item {
+    background: #fff;
+    border-bottom: 1px solid #f1f2f6;
+    padding: 15px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.todo-item li {
+    flex-grow: 1;
+    font-size: 1rem;
+    color: #2d3436;
+    margin-right: 10px;
+    word-break: break-all;
+}
+
+.todo-item.completed li {
+    text-decoration: line-through;
+    color: #b2bec3;
+}
+
+.todo-item.completed {
+    opacity: 0.6;
+}
+
+.fall {
+    transform: translateX(10rem) rotateZ(10deg);
+    opacity: 0;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    margin-left: 8px;
+    padding: 5px;
+    transition: transform 0.2s;
+}
+
+.action-btn:hover {
+    transform: scale(1.2);
+}
+
+.check-btn {
+    color: #2a9d8f;
+}
+
+/* Project Teal */
+.trash-btn {
+    color: #ff7675;
+}
+
+/* Footer & Empty State */
+footer {
+    margin-top: 15px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.clear-btn {
+    background: none;
+    border: none;
+    color: #636e72;
+    cursor: pointer;
+    font-size: 0.9rem;
+    text-decoration: underline;
+    transition: color 0.2s;
+}
+
+.clear-btn:hover {
+    color: var(--delete-color);
+}
+
+.empty {
+    text-align: center;
+    color: #b2bec3;
+    margin-top: 20px;
+    font-style: italic;
+}

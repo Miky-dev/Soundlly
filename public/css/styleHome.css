@@ -317,7 +317,8 @@ body {
   }
 
   .box-3 {
-    max-height: 400%;
+    min-height: 650px;
+    height: auto;
   }
 
   .box-4 {
