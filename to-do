@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List Scorrevole</title>
+    <style>
+        /* Reset di base */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Stile per centrare il box nella pagina (solo per presentazione) */
+        body {
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* --- IL BOX PRINCIPALE --- */
+        .todo-box {
+            background: white;
+            width: 350px;
+            height: 450px;
+            /* Altezza fissa per forzare lo scroll */
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            /* Organizza gli elementi in colonna */
+            overflow: hidden;
+            /* Nasconde ciò che esce dai bordi arrotondati */
+        }
+
+        /* --- INTESTAZIONE E INPUT (Parte Fissa) --- */
+        .header {
+            padding: 20px;
+            background: #4a90e2;
+            color: white;
+        }
+
+        .header h2 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        button#add-btn {
+            padding: 10px 15px;
+            background-color: #357abd;
+            color: white;
+            border: 1px solid white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        button#add-btn:hover {
+            background-color: #2a629a;
+        }
+
+        /* --- LA LISTA (Parte Scorrevole) --- */
+        ul#todo-list {
+            list-style: none;
+            padding: 10px 20px;
+            /* Flex-grow 1 occupa tutto lo spazio rimanente */
+            flex-grow: 1;
+            /* Abilita lo scroll verticale solo se necessario */
+            overflow-y: auto;
+        }
+
+        /* Stile personalizzato per la scrollbar (Webkit/Chrome/Safari) */
+        ul#todo-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ul#todo-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ul#todo-list::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        ul#todo-list::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* --- ELEMENTI DELLA LISTA --- */
+        li {
+            background: #fff;
+            border-bottom: 1px solid #eee;
+            padding: 12px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        li span {
+            word-break: break-word;
+            /* Evita che testi lunghi rompano il layout */
+            max-width: 80%;
+            cursor: pointer;
+        }
+
+        li.completed span {
+            text-decoration: line-through;
+            color: #aaa;
+        }
+
+        .delete-btn {
+            background: transparent;
+            border: none;
+            color: #ff4d4d;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0 5px;
+        }
+
+        .delete-btn:hover {
+            color: #d32f2f;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="todo-box">
+        <div class="header">
+            <h2>Le mie attività</h2>
+            <div class="input-row input-group">
+                <input type="text" id="todo-input" placeholder="Aggiungi nuova attività...">
+                <button id="add-btn">+</button>
+            </div>
+        </div>
+
+        <ul id="todo-list">
+            <li><span>Fare la spesa</span> <button class="delete-btn">&times;</button></li>
+            <li><span>Chiamare l'elettricista</span> <button class="delete-btn">&times;</button></li>
+            <li><span>Pagare le bollette</span> <button class="delete-btn">&times;</button></li>
+            <li><span>Prenotare il ristorante</span> <button class="delete-btn">&times;</button></li>
+            <li><span>Scrivere il report</span> <button class="delete-btn">&times;</button></li>
+            <li><span>Aggiornare il sito web</span> <button class="delete-btn">&times;</button></li>
+        </ul>
+    </div>
+    <script>
+        // Selezione elementi
+        const input = document.getElementById('todo-input');
+        const addBtn = document.getElementById('add-btn');
+        const list = document.getElementById('todo-list');
+
+        // Funzione per aggiungere un task
+        function addTask() {
+            const taskText = input.value.trim();
+
+            if (taskText === "") {
+                alert("Scrivi qualcosa prima di aggiungere!");
+                return;
+            }
+
+            // Creazione elemento li
+            const li = document.createElement('li');
+
+            // Creazione contenuto (Testo + Bottone elimina)
+            li.innerHTML = `
+                <span>${taskText}</span>
+                <button class="delete-btn">&times;</button>
+            `;
+
+            // Aggiungi alla lista
+            list.appendChild(li);
+
+            // Pulisci input
+            input.value = "";
+            input.focus();
+
+            // Scroll automatico verso il basso per vedere l'ultimo elemento aggiunto
+            list.scrollTop = list.scrollHeight;
+        }
+
+        // Event Listener per il click sul bottone Aggiungi
+        addBtn.addEventListener('click', addTask);
+
+        // Event Listener per il tasto Invio
+        input.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                addTask();
+            }
+        });
+
+        // Gestione click sulla lista (Cancellazione o Completamento)
+        list.addEventListener('click', function (e) {
+            // Se clicchi sul bottone elimina
+            if (e.target.classList.contains('delete-btn')) {
+                const li = e.target.parentElement;
+                li.remove();
+            }
+            // Se clicchi sul testo (segna come completato)
+            else if (e.target.tagName === 'SPAN') {
+                e.target.parentElement.classList.toggle('completed');
+            }
+        });
+    </script>
+</body>
+
+</html>

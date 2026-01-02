@@ -248,6 +248,7 @@ CREATE TABLE IF NOT EXISTS todos (
     user_id INTEGER NOT NULL,
     text TEXT NOT NULL,
     is_done INTEGER DEFAULT 0,
+    completed_at DATETIME, -- Added for statistics
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );

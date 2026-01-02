@@ -151,7 +151,7 @@ app.use('/upload', uploadRoutes);
 
 // --- 4.6 TO-DO ROUTE ---
 // --- 4.6 TO-DO ROUTE ---
-//app.use('/api/todos', require('./routes/todo'));
+app.use('/api/todos', require('./routes/todo'));
 
 // --- 5. STATISTICS ROUTE ---
 
