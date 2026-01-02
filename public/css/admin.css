@@ -1,0 +1,35 @@
+.admin-container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    color: #fff;
+}
+
+.admin-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.table-dark-transparent {
+    --bs-table-bg: transparent;
+    --bs-table-color: #fff;
+    --bs-table-border-color: rgba(255, 255, 255, 0.2);
+}
+
+.icon-preview {
+    width: 30px;
+    text-align: center;
+}
+
+.nav-pills .nav-link {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+    margin-right: 0.5rem;
+}
+
+.nav-pills .nav-link.active {
+    background: #2a9d8f;
+}
