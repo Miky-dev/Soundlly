@@ -162,6 +162,12 @@ app.use('/stats', statsRoutes);
 const adminRoutes = require('./routes/admin');
 app.use('/admin', adminRoutes);
 
+// Search Route
+app.use('/api/search', require('./routes/search'));
+
+// Music Route
+app.use('/api/music', require('./routes/music'));
+
 
 //session INFO
 

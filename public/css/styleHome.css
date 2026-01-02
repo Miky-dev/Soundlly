@@ -692,9 +692,11 @@ body {
 
 .vertical-grid {
   display: grid;
-  grid-template-rows: repeat(9, minmax(100px, auto));
-  gap: 1rem;
-  padding: 1rem;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  align-items: center;
+  min-height: 72px;
+  overflow: hidden
 }
 
 .item-v {
@@ -760,35 +762,6 @@ body {
 .horizontal-scroll-container h2 {
   color: #fff;
   font-weight: 600;
-}
-
-/* Pill group around horizontal content */
-.horizontal-box {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.064), rgba(255, 255, 255, 0));
-  border-radius: 80px;
-  padding: 1rem;
-  max-width: 1750px;
-  margin: 10px auto 2rem auto;
-  box-sizing: border-box;
-}
-
-.scroll-title {
-  text-align: left;
-  margin-left: 0;
-  padding-left: 1rem;
-  box-sizing: border-box;
-}
-
-.scroll-title h2 {
-  color: #fff;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  text-align: center;
 }
 
 
