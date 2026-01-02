@@ -160,21 +160,17 @@
                 </div>
 
                 <!-- Settings Panel (Hidden by default) -->
-                <div id="pomoSettingsPanel"
-                  style="display:none; margin-top:1rem; padding:1rem; background:rgba(255,255,255,0.1); border-radius:8px; text-align:left;">
-                  <div style="margin-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;">
-                    <label style="font-size:0.9rem; color:#fff;">Pomodoro (min)</label>
-                    <input type="number" id="setPomo" value="25" min="1" max="60"
-                      style="width:60px; border-radius:4px; border:1px solid #ccc; padding:2px 5px;">
+                <div id="pomoSettingsPanel">
+                  <div class="setting-row">
+                    <label>Pomodoro (min)</label>
+                    <input type="number" id="setPomo" value="25" min="1" max="60">
                   </div>
-                  <div style="margin-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;">
-                    <label style="font-size:0.9rem; color:#fff;">Pausa Breve</label>
-                    <input type="number" id="setShort" value="5" min="1" max="60"
-                      style="width:60px; border-radius:4px; border:1px solid #ccc; padding:2px 5px;">
+                  <div class="setting-row">
+                    <label>Pausa (min)</label>
+                    <input type="number" id="setShort" value="5" min="1" max="60">
                   </div>
-                  <div style="text-align:center; margin-top:0.5rem;">
-                    <button id="saveSettingsBtn" class="btn btn-sm btn-primary"
-                      style="padding:4px 12px; font-size:0.8rem;">Salva</button>
+                  <div class="setting-actions">
+                    <button id="saveSettingsBtn" class="btn btn-sm btn-primary">Salva</button>
                   </div>
                 </div>
               </div>

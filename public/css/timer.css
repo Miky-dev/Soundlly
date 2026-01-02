@@ -187,3 +187,87 @@
     margin-top: -1rem;
     /* Pull closer to dial */
 }
+
+/* Settings Panel (Overlay) */
+#pomoSettingsPanel {
+    display: none;
+    /* Toggled via JS */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 300px;
+    background: rgba(15, 23, 42, 0.766);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 1.5rem;
+    border-radius: 16px;
+    z-index: 50;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: left;
+    animation: fadeInPanel 0.2s ease-out;
+}
+
+@keyframes fadeInPanel {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -45%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+.setting-row {
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.setting-row label {
+    font-size: 0.95rem;
+    color: #e2e8f0;
+    font-weight: 500;
+}
+
+.setting-row input[type="number"] {
+    width: 70px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 6px 10px;
+    color: #fff;
+    text-align: center;
+    font-size: 1rem;
+    outline: none;
+}
+
+.setting-row input[type="number"]:focus {
+    border-color: var(--brand-1);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.setting-actions {
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+#saveSettingsBtn {
+    padding: 8px 24px !important;
+    font-size: 0.9rem !important;
+    border-radius: 20px !important;
+    background: var(--brand-1) !important;
+    color: white !important;
+    border: none !important;
+    transition: all 0.2s;
+}
+
+#saveSettingsBtn:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
