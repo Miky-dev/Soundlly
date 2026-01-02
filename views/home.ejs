@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="/css/styleHome.css" />
   <link rel="stylesheet" href="/css/timer.css" />
-  <link rel="stylesheet" href="/css/todo.css" />
+
 
   <!-- Favicon: l'icona che appare nella linguetta del browser -->
   <link rel="icon" href="immagini/logo3.png" type="image/png">
@@ -111,122 +111,67 @@
     <div class="box box-3">
       <!-- Pulsante esterno per girare la card.
        Controlla la card con `aria-controls="flipCard"`. -->
-      <div class="box-3-actions" style="display:flex;justify-content:center;margin-top:8px;">
-        <button id="flipBtnExternal" class="flip-btn" type="button" aria-controls="flipCard" aria-label="Inverti lato"
-          title="Inverti lato">
-          <span aria-hidden="true">🔄</span>
-        </button>
-      </div>
-
-      <!-- Contenitore della flip-card -->
-      <section class="flip" aria-label="Card a due facce">
-        <div class="flip-card" id="flipCard" aria-live="polite">
-          <!-- Faccia frontale: contiene il Timer Pomodoro -->
-          <div class="face is-front" aria-hidden="false">
-            <p class="mini" style="margin:0">
-
-              <!-- Widget del Timer Pomodoro -->
-            <section id="pane-timer" class="prod-pane active" role="region" aria-label="Timer Pomodoro">
-              <div class="timer" id="pomoCard">
-                <!-- Dial (quadrante) del timer -->
-                <div class="dial">
-                  <svg viewBox="0 0 120 120" aria-hidden="true">
-                    <defs>
-                      <linearGradient id="pomoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#2a9d8f; stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#21cfbd; stop-opacity:1" />
-                      </linearGradient>
-                    </defs>
-                    <!-- Cerchio di sfondo (grigio) -->
-                    <circle cx="60" cy="60" r="50"></circle>
-                    <!-- Cerchio di progresso (verde), animato via CSS/JS -->
-                    <circle id="pomoProgress" cx="60" cy="60" r="50" pathLength="100" stroke="url(#pomoGradient)">
-                    </circle>
-                  </svg>
-                  <!-- Display del tempo rimanente -->
-                  <div class="time" id="pomoTime">25:00</div>
-                </div>
-
-                <div class="label" id="pomoMode">Modalità: Pomodoro</div>
-
-                <!-- Pulsanti di controllo del timer -->
-                <div class="controls">
-                  <button class="btn good" id="pomoStart"><i class="fa-solid fa-play"></i> Avvia</button>
-                  <button class="btn" id="pomoPause"><i class="fa-solid fa-pause"></i> Pausa</button>
-                  <button class="btn danger" id="pomoReset"><i class="fa-solid fa-rotate-right"></i> Reset</button>
-                  <button class="btn" id="pomoSkip" title="Salta allo step successivo"><i
-                      class="fa-solid fa-forward-step"></i> Salta</button>
-                  <button class="btn" id="pomoSettingsBtn" title="Impostazioni"
-                    style="background:transparent; border:none; color:inherit; transform: scale(0.9);"><i
-                      class="fa-solid fa-gear"></i></button>
-                </div>
-
-                <!-- Settings Panel (Hidden by default) -->
-                <div id="pomoSettingsPanel"
-                  style="display:none; margin-top:1rem; padding:1rem; background:rgba(255,255,255,0.1); border-radius:8px; text-align:left;">
-                  <div style="margin-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;">
-                    <label style="font-size:0.9rem; color:#fff;">Pomodoro (min)</label>
-                    <input type="number" id="setPomo" value="25" min="1" max="60"
-                      style="width:60px; border-radius:4px; border:1px solid #ccc; padding:2px 5px;">
-                  </div>
-                  <div style="margin-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;">
-                    <label style="font-size:0.9rem; color:#fff;">Pausa Breve</label>
-                    <input type="number" id="setShort" value="5" min="1" max="60"
-                      style="width:60px; border-radius:4px; border:1px solid #ccc; padding:2px 5px;">
-                  </div>
-                  <div style="text-align:center; margin-top:0.5rem;">
-                    <button id="saveSettingsBtn" class="btn btn-sm btn-primary"
-                      style="padding:4px 12px; font-size:0.8rem;">Salva</button>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <!-- Elemento audio per il suono di notifica del timer -->
-            <audio id="pomoDing" preload="auto">
-              <source src="/audio/ding.mp3" type="audio/mp3">
-            </audio>
-            </p>
+      <!-- Widget del Timer Pomodoro -->
+      <section id="pane-timer" class="prod-pane active" role="region" aria-label="Timer Pomodoro">
+        <div class="timer" id="pomoCard">
+          <!-- Dial (quadrante) del timer -->
+          <div class="dial">
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <defs>
+                <linearGradient id="pomoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#2a9d8f; stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:#21cfbd; stop-opacity:1" />
+                </linearGradient>
+              </defs>
+              <!-- Cerchio di sfondo (grigio) -->
+              <circle cx="60" cy="60" r="50"></circle>
+              <!-- Cerchio di progresso (verde), animato via CSS/JS -->
+              <circle id="pomoProgress" cx="60" cy="60" r="50" pathLength="100" stroke="url(#pomoGradient)">
+              </circle>
+            </svg>
+            <!-- Display del tempo rimanente -->
+            <div class="time" id="pomoTime">25:00</div>
           </div>
-          <!-- Faccia posteriore: contiene la To-Do List -->
-          <div class="face is-back" aria-hidden="true">
-            <p class="mini" style="margin:0">
 
-              <!-- Widget della To-Do List -->
-            <section id="pane-todo" class="prod-pane" role="region" aria-label="To-Do List">
-              <div class="todo-app" aria-label="To-Do List">
-                <header>
-                  <h1>To-Do</h1>
-                  <div class="today" id="today"></div>
-                </header>
+          <div class="label" id="pomoMode">Modalità: Pomodoro</div>
 
-                <!-- Box per aggiungere nuove attività -->
-                <div class="add-box">
-                  <input id="newTask" class="add-input" type="text"
-                    placeholder="Aggiungi una nuova attività e premi Invio…" aria-label="Nuova attività" />
-                  <button id="addBtn" class="add-btn" type="button" aria-label="Aggiungi attività">Aggiungi</button>
-                </div>
+          <!-- Pulsanti di controllo del timer -->
+          <div class="controls">
+            <button class="btn good" id="pomoStart"><i class="fa-solid fa-play"></i> Avvia</button>
+            <button class="btn" id="pomoPause"><i class="fa-solid fa-pause"></i> Pausa</button>
+            <button class="btn danger" id="pomoReset"><i class="fa-solid fa-rotate-right"></i> Reset</button>
+            <button class="btn" id="pomoSkip" title="Salta allo step successivo"><i
+                class="fa-solid fa-forward-step"></i> Salta</button>
+            <button class="btn" id="pomoSettingsBtn" title="Impostazioni"
+              style="background:transparent; border:none; color:inherit; transform: scale(0.9);"><i
+                class="fa-solid fa-gear"></i></button>
+          </div>
 
-                <!-- Barra degli strumenti con il conteggio delle attività -->
-                <div class="toolbar" aria-label="Conteggio">
-                  <div class="count"><span id="count"></span> attività totali</div>
-                </div>
-
-                <!-- Lista delle attività, popolata dinamicamente da todo.js -->
-                <ul id="list" aria-live="polite" aria-label="Elenco attività"></ul>
-                <!-- Messaggio mostrato quando la lista è vuota -->
-                <div id="empty" class="empty" hidden>Nessuna attività. Inizia aggiungendone una qui sopra ✅</div>
-
-                <footer>
-                  <button id="clearDone" class="clear-btn" type="button">Cancella completate</button>
-                </footer>
-              </div>
-            </section>
-
-            </p>
+          <!-- Settings Panel (Hidden by default) -->
+          <div id="pomoSettingsPanel"
+            style="display:none; margin-top:1rem; padding:1rem; background:rgba(255,255,255,0.1); border-radius:8px; text-align:left;">
+            <div style="margin-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;">
+              <label style="font-size:0.9rem; color:#fff;">Pomodoro (min)</label>
+              <input type="number" id="setPomo" value="25" min="1" max="60"
+                style="width:60px; border-radius:4px; border:1px solid #ccc; padding:2px 5px;">
+            </div>
+            <div style="margin-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;">
+              <label style="font-size:0.9rem; color:#fff;">Pausa Breve</label>
+              <input type="number" id="setShort" value="5" min="1" max="60"
+                style="width:60px; border-radius:4px; border:1px solid #ccc; padding:2px 5px;">
+            </div>
+            <div style="text-align:center; margin-top:0.5rem;">
+              <button id="saveSettingsBtn" class="btn btn-sm btn-primary"
+                style="padding:4px 12px; font-size:0.8rem;">Salva</button>
+            </div>
           </div>
         </div>
       </section>
+
+      <!-- Elemento audio per il suono di notifica del timer -->
+      <audio id="pomoDing" preload="auto">
+        <source src="/audio/ding.mp3" type="audio/mp3">
+      </audio>
     </div>
 
     <!-- Box 4: Griglia per i suoni ambientali, popolata dinamicamente da loadSounds.js -->
@@ -393,8 +338,7 @@
     integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
     crossorigin="anonymous"></script>
   <script src="/js/timer.js"></script>
-  <script src="/js/todo.js"></script>
-  <script src="/js/flip-card.js"></script>
+
   <script src="/js/loadSounds.js"></script>
 
 
