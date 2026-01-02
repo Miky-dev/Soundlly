@@ -33,7 +33,7 @@
         <!-- Goals Section -->
         <div class="row mb-5">
             <div class="col-12">
-                <div class="stat-card-box" style="align-items: stretch; text-align: left;">
+                <div class="stat-card-box stat-card-box-aligned">
                     <div class="section-header d-flex justify-content-between align-items-center">
                         <h2><i class="fa-solid fa-bullseye"></i> Obiettivi & Progressi</h2>
                         <button class="btn btn-outline-light btn-sm" data-bs-toggle="modal"
@@ -51,9 +51,9 @@
                                     <%= progress.today %> / <%= userGoals.daily_focus_goal %> min
                                 </span>
                             </div>
-                            <div class="progress" style="height: 10px; background-color: rgba(255,255,255,0.1);">
-                                <div class="progress-bar" role="progressbar"
-                                    style="width: <%= Math.min((progress.today / userGoals.daily_focus_goal) * 100, 100) %>%; background-color: #2a9d8f;">
+                            <div class="progress progress-bg">
+                                <div class="progress-bar progress-bar-teal" role="progressbar"
+                                    style="width: <%= Math.min((progress.today / userGoals.daily_focus_goal) * 100, 100) %>%;">
                                 </div>
                             </div>
                         </div>
@@ -66,9 +66,9 @@
                                     <%= progress.week %> / <%= userGoals.weekly_focus_goal %> min
                                 </span>
                             </div>
-                            <div class="progress" style="height: 10px; background-color: rgba(255,255,255,0.1);">
-                                <div class="progress-bar" role="progressbar"
-                                    style="width: <%= Math.min((progress.week / userGoals.weekly_focus_goal) * 100, 100) %>%; background-color: #2a9d8f;">
+                            <div class="progress progress-bg">
+                                <div class="progress-bar progress-bar-teal" role="progressbar"
+                                    style="width: <%= Math.min((progress.week / userGoals.weekly_focus_goal) * 100, 100) %>%;">
                                 </div>
                             </div>
                         </div>
@@ -81,9 +81,9 @@
                                     <%= progress.month %> / <%= userGoals.monthly_focus_goal %> min
                                 </span>
                             </div>
-                            <div class="progress" style="height: 10px; background-color: rgba(255,255,255,0.1);">
-                                <div class="progress-bar" role="progressbar"
-                                    style="width: <%= Math.min((progress.month / userGoals.monthly_focus_goal) * 100, 100) %>%; background-color: #2a9d8f;">
+                            <div class="progress progress-bg">
+                                <div class="progress-bar progress-bar-teal" role="progressbar"
+                                    style="width: <%= Math.min((progress.month / userGoals.monthly_focus_goal) * 100, 100) %>%;">
                                 </div>
                             </div>
                         </div>
@@ -95,8 +95,7 @@
         <!-- Goals Modal -->
         <div class="modal fade" id="goalsModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content"
-                    style="background: #1a2a33; color: white; border: 1px solid rgba(255,255,255,0.1);">
+                <div class="modal-content modal-content-dark">
                     <div class="modal-header border-bottom-0">
                         <h5 class="modal-title">Modifica Obiettivi (Minuti)</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
@@ -125,8 +124,7 @@
                         </div>
                         <div class="modal-footer border-top-0">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
-                            <button type="submit" class="btn btn-primary"
-                                style="background-color: #2a9d8f; border:none;">Salva</button>
+                            <button type="submit" class="btn btn-primary btn-primary-teal">Salva</button>
                         </div>
                     </form>
                 </div>
@@ -177,7 +175,7 @@
         <div class="row g-4">
             <!-- Top Ambient Sounds -->
             <div class="col-lg-6">
-                <div class="stat-card-box" style="align-items: stretch; text-align: left;">
+                <div class="stat-card-box stat-card-box-aligned">
                     <div class="section-header">
                         <h2><i class="fa-solid fa-headphones"></i> Suoni Più Ascoltati</h2>
                     </div>
@@ -214,7 +212,7 @@
 
             <!-- Recent Focus Sessions -->
             <div class="col-lg-6">
-                <div class="stat-card-box" style="align-items: stretch; text-align: left;">
+                <div class="stat-card-box stat-card-box-aligned">
                     <div class="section-header">
                         <h2><i class="fa-solid fa-history"></i> Ultime Sessioni Focus</h2>
                     </div>
@@ -265,7 +263,7 @@
     <!-- Footer (Reused) -->
     <footer class="site-footer">
         <div class="footer-container">
-            <div class="footer-bottom" style="width:100%; text-align:center;">
+            <div class="footer-bottom footer-bottom-center">
                 <p>© 2025 Soundlly. Tutti i diritti riservati.</p>
             </div>
         </div>

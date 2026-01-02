@@ -10,6 +10,7 @@
     integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
     crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/login.css">
   <title>Soundlly Login</title>
 
 </head>
@@ -37,8 +38,8 @@
             <li class="nav-item mix-2"><a class="nav-link" href="/about.html#contact">Contact</a></li>
           </ul>
           <div class="d-flex justify-content-center align-items-center gap-4">
-            <a href="/" class="text-white text-decoration-none px-3 py-2 rounded-4"
-              style="background-color: #153040">continua senza registrarti</a>
+            <a href="/" class="text-white text-decoration-none px-3 py-2 rounded-4 btn-no-register">continua senza
+              registrarti</a>
           </div>
         </div>
       </div>
@@ -48,8 +49,7 @@
 
   <!-- Main -->
   <div class="container d-flex justify-content-center align-items-center vh-10">
-    <div class="row border rounded-5 p-3 shadow box-area"
-      style="background: rgba(255,255,255,0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 1.5rem;">
+    <div class="row border rounded-5 p-3 shadow box-area">
       <!-- Left -->
       <div class="col-md-6 rounded-4 d-flex justify-content-center align-items-center flex-column left-box">
         <div class="featured-image">
@@ -104,7 +104,7 @@
 
           <!-- REGISTER -->
           <!-- REGISTER -->
-          <form id="register-form" action="/register" method="post" style="display:none;" novalidate>
+          <form id="register-form" action="/register" method="post" novalidate>
             <!-- CSRF -->
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
@@ -158,7 +158,7 @@
                 placeholder="Password (min 6)" minlength="6" autocomplete="new-password" required />
             </div>
 
-            <div id="register-error" class="text-danger small mb-2" style="display:none;"></div>
+            <div id="register-error" class="text-danger small mb-2 register-error"></div>
 
             <div class="input-group mb-3">
               <button type="submit" class="btn btn-primary btn-lg w-100 rounded-4 fs-6">Registrati</button>

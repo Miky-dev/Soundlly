@@ -175,8 +175,13 @@ body {
 }
 
 .btn-save:hover {
-    background: #21cfbd;
+    background: #21867a;
     transform: translateY(-2px);
+}
+
+.footer-bottom {
+    width: 100%;
+    text-align: center;
 }
 
 .sound-list {

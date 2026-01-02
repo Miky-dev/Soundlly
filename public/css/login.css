@@ -1,0 +1,20 @@
+/* Login Page Styles */
+
+.btn-no-register {
+    background-color: #153040;
+}
+
+.box-area {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 1.5rem;
+}
+
+.register-error {
+    display: none;
+}
+
+#register-form {
+    display: none;
+}
