@@ -4,7 +4,12 @@
 
 /* Container styles */
 .horizontal-box {
-    /* Main container wrapper if needed */
+    background: #111118;
+    /* Dark background to distinguish section */
+    padding: 32px;
+    border-radius: 32px;
+    margin-top: 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .horizontal-box h2 {

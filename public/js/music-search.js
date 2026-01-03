@@ -103,8 +103,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function createCard(item) {
         const card = document.createElement('div');
         card.className = 'card';
-        // Set background image via style
-        card.style.background = `linear-gradient(to bottom, transparent, rgba(0,0,0,0.2)), url('${item.icon || '/immagini/logo2.png'}') center/cover no-repeat`;
+
+        // Determine background image
+        // If icon is a URL (contains /) use it, otherwise if it's a class (starts with fa- or has no /) use default.
+        // The API might return 'fa-car' for ambient sounds mixed in? 
+        // Or if it's music, it should be a URL.
+        const bgUrl = (item.icon && item.icon.includes('/')) ? item.icon : '/immagini/logo2.png';
+
+        card.style.background = `linear-gradient(to bottom, transparent, rgba(0,0,0,0.2)), url('${bgUrl}') center/cover no-repeat`;
 
         // Add click listener if needed
         card.onclick = () => {
