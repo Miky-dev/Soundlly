@@ -276,17 +276,30 @@
          HORIZONTAL BOX - Contiene la barra di ricerca e le liste di brani a scorrimento orizzontale.
          ================================================================== -->
   <div class="horizontal-box">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <form id="footer-searchbar" class="d-flex search-bar-navbar" onsubmit="event.preventDefault();">
-        <input class="form-control rounded-pill px-2" type="search" placeholder="Cerca brani, artisti o album…"
-          aria-label="Cerca">
-        <button type="submit" class="search-btn" aria-label="Cerca">
+    <div class="horizontal-header">
+      <!-- User Info (Left) -->
+      <div class="user-profile">
+        <!-- Assuming user object exists, otherwise fallback -->
+        <img src="/immagini/logo2.png" alt="User" class="user-avatar">
+        <span class="user-name">
+          <%= user ? user.username : 'Ospite' %>
+        </span>
+      </div>
+
+      <!-- Search Bar (Center) -->
+      <form id="footer-searchbar" class="search-bar-modern" onsubmit="event.preventDefault();">
+        <input class="search-input-modern" type="search" placeholder="Cerca suoni, artisti..." aria-label="Cerca">
+        <button type="submit" class="search-btn-modern" aria-label="Cerca">
           <i class="fas fa-search"></i>
         </button>
       </form>
-      <button class="btn btn-outline-light rounded-pill" id="createPlaylistBtn" style="white-space: nowrap;">
-        <i class="fas fa-plus"></i> Crea Playlist
-      </button>
+
+      <!-- Actions (Right: Button) -->
+      <div class="header-actions">
+        <button class="btn-playlist-modern" id="createPlaylistBtn">
+          <i class="fas fa-plus"></i> Crea Playlist
+        </button>
+      </div>
     </div>
 
     <!-- Sezione per i risultati della ricerca, inizialmente nascosta e mostrata dopo una ricerca -->
@@ -384,9 +397,6 @@
   <script src="/js/todo.js"></script>
   <script src="/js/flip-card.js"></script>
   <script src="/js/music-search.js"></script>
-
-
-
 
 </body>
 

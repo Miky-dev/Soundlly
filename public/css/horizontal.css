@@ -25,6 +25,122 @@
     margin-bottom: 24px;
 }
 
+/* --- Header Elements (User, Search, Button) --- */
+.horizontal-header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    margin-bottom: 32px;
+    gap: 20px;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-self: start;
+}
+
+.user-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.user-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    justify-content: flex-end;
+    justify-self: end;
+}
+
+/* Modern Search Bar */
+.search-bar-modern {
+    background: #1a1a24;
+    border-radius: 999px;
+    /* Pill shape */
+    padding: 8px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-width: 300px;
+    justify-self: center;
+    transition: all 0.2s ease;
+}
+
+.search-bar-modern:focus-within {
+    background: #252535;
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.2);
+}
+
+.search-input-modern {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 14px;
+    width: 100%;
+    outline: none;
+}
+
+.search-input-modern::placeholder {
+    color: #666;
+}
+
+.search-btn-modern {
+    background: transparent;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    transition: color 0.2s;
+}
+
+.search-btn-modern:hover {
+    color: #fff;
+}
+
+/* Modern Playlist Button */
+.btn-playlist-modern {
+    background: linear-gradient(135deg, #6c5ce7, #5c4ce3);
+    /* Modern purple/blue */
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+    transition: all 0.2s ease;
+}
+
+.btn-playlist-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(108, 92, 231, 0.4);
+    background: linear-gradient(135deg, #7d6df0, #6555ec);
+}
+
+.btn-playlist-modern i {
+    font-size: 12px;
+}
+
+
 /* Horizontal Scroll Container */
 .horizontal {
     display: flex;
