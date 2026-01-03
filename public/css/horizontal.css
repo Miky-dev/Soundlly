@@ -1,0 +1,124 @@
+/* =================================================================
+   STYLES FROM USER REFERENCE (provahorizzontal-box)
+   ================================================================= */
+
+/* Container styles */
+.horizontal-box {
+    /* Main container wrapper if needed */
+}
+
+.horizontal-box h2 {
+    font-size: 26px;
+    margin-bottom: 6px;
+    color: #fff;
+    /* Ensure visibility */
+}
+
+.horizontal-box .subtitle {
+    color: #aaa;
+    font-size: 14px;
+    margin-bottom: 24px;
+}
+
+/* Horizontal Scroll Container */
+.horizontal {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
+
+/* Scrollbar hiding (optional but good for 'horizontal scroll style') */
+.horizontal::-webkit-scrollbar {
+    height: 8px;
+    /* Or none */
+    display: none;
+    /* Often requested for cleaner look */
+}
+
+/* Grid Fallback (from reference) */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 24px;
+}
+
+/* Card Styles */
+.card {
+    position: relative;
+    height: 180px;
+    border-radius: 18px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #2b2b40, #151520);
+    cursor: pointer;
+    transition: transform .3s ease, box-shadow .3s ease;
+    border: none;
+    /* Reset */
+    display: block;
+    flex-shrink: 0;
+    /* IMPT: Prevent shrinking in flex container */
+}
+
+.horizontal .card {
+    min-width: 180px;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, .5);
+}
+
+.card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, .8), transparent);
+    pointer-events: none;
+}
+
+/* Card Content */
+.card-content {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    z-index: 2;
+    width: calc(100% - 32px);
+    /* Ensure text doesn't hit edge */
+    pointer-events: none;
+}
+
+.card-title {
+    font-weight: 600;
+    font-size: 15px;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-author {
+    font-size: 12px;
+    color: #ccc;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Premium Section */
+.premium {
+    background: linear-gradient(135deg, #2d1e4f, #16111f);
+    border-radius: 24px;
+    padding: 32px;
+    margin-bottom: 40px;
+}
+
+.badge {
+    display: inline-block;
+    background: gold;
+    color: #000;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 12px;
+    font-weight: 700;
+}

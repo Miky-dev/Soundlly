@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="/css/styleHome.css" />
   <link rel="stylesheet" href="/css/timer.css" />
   <link rel="stylesheet" href="/css/todo.css" />
+  <link rel="stylesheet" href="/css/horizontal.css" />
 
 
   <!-- Favicon: l'icona che appare nella linguetta del browser -->
@@ -291,31 +292,32 @@
     <!-- Sezione per i risultati della ricerca, inizialmente nascosta e mostrata dopo una ricerca -->
     <section class="horizontal-scroll-container" id="search-results-section" hidden>
       <h2 class="scroll-title">Risultati ricerca</h2>
-      <div class="horizontal-wrapper" data-grid="search"></div>
+      <div class="horizontal" data-grid="search"></div>
     </section>
 
     <!-- Sezione per le ultime uscite, popolata da music-search.js -->
     <section class="horizontal-scroll-container">
       <h2 class="scroll-title">Ultime uscite</h2>
-      <div class="horizontal-wrapper" data-grid="latest"></div>
+      <div class="horizontal" data-grid="latest"></div>
     </section>
 
     <!-- Sezione per i brani Premium -->
-    <section class="horizontal-scroll-container" id="premium-section">
+    <section class="horizontal-scroll-container premium" id="premium-section">
+      <span class="badge">SOLO PREMIUM</span>
       <h2 class="scroll-title">Solo Premium</h2>
-      <div class="horizontal-wrapper" data-grid="search-premium"></div>
+      <div class="horizontal" data-grid="search-premium"></div>
     </section>
 
     <!-- Sezione per i suoni caricati dai creator -->
     <section class="horizontal-scroll-container" id="suoni">
       <h2 class="scroll-title">Suoni dei creatori</h2>
-      <div class="horizontal-wrapper" data-grid="suoni"></div>
+      <div class="horizontal" data-grid="suoni"></div>
     </section>
 
     <!-- Sezione per i suoni caricati dai creator -->
     <section class="horizontal-scroll-container" id="pref">
       <h2 class="scroll-title">Preferiti</h2>
-      <div class="horizontal-wrapper" data-grid="pref"></div>
+      <div class="horizontal" data-grid="pref"></div>
     </section>
   </div>
 
