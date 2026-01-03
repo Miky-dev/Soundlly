@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="/css/styleHome.css" />
   <link rel="stylesheet" href="/css/timer.css" />
   <link rel="stylesheet" href="/css/do-to.css" />
+  <link rel="stylesheet" href="/css/horizontal.css" />
 
   <!-- Icona del sito (favicon) visualizzata nella scheda del browser -->
   <link rel="icon" href="immagini/icona.png" type="image/png">
@@ -165,38 +166,47 @@
     </div>
   </div>
 
-  <!-- Sezione contenente le liste di brani a scorrimento orizzontale e la barra di ricerca -->
-  <div class="horizontal-box">
-    <form id="footer-searchbar" class="d-flex search-bar-navbar" onsubmit="event.preventDefault();">
-      <input class="form-control rounded-pill px-2" type="search" placeholder="Cerca brani, artisti o album…"
-        aria-label="Cerca">
-      <button type="submit" class="search-btn" aria-label="Cerca">
-        <i class="fas fa-search"></i>
-      </button>
-    </form>
 
-    <!-- Sezione per i risultati della ricerca, inizialmente nascosta -->
+  <!-- =================================================================
+         HORIZONTAL BOX - Contiene la barra di ricerca e le liste di brani a scorrimento orizzontale.
+         ================================================================== -->
+  <div class="horizontal-box">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <form id="footer-searchbar" class="d-flex search-bar-navbar" onsubmit="event.preventDefault();">
+        <input class="form-control rounded-pill px-2" type="search" placeholder="Cerca brani, artisti o album…"
+          aria-label="Cerca">
+        <button type="submit" class="search-btn" aria-label="Cerca">
+          <i class="fas fa-search"></i>
+        </button>
+      </form>
+      <button class="btn btn-outline-light rounded-pill" id="createPlaylistBtn" style="white-space: nowrap;">
+        <i class="fas fa-plus"></i> Crea Playlist
+      </button>
+    </div>
+
+    <!-- Sezione per i risultati della ricerca, inizialmente nascosta e mostrata dopo una ricerca -->
     <section class="horizontal-scroll-container" id="search-results-section" hidden>
       <h2 class="scroll-title">Risultati ricerca</h2>
-      <div class="horizontal-wrapper" data-grid="search"></div>
+      <div class="horizontal" data-grid="search"></div>
     </section>
 
     <!-- Sezione per le ultime uscite, popolata da music-search.js -->
     <section class="horizontal-scroll-container">
       <h2 class="scroll-title">Ultime uscite</h2>
-      <div class="horizontal-wrapper" data-grid="latest"></div>
+      <div class="horizontal" data-grid="latest"></div>
     </section>
 
     <!-- Sezione per i brani Premium -->
-    <section class="horizontal-scroll-container" id="premium-section">
+    <section class="horizontal-scroll-container premium" id="premium-section">
+      <span class="badge">SOLO PREMIUM</span>
       <h2 class="scroll-title">Solo Premium</h2>
-      <div class="horizontal-wrapper" data-grid="search-premium"></div>
+      <div class="horizontal" data-grid="search-premium"></div>
     </section>
 
     <!-- Sezione per i suoni caricati dai creator -->
     <section class="horizontal-scroll-container" id="suoni">
       <h2 class="scroll-title">Suoni dei creatori</h2>
-      <div class="horizontal-wrapper" data-grid="suoni"></div>
+      <div class="horizontal" data-grid="suoni"></div>
     </section>
 
     <!-- Sezione per i suoni caricati dai creator -->
@@ -260,6 +270,7 @@
   <script src="/js/todo.js"></script>
   <script src="/js/flip-card.js"></script>
   <script src="/js/loadSounds.js"></script>
+  <script src="/js/music-search.js"></script>
 
 </body>
 
