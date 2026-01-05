@@ -73,12 +73,6 @@ CREATE TABLE IF NOT EXISTS user_goals (
 );
 
 -- =================================================================
--- 2. SOCIAL GRAPH (RIMOSSO SU RICHIESTA)
--- =================================================================
--- (La funzionalità "Followers" è stata rimossa per mantenere l'app focalizzata
--- sull'uso personale o pubblico senza interazioni sociali dirette).
-
--- =================================================================
 -- 3. CONTENUTI AUDIO (SOUNDS)
 -- =================================================================
 CREATE TABLE IF NOT EXISTS sounds (
