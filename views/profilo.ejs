@@ -20,8 +20,8 @@
     <!-- Simple Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-transaparent fixed-top">
         <div class="container-fluid">
-            <a href="/home">
-                <img src="/immagini/logo2.png" alt="Soundlly">
+            <a href="/home" style="text-decoration: none;">
+                <span class="app-logo">soundlly</span>
             </a>
             <a href="/home" class="btn btn-outline-light btn-sm"><i class="fa-solid fa-arrow-left"></i> Torna alla
                 Home</a>
@@ -69,21 +69,23 @@
                     </div>
                     <% } %>
 
-                        <!-- Extra Details Collapsible or simple list -->
+                        <!-- Extra Details: DoB, Born City, Country ONLY - INSIDE HEADER -->
                         <div class="profile-extra">
-                            <% if (user.birth_place) { %>
-                                <span class="extra-tag"><i class="fa-solid fa-map-marker-alt"></i>
-                                    <%= user.birth_place %>
+                            <% if (user.date_of_birth) { %>
+                                <span class="extra-tag"><i class="fa-solid fa-cake-candles"></i>
+                                    <%= new Date(user.date_of_birth).toLocaleDateString() %>
                                 </span>
                                 <% } %>
-                                    <% if (user.location_country) { %>
-                                        <span class="extra-tag"><i class="fa-solid fa-earth-americas"></i>
-                                            <%= user.location_country %>
+
+                                    <% if (user.born_city) { %>
+                                        <span class="extra-tag"><i class="fa-solid fa-map-marker-alt"></i>
+                                            <%= user.born_city %>
                                         </span>
                                         <% } %>
-                                            <% if (user.mood_theme && user.mood_theme !=='default' ) { %>
-                                                <span class="extra-tag"><i class="fa-solid fa-palette"></i>
-                                                    <%= user.mood_theme %>
+
+                                            <% if (user.location_country) { %>
+                                                <span class="extra-tag"><i class="fa-solid fa-earth-americas"></i>
+                                                    <%= user.location_country %>
                                                 </span>
                                                 <% } %>
                         </div>
@@ -150,6 +152,7 @@
                                             value="<%= user.location_country || '' %>" placeholder="Italia">
                                     </div>
                                 </div>
+
                                 <div class="row">
                                     <div class="col-md-6">
                                         <label class="form-label text-light">Mood Theme</label>

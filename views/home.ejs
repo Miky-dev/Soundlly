@@ -29,7 +29,9 @@
   <nav class="navbar navbar-expand-lg navbar-dark bg-transaparent">
     <div class="container-fluid">
       <!-- Logo del sito -->
-      <img src="/immagini/logo2.png" alt="Soundlly Logo" />
+      <a href="/home" style="text-decoration: none;">
+        <span class="app-logo">soundlly</span>
+      </a>
 
       <!-- Pulsante "hamburger" per aprire la sidebar su schermi piccoli -->
       <button class="navbar-toggler shadow-none border-0" type="button" data-bs-toggle="offcanvas"
@@ -96,111 +98,85 @@
   <div class="grid-container">
     <!-- Box 1: Messaggio di benvenuto personalizzato -->
     <div class="box box-1">
-      <h1 class="text">Benvenuto <%= user?.username %>
-      </h1>
+      <div class="todo-box">
+        <div class="header">
+          <h2>Le mie attività</h2>
+          <div class="input-row"> <!-- Removed input-group -->
+            <input type="text" id="todo-input" placeholder="Aggiungi nuova attività...">
+            <button id="add-btn">+</button>
+          </div>
+        </div>
+        <ul id="todo-list">
+          <!-- Items added via JS -->
+        </ul>
+        <div class="todo-footer" style="margin-top: 10px; text-align: center;">
+          <button id="clear-completed-btn" class="btn-sm"
+            style="background: rgba(255,255,255,0.2); border:none; color:white; border-radius:4px; padding: 5px 10px; cursor: pointer;">
+            Elimina completate
+          </button>
+        </div>
+      </div>
     </div>
 
-    <!-- Box 2: Banner decorativo -->
-    <div class="box box-2">
-      <img src="/immagini/banner.png" alt="Banner" />
-      <div class="inner-shadow"></div>
-    </div>
+
 
     <!-- =================================================================
        BOX 3: FLIP CARD - Card interattiva che si gira per mostrare
        il Timer Pomodoro o la To-Do List.
        ================================================================== -->
     <div class="box box-3">
-      <!-- Pulsante esterno per girare la card -->
-      <div class="box-3-actions">
-        <button id="flipBtnExternal" title="Vai alla To-Do List">
-          <i class="fa-solid fa-list-check"></i>
-        </button>
-      </div>
-
-      <section class="flip">
-        <div class="flip-card" id="flipCard">
-
-          <!-- FACE FRONT: Timer Pomodoro -->
-          <div class="face is-front">
-            <!-- Widget del Timer Pomodoro -->
-            <section id="pane-timer" class="prod-pane active" role="region" aria-label="Timer Pomodoro"
-              style="height:100%; width:100%;">
-              <div class="timer" id="pomoCard">
-                <!-- Dial (quadrante) del timer -->
-                <div class="dial">
-                  <svg viewBox="0 0 120 120" aria-hidden="true">
-                    <defs>
-                      <linearGradient id="pomoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#2a9d8f; stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#21cfbd; stop-opacity:1" />
-                      </linearGradient>
-                    </defs>
-                    <!-- Cerchio di sfondo (grigio) -->
-                    <circle cx="60" cy="60" r="50"></circle>
-                    <!-- Cerchio di progresso (verde), animato via CSS/JS -->
-                    <circle id="pomoProgress" cx="60" cy="60" r="50" pathLength="100" stroke="url(#pomoGradient)">
-                    </circle>
-                  </svg>
-                  <!-- Display del tempo rimanente -->
-                  <div class="time" id="pomoTime">25:00</div>
-                </div>
-
-                <div class="label" id="pomoMode">Modalità: Pomodoro</div>
-
-                <!-- Pulsanti di controllo del timer -->
-                <div class="controls">
-                  <button class="btn good" id="pomoStart"><i class="fa-solid fa-play"></i> Avvia</button>
-                  <button class="btn" id="pomoPause"><i class="fa-solid fa-pause"></i> Pausa</button>
-                  <button class="btn danger" id="pomoReset"><i class="fa-solid fa-rotate-right"></i> Reset</button>
-                  <button class="btn" id="pomoSkip" title="Salta allo step successivo"><i
-                      class="fa-solid fa-forward-step"></i> Salta</button>
-                  <button class="btn" id="pomoSettingsBtn" title="Impostazioni"
-                    style="background:transparent; border:none; color:inherit; transform: scale(0.9);"><i
-                      class="fa-solid fa-gear"></i></button>
-                </div>
-
-                <!-- Settings Panel (Hidden by default) -->
-                <div id="pomoSettingsPanel">
-                  <div class="setting-row">
-                    <label>Pomodoro (min)</label>
-                    <input type="number" id="setPomo" value="25" min="1" max="60">
-                  </div>
-                  <div class="setting-row">
-                    <label>Pausa (min)</label>
-                    <input type="number" id="setShort" value="5" min="1" max="60">
-                  </div>
-                  <div class="setting-actions">
-                    <button id="saveSettingsBtn" class="btn btn-sm btn-primary">Salva</button>
-                  </div>
-                </div>
-              </div>
-            </section>
+      <!-- Widget del Timer Pomodoro -->
+      <section id="pane-timer" class="prod-pane active" role="region" aria-label="Timer Pomodoro"
+        style="height:100%; width:100%;">
+        <div class="timer" id="pomoCard">
+          <!-- Dial (quadrante) del timer -->
+          <div class="dial">
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <defs>
+                <linearGradient id="pomoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#2a9d8f; stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:#21cfbd; stop-opacity:1" />
+                </linearGradient>
+              </defs>
+              <!-- Cerchio di sfondo (grigio) -->
+              <circle cx="60" cy="60" r="50"></circle>
+              <!-- Cerchio di progresso (verde), animato via CSS/JS -->
+              <circle id="pomoProgress" cx="60" cy="60" r="50" pathLength="100" stroke="url(#pomoGradient)">
+              </circle>
+            </svg>
+            <!-- Display del tempo rimanente -->
+            <div class="time" id="pomoTime">25:00</div>
           </div>
 
-          <!-- FACE BACK: To-Do List -->
-          <div class="face is-back">
-            <div class="todo-box">
-              <div class="header">
-                <h2>Le mie attività</h2>
-                <div class="input-row"> <!-- Removed input-group -->
-                  <input type="text" id="todo-input" placeholder="Aggiungi nuova attività...">
-                  <button id="add-btn">+</button>
-                </div>
-              </div>
-              <ul id="todo-list">
-                <!-- Items added via JS -->
-              </ul>
-              <div class="todo-footer" style="margin-top: 10px; text-align: center;">
-                <button id="clear-completed-btn" class="btn-sm"
-                  style="background: rgba(255,255,255,0.2); border:none; color:white; border-radius:4px; padding: 5px 10px; cursor: pointer;">
-                  Elimina completate
-                </button>
-              </div>
+          <div class="label" id="pomoMode">Modalità: Pomodoro</div>
+
+          <!-- Pulsanti di controllo del timer -->
+          <div class="controls">
+            <button class="btn good" id="pomoStart"><i class="fa-solid fa-play"></i> Avvia</button>
+            <button class="btn" id="pomoPause"><i class="fa-solid fa-pause"></i> Pausa</button>
+            <button class="btn danger" id="pomoReset"><i class="fa-solid fa-rotate-right"></i> Reset</button>
+            <button class="btn" id="pomoSkip" title="Salta allo step successivo"><i
+                class="fa-solid fa-forward-step"></i> Salta</button>
+            <button class="btn" id="pomoSettingsBtn" title="Impostazioni"
+              style="background:transparent; border:none; color:inherit; transform: scale(0.9);"><i
+                class="fa-solid fa-gear"></i></button>
+          </div>
+
+          <!-- Settings Panel (Hidden by default) -->
+          <div id="pomoSettingsPanel">
+            <div class="setting-row">
+              <label>Pomodoro (min)</label>
+              <input type="number" id="setPomo" value="25" min="1" max="60">
+            </div>
+            <div class="setting-row">
+              <label>Pausa (min)</label>
+              <input type="number" id="setShort" value="5" min="1" max="60">
+            </div>
+            <div class="setting-actions">
+              <button id="saveSettingsBtn" class="btn btn-sm btn-primary">Salva</button>
             </div>
           </div>
-
-        </div> <!-- /flip-card -->
+        </div>
       </section>
 
       <!-- Elemento audio per il suono di notifica del timer -->
@@ -217,10 +193,7 @@
       <div id="sounds-container"></div>
     </div>
 
-    <!-- Box 5: Slideshow di immagini, gestito da main.js -->
-    <div class="box box-5">
-      <img id="slideshow-img" src="/immagini/IMG_1941.jpg" alt="Slideshow" />
-    </div>
+
 
     <!-- Box 6: Widget con statistiche rapide dell'utente.
          Cliccando, si viene reindirizzati alla pagina completa delle statistiche. -->
@@ -336,15 +309,6 @@
   </div>
 
 
-  <!-- =================================================================
-       FOOTER IMMERSIVO - Immagine interattiva in fondo alla pagina.
-       Cliccando il pulsante "IMMERGITI", si apre un'esperienza a schermo intero.
-       ================================================================== -->
-  <div class="footer-image-wrapper">
-    <img src="immagini/relax.png" alt="footer background" class="footer-full-img cursor-pointer"
-      id="footer-img-clickable" />
-    <button class="enter-button" id="enter-button">IMMERGITI</button>
-  </div>
 
   <!-- =================================================================
        FOOTER - Piè di pagina del sito con informazioni, link e contatti.

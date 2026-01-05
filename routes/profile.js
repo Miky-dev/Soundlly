@@ -3,7 +3,7 @@ const router = express.Router();
 const crypto = require('crypto');
 const path = require('path');
 const multer = require('multer');
-const { run, all } = require('../db/sqlite');
+const { run, all, get } = require('../db/sqlite');
 const { ensureAuthenticated } = require('../middleware/auth');
 
 // --- Multer Configuration ---
@@ -55,9 +55,18 @@ function checkCsrf(req, res) {
 // GET /profilo
 router.get('/', ensureAuthenticated, async (req, res) => {
     try {
+        // Fetch fresh user data to ensure we have the latest fields (mood, etc.)
+        const user = await get('SELECT * FROM users WHERE id = ?', [req.user.id]);
+
+        // Fallback if user is somehow not found
+        if (!user) {
+            return res.redirect('/logout');
+        }
+
         const userSounds = await all('SELECT * FROM sounds WHERE owner_id = ? ORDER BY created_at DESC', [req.user.id]);
+
         res.render('profilo', {
-            user: req.user,
+            user: user, // Use freshly fetched user
             sounds: userSounds,
             csrfToken: ensureCsrfToken(req),
             error: req.query.error,

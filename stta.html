@@ -1,0 +1,208 @@
+<div class="study-card">
+
+    <div class="card-header">
+        <div>
+            <h3 class="card-title">Sessione di Oggi</h3>
+            <span class="card-date">5 Gennaio 2026</span>
+        </div>
+        <div class="menu-icon">•••</div>
+    </div>
+
+    <div class="main-stat-section">
+        <div class="time-display">
+            <span class="current-time">04<span class="unit">h</span> 15<span class="unit">m</span></span>
+            <span class="goal-text">su 6h obiettivo</span>
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar" style="width: 70%;"></div>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="stats-grid">
+        <div class="stat-item">
+            <div class="stat-icon focus-bg">🧠</div>
+            <div class="stat-info">
+                <span class="stat-label">Focus</span>
+                <span class="stat-value">3h 40m</span>
+            </div>
+        </div>
+
+        <div class="stat-item">
+            <div class="stat-icon break-bg">☕</div>
+            <div class="stat-info">
+                <span class="stat-label">Pause</span>
+                <span class="stat-value">35m</span>
+            </div>
+        </div>
+
+        <div class="stat-item">
+            <div class="stat-icon fire-bg">🔥</div>
+            <div class="stat-info">
+                <span class="stat-label">Serie</span>
+                <span class="stat-value">12 gg</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* CSS */
+    .study-card {
+        background: #ffffff;
+        width: 320px;
+        /* Più largo per contenere più info */
+        padding: 24px;
+        border-radius: 20px;
+        font-family: 'Inter', system-ui, sans-serif;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        color: #333;
+    }
+
+    /* Header */
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+
+    .card-title {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .card-date {
+        font-size: 12px;
+        color: #94a3b8;
+        margin-top: 4px;
+        display: block;
+    }
+
+    .menu-icon {
+        color: #cbd5e1;
+        cursor: pointer;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+
+    /* Main Section */
+    .main-stat-section {
+        margin-bottom: 20px;
+    }
+
+    .time-display {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 8px;
+    }
+
+    .current-time {
+        font-size: 32px;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -1px;
+    }
+
+    .unit {
+        font-size: 16px;
+        font-weight: 500;
+        color: #64748b;
+    }
+
+    .goal-text {
+        font-size: 13px;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    /* Progress Bar */
+    .progress-container {
+        height: 8px;
+        background: #f1f5f9;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #6366f1 0%, #a855f7 100%);
+        /* Gradiente viola/blu */
+        border-radius: 4px;
+    }
+
+    .divider {
+        height: 1px;
+        background: #f1f5f9;
+        margin-bottom: 20px;
+    }
+
+    /* Grid Details */
+    .stats-grid {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .stat-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        /* Centrato per pulizia */
+        text-align: center;
+        gap: 8px;
+    }
+
+    .stat-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+
+    /* Colori specifici per icone */
+    .focus-bg {
+        background: #e0e7ff;
+        color: #4338ca;
+    }
+
+    /* Blu */
+    .break-bg {
+        background: #fff1f2;
+        color: #be123c;
+    }
+
+    /* Rosa/Rosso */
+    .fire-bg {
+        background: #ffedd5;
+        color: #c2410c;
+    }
+
+    /* Arancione */
+
+    .stat-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .stat-label {
+        font-size: 11px;
+        color: #94a3b8;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+        font-size: 14px;
+        font-weight: 700;
+        color: #334155;
+    }
+</style>

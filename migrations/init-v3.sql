@@ -23,6 +23,8 @@ mood_theme TEXT DEFAULT 'default',
 born_city TEXT,
 location_country TEXT,
 date_of_birth DATE,
+mood TEXT,
+subscription_expiry DATE,
 
 -- Timer Settings
 focus_minutes INTEGER DEFAULT 25,
