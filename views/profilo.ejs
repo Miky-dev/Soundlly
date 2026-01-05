@@ -35,52 +35,58 @@
             <img src="<%= user.avatar_url || '/immagini/logo2.png' %>" alt="Avatar" class="profile-avatar"
                 onerror="this.onerror=null;this.src='/immagini/logo2.png';">
             <div class="profile-info">
-                <h1>
-                    <%= user.display_name || user.username %>
-                </h1>
-                <div><span class="profile-badge <%= user.plan === 'premium' ? 'premium' : '' %>">
-                        <%= user.role %> | <%= user.plan.toUpperCase() %>
-                    </span></div>
-                <div class="profile-details">
-                    <% if (user.subscription_expiry) { %>
-                        <p><small>Scadenza abbonamento: <%= new Date(user.subscription_expiry).toLocaleDateString() %>
-                            </small></p>
-                        <% } %>
-
-                            <!-- Header Details (Read-Only) -->
-                            <div class="d-flex flex-wrap gap-3 mt-2 text-white-50 small">
-                                <% if (user.birth_place) { %>
-                                    <span><i class="fa-solid fa-map-marker-alt text-brand"></i> Nato a: <span
-                                            class="text-white">
-                                            <%= user.birth_place %>
-                                        </span></span>
-                                    <% } %>
-
-                                        <% if (user.location_country) { %>
-                                            <span><i class="fa-solid fa-earth-americas text-brand"></i> Città: <span
-                                                    class="text-white">
-                                                    <%= user.location_country %>
-                                                </span></span>
-                                            <% } %>
-
-                                                <% if (user.date_of_birth) { %>
-                                                    <span><i class="fa-solid fa-cake-candles text-brand"></i> Nato il:
-                                                        <span class="text-white">
-                                                            <%= new Date(user.date_of_birth).toLocaleDateString() %>
-                                                        </span></span>
-                                                    <% } %>
-                            </div>
-
-                            <% if (user.location_city) { %>
-                                <p class="mt-2 mb-0"><small><i class="fa-solid fa-location-arrow"></i> Città: <%=
-                                            user.location_city %></small></p>
-                                <% } %>
-                                    <% if (user.mood_theme && user.mood_theme !=='default' ) { %>
-                                        <p class="mb-0"><small><i class="fa-solid fa-palette"></i> Tema: <%=
-                                                    user.mood_theme.charAt(0).toUpperCase() + user.mood_theme.slice(1)
-                                                    %></small></p>
-                                        <% } %>
+                <div class="profile-main">
+                    <h1 class="profile-name">
+                        <%= user.display_name || user.username %>
+                    </h1>
+                    <div class="profile-badges">
+                        <span class="profile-badge <%= user.plan === 'premium' ? 'premium' : '' %>">
+                            <%= user.role.toUpperCase() %> | <%= user.plan.toUpperCase() %>
+                        </span>
+                        <span class="profile-badge stats">
+                            <i class="fa-solid fa-music"></i>
+                            <%= sounds ? sounds.length : 0 %> Suoni
+                        </span>
+                    </div>
                 </div>
+
+                <div class="profile-meta">
+                    <div class="meta-item">
+                        <i class="fa-solid fa-envelope text-brand"></i>
+                        <span>
+                            <%= user.email %>
+                        </span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fa-solid fa-calendar-alt text-brand"></i>
+                        <span>Membro dal <%= new Date(user.created_at).toLocaleDateString() %></span>
+                    </div>
+                </div>
+
+                <% if (user.bio) { %>
+                    <div class="profile-bio">
+                        "<%= user.bio %>"
+                    </div>
+                    <% } %>
+
+                        <!-- Extra Details Collapsible or simple list -->
+                        <div class="profile-extra">
+                            <% if (user.birth_place) { %>
+                                <span class="extra-tag"><i class="fa-solid fa-map-marker-alt"></i>
+                                    <%= user.birth_place %>
+                                </span>
+                                <% } %>
+                                    <% if (user.location_country) { %>
+                                        <span class="extra-tag"><i class="fa-solid fa-earth-americas"></i>
+                                            <%= user.location_country %>
+                                        </span>
+                                        <% } %>
+                                            <% if (user.mood_theme && user.mood_theme !=='default' ) { %>
+                                                <span class="extra-tag"><i class="fa-solid fa-palette"></i>
+                                                    <%= user.mood_theme %>
+                                                </span>
+                                                <% } %>
+                        </div>
             </div>
         </header>
 
@@ -139,7 +145,7 @@
                                             value="<%= user.location_city || '' %>" placeholder="Dove vivi ora">
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label text-light">Paese (Visualizzato come Città)</label>
+                                        <label class="form-label text-light">Paese</label>
                                         <input type="text" name="location_country" class="form-control"
                                             value="<%= user.location_country || '' %>" placeholder="Italia">
                                     </div>
