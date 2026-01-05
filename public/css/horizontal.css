@@ -42,17 +42,19 @@
 }
 
 .user-avatar {
-    width: 42px;
-    height: 42px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
 }
 
 .user-name {
-    font-size: 15px;
-    font-weight: 600;
+    font-size: 20px;
+    font-weight: 700;
     color: #fff;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 .header-actions {

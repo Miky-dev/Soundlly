@@ -280,7 +280,8 @@
       <!-- User Info (Left) -->
       <div class="user-profile">
         <!-- Assuming user object exists, otherwise fallback -->
-        <img src="/immagini/logo2.png" alt="User" class="user-avatar">
+        <img src="<%= (user && user.avatar_url) ? user.avatar_url : '/immagini/logo2.png' %>" alt="User"
+          class="user-avatar" onerror="this.onerror=null;this.src='/immagini/logo2.png';">
         <span class="user-name">
           <%= user ? user.username : 'Ospite' %>
         </span>

@@ -46,13 +46,39 @@
                         <p><small>Scadenza abbonamento: <%= new Date(user.subscription_expiry).toLocaleDateString() %>
                             </small></p>
                         <% } %>
-                            <% if (user.birth_place) { %>
-                                <p><small><i class="fa-solid fa-map-marker-alt"></i> Nato a: <%= user.birth_place %>
-                                    </small></p>
+
+                            <!-- Header Details (Read-Only) -->
+                            <div class="d-flex flex-wrap gap-3 mt-2 text-white-50 small">
+                                <% if (user.birth_place) { %>
+                                    <span><i class="fa-solid fa-map-marker-alt text-brand"></i> Nato a: <span
+                                            class="text-white">
+                                            <%= user.birth_place %>
+                                        </span></span>
+                                    <% } %>
+
+                                        <% if (user.location_country) { %>
+                                            <span><i class="fa-solid fa-earth-americas text-brand"></i> Città: <span
+                                                    class="text-white">
+                                                    <%= user.location_country %>
+                                                </span></span>
+                                            <% } %>
+
+                                                <% if (user.date_of_birth) { %>
+                                                    <span><i class="fa-solid fa-cake-candles text-brand"></i> Nato il:
+                                                        <span class="text-white">
+                                                            <%= new Date(user.date_of_birth).toLocaleDateString() %>
+                                                        </span></span>
+                                                    <% } %>
+                            </div>
+
+                            <% if (user.location_city) { %>
+                                <p class="mt-2 mb-0"><small><i class="fa-solid fa-location-arrow"></i> Città: <%=
+                                            user.location_city %></small></p>
                                 <% } %>
-                                    <% if (user.location_city) { %>
-                                        <p><small><i class="fa-solid fa-location-arrow"></i> Città: <%=
-                                                    user.location_city %></small></p>
+                                    <% if (user.mood_theme && user.mood_theme !=='default' ) { %>
+                                        <p class="mb-0"><small><i class="fa-solid fa-palette"></i> Tema: <%=
+                                                    user.mood_theme.charAt(0).toUpperCase() + user.mood_theme.slice(1)
+                                                    %></small></p>
                                         <% } %>
                 </div>
             </div>
@@ -70,7 +96,8 @@
                         <!-- Modifica Profilo -->
                         <section class="section-box">
                             <h2 class="section-title"><i class="fa-solid fa-user-pen"></i> Modifica Profilo</h2>
-                            <form action="/profilo/update" method="POST" class="form-dark">
+                            <form id="profile-form" action="/profilo/update?_csrf=<%= csrfToken %>" method="POST"
+                                class="form-dark" enctype="multipart/form-data">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
                                 <div class="row">
@@ -86,23 +113,52 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label text-light">Avatar URL</label>
-                                    <input type="url" name="avatar_url" class="form-control"
-                                        value="<%= user.avatar_url || '' %>" placeholder="http://esempio.com/foto.jpg">
-                                    <div class="form-text text-white-50">Inserisci un link diretto a un'immagine per il
-                                        tuo avatar.</div>
+                                    <label class="form-label text-light">Immagine Profilo</label>
+
+                                    <!-- Drag & Drop Zone -->
+                                    <div id="drop-zone" class="drop-zone">
+                                        <div class="drop-zone-content">
+                                            <i class="fa-solid fa-cloud-arrow-up fa-2x mb-2 text-muted"></i>
+                                            <p class="mb-1">Trascina qui un'immagine o clicca per caricare</p>
+                                            <small class="text-white-50">JPG o PNG</small>
+                                        </div>
+                                        <img id="avatar-preview" src="<%= user.avatar_url || '' %>"
+                                            class="preview-hidden">
+                                        <input type="file" name="avatar" id="avatar-input"
+                                            accept="image/png, image/jpeg" hidden>
+                                    </div>
+
+                                    <!-- Fallback/Hidden URL for maintaining current if no file -->
+                                    <input type="hidden" name="avatar_url" value="<%= user.avatar_url || '' %>">
                                 </div>
 
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <label class="form-label text-light">Luogo di Nascita</label>
-                                        <input type="text" name="birth_place" class="form-control"
-                                            value="<%= user.birth_place || '' %>" placeholder="Città di nascita">
-                                    </div>
-                                    <div class="col-md-6">
                                         <label class="form-label text-light">Città Attuale</label>
                                         <input type="text" name="location_city" class="form-control"
                                             value="<%= user.location_city || '' %>" placeholder="Dove vivi ora">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-light">Paese (Visualizzato come Città)</label>
+                                        <input type="text" name="location_country" class="form-control"
+                                            value="<%= user.location_country || '' %>" placeholder="Italia">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="form-label text-light">Mood Theme</label>
+                                        <select name="mood_theme" class="form-control form-select">
+                                            <option value="default" <%=user.mood_theme==='default' ? 'selected' : '' %>
+                                                >Default</option>
+                                            <option value="dark" <%=user.mood_theme==='dark' ? 'selected' : '' %>>Dark
+                                                Mode</option>
+                                            <option value="light" <%=user.mood_theme==='light' ? 'selected' : '' %>
+                                                >Light Mode</option>
+                                            <option value="forest" <%=user.mood_theme==='forest' ? 'selected' : '' %>
+                                                >Forest</option>
+                                            <option value="ocean" <%=user.mood_theme==='ocean' ? 'selected' : '' %>
+                                                >Ocean</option>
+                                        </select>
                                     </div>
                                 </div>
 
@@ -180,6 +236,7 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/profile-upload.js"></script>
 </body>
 
 </html>
