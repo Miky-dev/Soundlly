@@ -58,6 +58,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text })
             });
+
+            if (res.status === 401) {
+                // User not logged in
+                window.location.href = '/login';
+                return;
+            }
+
             if (res.ok) {
                 const task = await res.json();
                 appendTaskToUI(task.text, task.completed, task.id);
@@ -108,11 +115,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            await fetch(`/api/todos/${id}`, {
+            const res = await fetch(`/api/todos/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ completed })
             });
+            if (res.status === 401) {
+                window.location.href = '/login';
+            }
         } catch (err) {
             console.error('Error updating task:', err);
             // Revert on error? For now, keep simple.
@@ -122,15 +132,22 @@ document.addEventListener('DOMContentLoaded', () => {
     async function deleteTask(id, liElement) {
         liElement.remove(); // Optimistic remove
         try {
-            await fetch(`/api/todos/${id}`, { method: 'DELETE' });
+            const res = await fetch(`/api/todos/${id}`, { method: 'DELETE' });
+            if (res.status === 401) {
+                window.location.href = '/login';
+            }
         } catch (err) {
             console.error('Error deleting task:', err);
         }
     }
 
     async function loadTasks() {
+        const isLoggedIn = document.body.dataset.loggedIn === 'true';
+        if (!isLoggedIn) return; // Prevent 401 network error for guests
+
         try {
             const res = await fetch('/api/todos');
+
             if (res.ok) {
                 const tasks = await res.json();
                 list.innerHTML = '';

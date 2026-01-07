@@ -184,8 +184,8 @@ app.get('/abbonamento', ensureAuthenticated, (req, res) => {
   res.render('abbonamento', { user: req.user });
 });
 
-// Home (Public)
-app.get('/home', async (req, res) => {
+// Home (Public) - Served at root
+app.get('/', async (req, res) => {
   try {
     const userId = req.user ? req.user.id : null;
     let dailyGoal = 60; // Default
@@ -230,8 +230,9 @@ app.get('/home', async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => {
-  res.redirect('/home');
+// Legacy /home redirect
+app.get('/home', (req, res) => {
+  res.redirect('/');
 });
 
 const PORT = process.env.PORT || 3003;
