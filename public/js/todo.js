@@ -32,8 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // TEXT/ROW CLICK (Toggle checkbox)
-        // Only if we didn't click the checkbox or delete button
-        if (target.tagName === 'SPAN' || target === li) {
+        // Click on LABEL triggers input change automatically, so we might not need to manually toggle if clicking text.
+        // However, if the user clicks the row background outside the label, we might want to toggle.
+        // But the new design has a specific wrapper. Let's see.
+        // If clicking the LI but not the label/input/delete, toggle checkbox.
+        if (target === li) {
             const checkbox = li.querySelector('input[type="checkbox"]');
             if (checkbox) {
                 checkbox.checked = !checkbox.checked;
@@ -82,23 +85,31 @@ document.addEventListener('DOMContentLoaded', () => {
         li.dataset.id = id;
         if (isCompleted) li.classList.add('checked');
 
+        // Create wrapper div
+        const wrapper = document.createElement('div');
+        wrapper.className = 'checkbox-wrapper-11';
+
+        const checkboxId = 'todo-check-' + id;
+
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.checked = isCompleted;
-        // Styles moved to CSS where possible, but keeping inline for consistency if CSS missing
-        checkbox.style.marginRight = '10px';
-        checkbox.style.cursor = 'pointer';
+        checkbox.id = checkboxId;
+        checkbox.name = 'r'; // name from example
+        checkbox.value = id;
 
-        const span = document.createElement('span');
-        span.textContent = text;
-        span.style.flex = '1';
+        const label = document.createElement('label');
+        label.htmlFor = checkboxId;
+        label.textContent = text;
+
+        wrapper.appendChild(checkbox);
+        wrapper.appendChild(label);
 
         const deleteBtn = document.createElement('button');
         deleteBtn.innerHTML = '&times;';
         deleteBtn.classList.add('delete-btn');
 
-        li.appendChild(checkbox);
-        li.appendChild(span);
+        li.appendChild(wrapper);
         li.appendChild(deleteBtn);
         list.appendChild(li);
 

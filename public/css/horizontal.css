@@ -32,6 +32,7 @@
     align-items: center;
     margin-bottom: 32px;
     gap: 20px;
+    padding: 0 1rem;
 }
 
 .user-profile {

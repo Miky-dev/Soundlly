@@ -181,3 +181,13 @@
         }
     }
 }
+
+/* Navbar Switch Specific */
+.navbar .toggle-cont {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%) scale(0.6);
+    z-index: 999;
+    margin: 0;
+    /* ensure no auto margins interfere */
+}
