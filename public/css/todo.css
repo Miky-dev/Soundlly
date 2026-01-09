@@ -128,9 +128,12 @@
     padding: 0;
     margin: 0;
     overflow-y: auto;
+    overflow-x: hidden;
+    /* Prevent horizontal scroll */
     flex-grow: 1;
     transform: translateZ(0);
-    padding-right: 5px;
+    padding-right: 12px;
+    /* Increased padding */
 }
 
 /* Scrollbar Styling */
@@ -183,7 +186,8 @@
     position: relative;
     padding: 5px;
     display: grid;
-    grid-template-columns: 30px auto;
+    grid-template-columns: 30px minmax(0, 1fr);
+    /* Ensure text column can shrink */
     align-items: center;
 }
 
@@ -197,8 +201,14 @@
     width: -moz-fit-content;
     width: fit-content;
     transition: color 0.3s ease;
-    font-size: 14px;
     /* Ensure readability */
+    font-size: 13px;
+    /* Reduced from 14px */
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-word;
+    max-width: 100%;
+    line-height: 1.4;
 }
 
 .checkbox-wrapper-11 label::before,
@@ -488,7 +498,9 @@
     cursor: pointer;
     transition: all 0.2s;
     opacity: 0;
-    margin-left: 8px;
+    margin-left: 10px;
+    flex-shrink: 0;
+    /* Prevent shrinking */
 }
 
 #todo-list li:hover .delete-btn {
