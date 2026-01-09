@@ -74,30 +74,32 @@
               <li class="nav-item mix-2">
                 <a class="nav-link" href="/login">Accedi</a>
               </li>
-              <% } else { %>
-                <!-- Se l'utente è loggato, mostra i link al profilo e al logout -->
+              <% } %>
+
+                <!-- Link statici sempre visibili -->
                 <li class="nav-item mix-2">
-                  <a class="nav-link" href="/profilo">Profilo</a>
+                  <a class="nav-link" href="/abbonamento">Abbonati</a>
                 </li>
-                <!--<li class=" nav-item mix-2">
-                  <a class="nav-link" href="/logout">Logout</a>
-                </li>-->
-                <% } %>
+                <li class="nav-item mix-2">
+                  <a class="nav-link" href="/about.html">About</a>
+                </li>
 
-                  <!-- Link statici sempre visibili -->
+                <!-- Link alla pagina di amministrazione (visibile solo agli admin) -->
+                <% if (isAdmin) { %>
                   <li class="nav-item mix-2">
-                    <a class="nav-link" href="/abbonamento">Abbonati</a>
+                    <a class="nav-link" href="/admin">Admin</a>
                   </li>
-                  <li class="nav-item mix-2">
-                    <a class="nav-link" href="/about.html">About</a>
-                  </li>
+                  <% } %>
 
-                  <!-- Link alla pagina di amministrazione (visibile solo agli admin) -->
-                  <% if (isAdmin) { %>
-                    <li class="nav-item mix-2">
-                      <a class="nav-link" href="/admin">Admin</a>
-                    </li>
-                    <% } %>
+                    <% if (user) { %>
+                      <!-- Se l'utente è loggato, mostra l'avatar -->
+                      <li class="nav-item mix-2" style="display: flex; align-items: center;">
+                        <a href="/profilo" aria-label="Profilo">
+                          <img src="<%= user.avatar_url || '/immagini/logo2.png' %>" alt="Profilo" class="nav-avatar"
+                            onerror="this.onerror=null;this.src='/immagini/logo2.png';">
+                        </a>
+                      </li>
+                      <% } %>
           </ul>
         </div>
       </div>
@@ -393,6 +395,7 @@
   <script src="/js/todo.js"></script>
 
   <script src="/js/music-search.js"></script>
+  <script src="/js/switch-handler.js"></script>
 
 </body>
 

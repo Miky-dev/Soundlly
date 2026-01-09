@@ -1,0 +1,203 @@
+body,
+html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+    background: black;
+}
+
+/* Container for the immersive background */
+.immersive-container {
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: black;
+    z-index: 1;
+    /* Changed from -1 to 1 */
+}
+
+.immersive-container::after {
+    content: '';
+    width: 100%;
+    height: 100vh;
+    background: url('https://i.imgur.com/PsjPzdO.png');
+    background-size: 200px;
+    mix-blend-mode: overlay;
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.blobs {
+    width: 35vh;
+    /* Reduced from 50vh */
+    height: 35vh;
+    /* Reduced from 50vh */
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* filter: contrast(30); */
+}
+
+.blob {
+    width: 100%;
+    height: 100%;
+    border-radius: 100%;
+    position: absolute;
+    background-color: #FF4D00;
+    mix-blend-mode: screen;
+    filter: blur(80px);
+    opacity: 1;
+}
+
+.blob.a {
+    background-color: #FF7133;
+    /* mix(#FF4D00, white, 80%) */
+    animation: circular2 40s linear infinite;
+}
+
+.blob.b {
+    background-color: #FFA680;
+    /* mix(#FF4D00, white, 50%) */
+    animation: circular 20s linear infinite;
+}
+
+.blob.c {
+    /* Default #FF4D00 */
+    animation: circular 60s linear infinite;
+}
+
+/* Animations */
+/* $R = 150px */
+@keyframes circular {
+    0% {
+        transform: translate(0, -150px);
+    }
+
+    25% {
+        transform: translate(150px, 0);
+    }
+
+    50% {
+        transform: translate(0, 150px);
+    }
+
+    75% {
+        transform: translate(-150px, 0);
+    }
+
+    100% {
+        transform: translate(0, -150px);
+    }
+}
+
+@keyframes circular2 {
+    0% {
+        transform: translate(0, 150px);
+    }
+
+    25% {
+        transform: translate(-150px, 0);
+    }
+
+    50% {
+        transform: translate(0, -150px);
+    }
+
+    75% {
+        transform: translate(150px, 0);
+    }
+
+    100% {
+        transform: translate(0, 150px);
+    }
+}
+
+
+/* Navbar specific for immersive (minimal) */
+.immersive-navbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    pointer-events: none;
+}
+
+/* Override switch positioning for immersive */
+.immersive-navbar .switch {
+    pointer-events: auto;
+    position: relative !important;
+    left: auto !important;
+    transform: none !important;
+    top: auto !important;
+    margin: 0 auto;
+
+    /* Darken the switch for better visibility */
+    --_switch-bg-clr: rgba(0, 0, 0, 0.6);
+    --_slider-bg-clr: rgba(255, 255, 255, 0.2);
+    --_slider-bg-clr-on: rgba(255, 255, 255, 0.4);
+    --_slider-txt-clr: #ffffff;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+}
+
+/* Fullscreen Button */
+.fullscreen-toggle {
+    position: absolute;
+    right: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    pointer-events: auto;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+}
+
+.fullscreen-toggle:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-50%) scale(1.1);
+}
+
+/* Transition overlay */
+.page-transition {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transition: opacity 0.5s ease-in-out;
+}
+
+body.fade-out .page-transition {
+    opacity: 1;
+    pointer-events: auto;
+}

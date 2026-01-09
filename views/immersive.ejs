@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Soundlly - Immersive</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/switch.css" />
+    <link rel="stylesheet" href="/css/immersive.css" />
+
+
+</head>
+
+<body>
+
+    <div class="page-transition"></div>
+
+    <!-- New Background Structure -->
+    <div class="immersive-container">
+        <div class="blobs">
+            <div class="blob a"></div>
+            <div class="blob b"></div>
+            <div class="blob c"></div>
+        </div>
+    </div>
+
+    <div class="immersive-navbar">
+        <!-- Switch initialized as checked for immersive mode -->
+        <label for="filter" class="switch" aria-label="Toggle Filter">
+            <input type="checkbox" id="filter" checked />
+            <span>Standard</span>
+            <span>Immersive</span>
+        </label>
+
+        <button id="fullscreenBtn" class="fullscreen-toggle" aria-label="Toggle Fullscreen">
+            <i class="fa-solid fa-expand"></i>
+        </button>
+    </div>
+
+    <!-- Reuse the switch handler -->
+    <script src="/js/switch-handler.js"></script>
+    <script src="/js/immersive-controls.js"></script>
+</body>
+
+</html>
