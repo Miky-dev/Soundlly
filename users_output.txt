@@ -1,0 +1,7 @@
+--- Utenti Registrati ---
+ID: 1 | Username: admin | Role: admin | Hash: $2b$10$cZS1o3QfKj2CAUTyXowRXO2YgWSDHcZ5hzEwV/iaT50QQqdCKusle
+ID: 2 | Username: mario | Role: user | Hash: $2b$10$IgS0ppRKIGNz5k5YHOG8texGDvj2PZzYiK5H2rU6PYvxmyxnahdtu
+ID: 3 | Username: luigi | Role: creator | Hash: $2b$10$q4yCp9lxP9b0Js2YlySche9dfV/1ORBQTrSnBzz3Ck7EAp6vYDimq
+ID: 4 | Username: utentebase | Role: creator | Hash: $2b$10$/uQXebkqTa8Wj8ZVDz7LCORoaW5yVeG1NVYXvI.waY.NrvujbKPuC
+ID: 5 | Username: papapapa | Role: user | Hash: $2b$10$zUWYHL4dDKKdBHynil5I6u/eOCuZ1Hs/qz6t5tXbV6CYsSjdCpayq
+-------------------------

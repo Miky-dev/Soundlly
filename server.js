@@ -105,7 +105,7 @@ app.post('/login', (req, res, next) => {
   if (!checkCsrf(req, res)) return res.status(403).send('CSRF token mancante o non valido');
   passport.authenticate('local', (err, user) => {
     if (err) return next(err);
-    if (!user) return res.redirect('/login.html?error=1');
+    if (!user) return res.redirect('/login?error=1');
     req.logIn(user, (err) => {
       if (err) return next(err);
       if (req.body.remember === '1') {
