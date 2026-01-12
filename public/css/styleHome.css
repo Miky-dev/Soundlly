@@ -159,7 +159,7 @@ body {
 }
 
 .box {
-  background: rgba(255, 255, 255, 0.116);
+  background: rgba(26, 42, 51, 0.8);
   border-radius: 1rem;
   min-height: 120px;
   position: relative;
@@ -3168,18 +3168,19 @@ body {
   color: #38bdf8;
   font-weight: bold;
 }
+
 /* Navbar Avatar */
 .nav-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    transition: transform 0.2s ease, border-color 0.2s ease;
-    cursor: pointer;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
 }
 
 .nav-avatar:hover {
-    transform: scale(1.1);
-    border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.1);
+  border-color: rgba(255, 255, 255, 0.5);
 }

@@ -236,16 +236,26 @@
                     <svg class="progress-ring" width="100" height="100">
                       <circle class="ring-bg" stroke="#334155" stroke-width="8" fill="transparent" r="42" cx="50"
                         cy="50" />
-                      <circle class="ring-fill" stroke="#f43f5e" stroke-width="8" fill="transparent" r="42" cx="50"
-                        cy="50" stroke-dasharray="264" stroke-dashoffset="66" />
+                      <% const goalPercent=Math.min((todayMinutes / dailyGoal) * 100, 100); const radius=42; const
+                        circumference=2 * Math.PI * radius; const offset=circumference - (goalPercent / 100) *
+                        circumference; %>
+                        <circle class="ring-fill" stroke="#f43f5e" stroke-width="8" fill="transparent" r="42" cx="50"
+                          cy="50" stroke-dasharray="<%= circumference %>" stroke-dashoffset="<%= offset %>" />
                     </svg>
                     <div class="ring-text">
-                      <span class="pomo-count">8</span>
+                      <span class="pomo-count">
+                        <%= pomoCount %>
+                      </span>
                       <span class="pomo-label">Pomo</span>
                     </div>
                   </div>
                   <div class="focus-data">
-                    <span class="big-time">03h 20m</span>
+                    <span class="big-time">
+                      <% const hours=Math.floor(todayMinutes / 60); const mins=todayMinutes % 60; const
+                        timeString=(hours> 0 ? hours + 'h ' : '') + mins + 'm';
+                        %>
+                        <%= timeString %>
+                    </span>
                     <span class="sub-label">Tempo di Focus</span>
                   </div>
                 </div>
@@ -258,11 +268,18 @@
                       <span class="stat-name">To-Do Completati</span>
                     </div>
                     <div class="stat-bar-bg">
-                      <div class="stat-bar-fill task-fill" style="width: 80%;"></div>
+                      <% const todoPercent=todoStats.total> 0 ? Math.round((todoStats.completed / todoStats.total) *
+                        100) : 0;
+                        %>
+                        <div class="stat-bar-fill task-fill" style="width: <%= todoPercent %>%;"></div>
                     </div>
                     <div class="stat-footer">
-                      <span>8 su 10 tasks</span>
-                      <span class="percent">80%</span>
+                      <span>
+                        <%= todoStats.completed %> su <%= todoStats.total %> tasks
+                      </span>
+                      <span class="percent">
+                        <%= todoPercent %>%
+                      </span>
                     </div>
                   </div>
 

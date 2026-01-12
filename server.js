@@ -190,6 +190,8 @@ app.get('/', async (req, res) => {
     const userId = req.user ? req.user.id : null;
     let dailyGoal = 60; // Default
     let todayMinutes = 0;
+    let pomoCount = 0;
+    let todoStats = { total: 0, completed: 0 };
 
     if (userId) {
       // Get Goal
@@ -200,13 +202,35 @@ app.get('/', async (req, res) => {
       const now = new Date();
       const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
 
+      // 1. Focus Minutes & Pomo Count
       const progressRow = await get(
-        `SELECT SUM(completed_minutes) as todayMinutes 
+        `SELECT 
+           SUM(completed_minutes) as todayMinutes,
+           COUNT(*) as pomoCount
          FROM focus_sessions 
-         WHERE user_id = ? AND started_at >= ?`,
+         WHERE user_id = ? AND started_at >= ? AND status = 'completed'`,
         [userId, startOfDay]
       );
-      if (progressRow && progressRow.todayMinutes) todayMinutes = progressRow.todayMinutes;
+      if (progressRow) {
+        if (progressRow.todayMinutes) todayMinutes = progressRow.todayMinutes;
+        if (progressRow.pomoCount) pomoCount = progressRow.pomoCount;
+      }
+
+      // 2. To-Do Stats
+      const todoStatsRow = await get(
+        `SELECT 
+           COUNT(*) as total,
+           SUM(CASE WHEN is_done = 1 THEN 1 ELSE 0 END) as completed
+         FROM todos 
+         WHERE user_id = ?`,
+        [userId]
+      );
+      if (todoStatsRow) {
+        todoStats = {
+          total: todoStatsRow.total || 0,
+          completed: todoStatsRow.completed || 0
+        };
+      }
     }
 
     res.render('home', {
@@ -215,7 +239,9 @@ app.get('/', async (req, res) => {
       playlists: [],
       favorites: [],
       dailyGoal,
-      todayMinutes
+      todayMinutes,
+      pomoCount,
+      todoStats
     });
   } catch (err) {
     console.error("Home Route Error:", err);
@@ -225,7 +251,9 @@ app.get('/', async (req, res) => {
       playlists: [],
       favorites: [],
       dailyGoal: 60,
-      todayMinutes: 0
+      todayMinutes: 0,
+      pomoCount: 0,
+      todoStats: { total: 0, completed: 0 }
     });
   }
 });

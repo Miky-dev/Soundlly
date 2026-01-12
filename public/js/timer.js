@@ -13,6 +13,8 @@
  */
 
 (function () {
+  const STORAGE_KEY = 'soundlly_timer_state_v1';
+
   // --- ELEMENTI DEL DOM ---
   // Riferimenti agli elementi HTML necessari per il funzionamento del timer
   const els = {
@@ -54,7 +56,13 @@
   // --- INIZIALIZZAZIONE ---
   function init() {
     loadSettings(); // Carica le impostazioni dal server
-    updateUI();     // Aggiorna l'interfaccia iniziale
+
+    // Tenta di ripristinare lo stato salvato
+    const restored = loadState();
+    if (!restored) {
+      // Se non c'è stato salvato, usa il default
+      updateUI();
+    }
 
     // Event Listeners per i controlli principali
     els.btnStart.addEventListener('click', startTimer);
@@ -74,8 +82,20 @@
       els.btnSaveSettings.addEventListener('click', saveSettings);
     }
 
-    // Imposta la modalità iniziale
-    setMode('pomodoro');
+    // Imposta la modalità iniziale solo se non è stata ripristinata
+    if (!restored) {
+      setMode('pomodoro');
+    } else {
+      // Se ripristinato, assicurati che la UI rifletta lo stato
+      updateUI();
+      toggleButtons();
+      // Se stava correndo, riavvia il loop (il tick verrà gestito da startTimer o da un loop ad hoc?)
+      // startTimer() qui potrebbe resettare targetTime se non stiamo attenti.
+      // Meglio gestire il resume specificamente.
+      if (isRunning) {
+        startTimer(true); // true = resume
+      }
+    }
   }
 
   // --- GESTIONE IMPOSTAZIONI ---
@@ -156,14 +176,16 @@
     els.time.style.color = color;
 
     updateUI();
+    saveState(); // Salva il cambio di modalità
   }
 
   /**
    * Avvia il timer.
    * Crea una sessione sul server se siamo in modalità Pomodoro.
+   * @param {boolean} isResume - Se true, non ricalcola il targetTime ma usa timeLeft corrente
    */
-  async function startTimer() {
-    if (isRunning) return;
+  async function startTimer(isResume = false) {
+    if (isRunning && !isResume) return;
 
     // Se si avvia un Pomodoro e non c'è una sessione attiva, creane una
     if (currentMode === 'pomodoro' && !currentSessionId) {
@@ -179,6 +201,7 @@
         const data = await res.json();
         if (data.ok) {
           currentSessionId = data.session_id; // Memorizza l'ID sessione
+          saveState(); // Salva subito l'ID sessione
         }
       } catch (err) {
         console.error('Error starting session:', err);
@@ -186,9 +209,22 @@
     }
 
     isRunning = true;
+
+    // Se non è un ripristino, calcola il targetTime
+    // Se è un ripristino, assumiamo che timeLeft sia già stato calcolato/impostato da loadState
+    // Ma per coerenza con saveState che usa targetTime, dobbiamo impostarlo.
+    // In saveState: targetTime = Date.now() + timeLeft * 1000
+
+    // Per semplicità: salviamo sempre il targetTime quando si avvia/riprende.
+    // Se timeLeft è stato aggiornato correttamente, il targetTime sarà corretto.
+    saveState();
+
     toggleButtons();
 
     // Loop principale del timer (ogni secondo)
+    // Pulisci eventuale timer precedente per sicurezza
+    if (timerId) clearInterval(timerId);
+
     timerId = setInterval(() => {
       if (timeLeft > 0) {
         timeLeft--;
@@ -206,6 +242,7 @@
     if (!isRunning) return;
     clearInterval(timerId); // Ferma il loop
     isRunning = false;
+    saveState(); // Salva lo stato in pausa (con timeLeft statico)
     toggleButtons();
   }
 
@@ -223,6 +260,10 @@
 
     // Ripristina il tempo totale
     timeLeft = MODES[currentMode].minutes * 60;
+
+    // Pulisci lo stato salvato
+    clearState();
+
     updateUI();
   }
 
@@ -232,6 +273,7 @@
   async function completeTimer() {
     pauseTimer();
     timeLeft = 0;
+    clearState(); // Rimuove lo stato salvato poiché finito
     updateUI();
 
     // Suona l'audio di fine
@@ -338,6 +380,68 @@
    */
   function pad(n) {
     return n < 10 ? '0' + n : n;
+  }
+
+  // --- PERSISTENZA (LocalStorage) ---
+
+  function saveState() {
+    const state = {
+      mode: currentMode,
+      isRunning: isRunning,
+      timeLeft: timeLeft,
+      sessionId: currentSessionId,
+      timestamp: Date.now()
+    };
+
+    // Se sta correndo, salviamo il targetTime invece di solo timeLeft
+    // per essere precisi al millisecondo se si ricarica
+    if (isRunning) {
+      state.targetTime = Date.now() + (timeLeft * 1000);
+    }
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return false;
+
+      const state = JSON.parse(raw);
+
+      // Ripristina variabili base
+      currentMode = state.mode || 'pomodoro';
+      currentSessionId = state.sessionId || null;
+      isRunning = state.isRunning || false;
+
+      // Se era in esecuzione, calcola il tempo trascorso
+      if (isRunning && state.targetTime) {
+        const now = Date.now();
+        const diffSeconds = Math.round((state.targetTime - now) / 1000);
+
+        if (diffSeconds > 0) {
+          timeLeft = diffSeconds;
+        } else {
+          // Il tempo è scaduto mentre eravamo via
+          timeLeft = 0;
+          isRunning = false; // Non riavviare, mostra finito/reset
+          // Potremmo voler chiamare completeTimer() qui?
+          // Per ora resettiamo o mostriamo 0
+        }
+      } else {
+        // Se era in pausa, usa timeLeft salvato
+        timeLeft = state.timeLeft || MODES[currentMode].minutes * 60;
+      }
+
+      return true;
+    } catch (e) {
+      console.error("Errore recupero stato timer", e);
+      return false;
+    }
+  }
+
+  function clearState() {
+    localStorage.removeItem(STORAGE_KEY);
   }
 
   // Richiedi permessi notifica se necessario
