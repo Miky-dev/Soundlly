@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial State Check: If user already has an avatar URL in src, show it
     if (avatarPreview.getAttribute('src') && avatarPreview.getAttribute('src') !== '') {
         // Check if it's the default placeholder or empty
-        if (!avatarPreview.src.includes('/immagini/logo2.png') && avatarPreview.src !== window.location.href) {
+        if (!avatarPreview.src.includes('/immagini/usericon.png') && avatarPreview.src !== window.location.href) {
             avatarPreview.classList.remove('preview-hidden');
             avatarPreview.style.display = 'block';
             dropZoneContent.style.display = 'none';
