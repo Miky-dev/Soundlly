@@ -106,13 +106,21 @@ router.get('/', ensureAuthenticated, async (req, res) => {
 router.post('/goals', ensureAuthenticated, async (req, res) => {
     try {
         const userId = req.user.id;
-        const { daily, weekly, monthly } = req.body;
+        const {
+            daily_hours, daily_minutes,
+            weekly_hours, weekly_minutes,
+            monthly_hours, monthly_minutes
+        } = req.body;
+
+        const dailyTotal = (parseInt(daily_hours) || 0) * 60 + (parseInt(daily_minutes) || 0);
+        const weeklyTotal = (parseInt(weekly_hours) || 0) * 60 + (parseInt(weekly_minutes) || 0);
+        const monthlyTotal = (parseInt(monthly_hours) || 0) * 60 + (parseInt(monthly_minutes) || 0);
 
         await run(
             `UPDATE user_goals 
              SET daily_focus_goal = ?, weekly_focus_goal = ?, monthly_focus_goal = ?, updated_at = CURRENT_TIMESTAMP 
              WHERE user_id = ?`,
-            [daily, weekly, monthly, userId]
+            [dailyTotal, weeklyTotal, monthlyTotal, userId]
         );
 
         res.redirect('/stats?success=goals_updated');
