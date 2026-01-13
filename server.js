@@ -206,9 +206,9 @@ app.get('/', async (req, res) => {
       const progressRow = await get(
         `SELECT 
            SUM(completed_minutes) as todayMinutes,
-           COUNT(*) as pomoCount
+           COUNT(CASE WHEN status = 'completed' THEN 1 END) as pomoCount
          FROM focus_sessions 
-         WHERE user_id = ? AND started_at >= ? AND status = 'completed'`,
+         WHERE user_id = ? AND started_at >= ?`,
         [userId, startOfDay]
       );
       if (progressRow) {

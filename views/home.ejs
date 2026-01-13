@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="/css/horizontal.css" />
   <link rel="stylesheet" href="/css/stats-blur.css" />
   <link rel="stylesheet" href="/css/switch.css" />
+  <link rel="stylesheet" href="/css/music-overlay.css" />
 
 
   <!-- Favicon: l'icona che appare nella linguetta del browser -->
@@ -354,10 +355,12 @@
     </section>
 
     <!-- Sezione per i suoni caricati dai creator -->
-    <section class="horizontal-scroll-container" id="pref">
-      <h2 class="scroll-title">Preferiti</h2>
-      <div class="horizontal" data-grid="pref"></div>
-    </section>
+    <% if (user) { %>
+      <section class="horizontal-scroll-container" id="pref">
+        <h2 class="scroll-title">Preferiti</h2>
+        <div class="horizontal" data-grid="pref"></div>
+      </section>
+      <% } %>
   </div>
 
 
@@ -414,6 +417,9 @@
   <script src="/js/todo.js"></script>
 
   <script src="/js/music-search.js"></script>
+  <script>
+    const CURRENT_USER_ID = <%= user ?user.id: 'null' %>;
+  </script>
   <script src="/js/switch-handler.js"></script>
 
 </body>
