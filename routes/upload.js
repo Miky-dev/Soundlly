@@ -43,7 +43,7 @@ router.get('/', ensureAuthenticated, ensureCreatorOrAdmin, (req, res) => {
 });
 
 // POST /api/upload - Handle the file upload
-router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.single('audio'), async (req, res) => {
+router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.fields([{ name: 'audio', maxCount: 1 }, { name: 'cover', maxCount: 1 }]), async (req, res) => {
     const renderWithMsg = (msg, type = 'danger') => {
         res.render('upload', {
             user: req.user,
@@ -55,23 +55,40 @@ router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.sin
 
     try {
         const { title, description, category, mood, genre, access_level, icon } = req.body;
-        const file = req.file;
 
-        if (!file) return renderWithMsg('Nessun file selezionato. Per favore scegli un file MP3.');
+        const audioFiles = req.files['audio'];
+        const coverFiles = req.files['cover'];
+
+        if (!audioFiles || audioFiles.length === 0) return renderWithMsg('Nessun file audio selezionato. Per favore scegli un file MP3.');
+        const audioFile = audioFiles[0];
+
         if (!title) return renderWithMsg('Il titolo è obbligatorio.');
 
         const validCategories = ['ambient', 'music'];
         const selectedCategory = validCategories.includes(category) ? category : 'ambient';
 
+        // 1. Handle Audio
         const targetDirName = selectedCategory === 'music' ? 'musiche' : 'ambient';
         const targetDir = path.join(__dirname, '..', 'public', 'audio', targetDirName);
-
         if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
 
-        const targetFilename = file.filename;
+        const targetFilename = audioFile.filename;
         const targetPath = path.join(targetDir, targetFilename);
+        fs.renameSync(audioFile.path, targetPath);
 
-        fs.renameSync(file.path, targetPath);
+        // 2. Handle Cover (only for Music usually, but we save it if provided)
+        let coverPath = null;
+        if (selectedCategory === 'music' && coverFiles && coverFiles.length > 0) {
+            const coverFile = coverFiles[0];
+            const coversDir = path.join(__dirname, '..', 'public', 'uploads', 'covers');
+            if (!fs.existsSync(coversDir)) fs.mkdirSync(coversDir, { recursive: true });
+
+            const coverFilename = coverFile.filename; // multer already generated unique name
+            const coverTarget = path.join(coversDir, coverFilename);
+            fs.renameSync(coverFile.path, coverTarget);
+
+            coverPath = '/uploads/covers/' + coverFilename;
+        }
 
         // Extract Duration
         let duration = 0;
@@ -82,6 +99,16 @@ router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.sin
             }
         } catch (e) {
             console.error('Metadata extract error:', e);
+        }
+
+        // Determine "icon" field value:
+        // - Ambient: use the font-awesome icon string (e.g. "fa-cloud")
+        // - Music: use the cover image path (e.g. "/uploads/covers/...")
+        let finalIcon = null;
+        if (selectedCategory === 'ambient') {
+            finalIcon = icon || null;
+        } else {
+            finalIcon = coverPath || '/immagini/usericon.png'; // Fallback
         }
 
         await run(
@@ -98,7 +125,7 @@ router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.sin
                 selectedCategory,
                 mood || null,
                 genre || null,
-                (selectedCategory === 'ambient' ? (icon || null) : null),
+                finalIcon,
                 duration
             ]
         );

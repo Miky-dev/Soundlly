@@ -1,9 +1,75 @@
-/* Specific overrides for upload page to center content */
+/* ==========================================================================
+   Project: Upload Page Styles (Self-contained)
+   ========================================================================== */
+
+/* ----------------------------- Fonts ------------------------------ */
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Michroma&display=swap');
+
+/* ----------------------------- Variables ------------------------------ */
+:root {
+    --bg: #0b0f14;
+    --brand-1: #2a9d8f;
+    --brand-2: #153040;
+    --brand-2-900: #35546b;
+    --glass: rgba(255, 255, 255, 0.282);
+    --text-muted: rgb(141, 152, 161);
+    --white: #fff;
+}
+
+/* ------------------------------- Base ------------------------------------- */
+* {
+    box-sizing: border-box;
+}
+
 body {
+    margin: 0;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    font-family: 'Lexend', sans-serif;
+
+    /* Global Background from styleHome */
+    background:
+        linear-gradient(180deg, rgba(42, 157, 143, 0.06), rgba(21, 48, 64, 0.04)),
+        radial-gradient(800px 400px at 10% 10%, rgba(42, 157, 143, 0.10), transparent 30%),
+        radial-gradient(600px 300px at 85% 80%, rgba(21, 48, 64, 0.08), transparent 30%),
+        var(--bg);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center center;
+    color: var(--white);
 }
+
+/* ------------------------------ Navbar ------------------------------------ */
+.navbar {
+    background: transparent !important;
+    backdrop-filter: none;
+    box-shadow: none;
+}
+
+/* ------------------------------- Buttons ---------------------------------- */
+.btn-primary {
+    background-color: var(--brand-1) !important;
+    color: #fff !important;
+    border: none !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: #218c7d !important;
+    /* Darker shade of brand-1 */
+    color: #fff !important;
+    box-shadow: 0 0 15px rgba(42, 157, 143, 0.4);
+}
+
+.btn-outline-light:hover {
+    color: var(--brand-1);
+    background-color: white;
+    border-color: white;
+}
+
+/* --------------------------- Upload Components ---------------------------- */
 
 .upload-container {
     flex: 1;
@@ -11,6 +77,8 @@ body {
     justify-content: center;
     align-items: center;
     padding: 2rem;
+    margin-top: 60px;
+    /* Space for navbar */
 }
 
 .upload-card {
@@ -19,7 +87,8 @@ body {
     border-radius: 16px;
     padding: 2.5rem;
     width: 100%;
-    max-width: 600px;
+    max-width: 800px;
+    /* Slightly wider for the 2-col layout */
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.1);
     color: #fff;
@@ -45,6 +114,7 @@ body {
     box-shadow: 0 0 0 0.25rem rgba(42, 157, 143, 0.25);
 }
 
+/* Category Selector */
 .category-selector {
     display: flex;
     gap: 1rem;
@@ -77,18 +147,24 @@ body {
     box-shadow: 0 0 15px rgba(42, 157, 143, 0.4);
 }
 
-
 /* Drop Zone Styles */
 .drop-zone {
     border: 2px dashed rgba(255, 255, 255, 0.2);
     border-radius: 12px;
-    padding: 2.5rem 1.5rem;
+    padding: 2rem 1rem;
     text-align: center;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     background: rgba(255, 255, 255, 0.02);
     position: relative;
     overflow: hidden;
+    height: 80%;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
 }
 
 .drop-zone:hover,
@@ -116,7 +192,7 @@ body {
 }
 
 .drop-zone-content i {
-    font-size: 3rem;
+    font-size: 2.5rem;
     color: #8da2b5;
     margin-bottom: 1rem;
     transition: color 0.3s ease;
@@ -131,7 +207,7 @@ body {
 .drop-zone-content p {
     color: #bdc3c7;
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 500;
 }
 
@@ -139,9 +215,12 @@ body {
     color: #fff;
 }
 
-#file-name {
+#name-audio,
+#name-cover {
     margin-top: 0.5rem;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     display: block;
     word-break: break-all;
+    min-height: 1.2em;
+    /* Reserve space */
 }

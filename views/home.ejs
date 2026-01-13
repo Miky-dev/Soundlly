@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="/css/stats-blur.css" />
   <link rel="stylesheet" href="/css/switch.css" />
   <link rel="stylesheet" href="/css/music-overlay.css" />
+  <link rel="stylesheet" href="/css/player.css" />
 
 
   <!-- Favicon: l'icona che appare nella linguetta del browser -->
@@ -273,7 +274,7 @@
                         <% const todoPercent=todoStats.total> 0 ? Math.round((todoStats.completed / todoStats.total) *
                           100) : 0;
                           %>
-                          <div class="stat-bar-fill task-fill" style="width: <%= todoPercent %>%;"></div>
+                          <div class="stat-bar-fill task-fill" data-width="<%= todoPercent %>"></div>
                       </div>
                       <div class="stat-footer">
                         <span>
@@ -404,6 +405,41 @@
     </div>
   </footer>
 
+  <!-- Music Player Bar -->
+  <div id="music-player-bar">
+    <button id="player-close-btn" class="player-close-btn" title="Chiudi">&times;</button>
+    <div class="player-track-info">
+      <img id="player-cover-img" class="player-cover" src="/immagini/usericon.png" alt="Cover">
+      <div class="player-details">
+        <span id="player-title" class="player-title">Titolo Brano</span>
+        <span id="player-artist" class="player-artist">Artista</span>
+      </div>
+    </div>
+
+    <div class="player-controls">
+      <div class="player-buttons">
+        <button class="player-btn"><i class="fa-solid fa-backward-step"></i></button>
+        <button id="player-play-btn" class="player-btn player-btn-play"><i class="fa-solid fa-play"></i></button>
+        <button class="player-btn"><i class="fa-solid fa-forward-step"></i></button>
+      </div>
+      <div class="player-progress-container">
+        <span id="player-current-time">0:00</span>
+        <div id="player-progress-bar" class="player-progress-bar">
+          <div id="player-progress-fill" class="player-progress-fill"></div>
+        </div>
+        <span id="player-total-time">0:00</span>
+      </div>
+    </div>
+
+    <div class="player-extra">
+      <div class="player-volume-control">
+        <i class="fa-solid fa-volume-high" id="volume-icon"></i>
+        <input type="range" id="player-volume-slider" class="player-volume-slider" min="0" max="1" step="0.05"
+          value="1">
+      </div>
+    </div>
+  </div>
+
   <!-- =================================================================
        SCRIPT - Caricamento degli script JavaScript che gestiscono le funzionalità della pagina.
        L'attributo 'defer' assicura che vengano eseguiti dopo il parsing dell'HTML.
@@ -416,9 +452,13 @@
   <script src="/js/loadSounds.js"></script>
   <script src="/js/todo.js"></script>
 
+  <script src="/js/player.js"></script>
   <script src="/js/music-search.js"></script>
   <script>
-    const CURRENT_USER_ID = <%= user ?user.id: 'null' %>;
+    // Apply dynamic styles from data attributes to satisfy IDE parsers
+    document.querySelectorAll('[data-width]').forEach(el => {
+      el.style.width = el.dataset.width + '%';
+    });
   </script>
   <script src="/js/switch-handler.js"></script>
 
