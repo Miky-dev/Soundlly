@@ -147,7 +147,12 @@ router.post('/ambient/stats', ensureAuthenticated, async (req, res) => {
 // Get List of Available Ambient Sounds
 router.get('/ambient-list', async (req, res) => {
     try {
-        const sounds = await all(`SELECT id, title as label, icon, filename as file FROM sounds WHERE icon IS NOT NULL OR description = 'Suono Ambientale'`);
+        const sounds = await all(`
+            SELECT s.id, s.title as label, s.icon, s.filename as file 
+            FROM sounds s 
+            JOIN users u ON s.owner_id = u.id 
+            WHERE s.category = 'ambient' AND u.role = 'admin'
+        `);
         res.json(sounds);
     } catch (err) {
         console.error('Ambient List Error:', err);

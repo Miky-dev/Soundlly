@@ -97,8 +97,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             icon.className = '';
             icon.classList.add('fa-solid', 'sound-icon');
             // Add specific icon class (remove potential 'fa-' prefix duplicate if needed, but usually just add)
-            // Assuming DB has 'fa-cloud-rain'
-            const iconClass = sound.icon.startsWith('fa-') ? sound.icon : `fa-${sound.icon}`;
+            // Add specific icon class (handle null/undefined)
+            const iconName = sound.icon || 'fa-music';
+            const iconClass = iconName.startsWith('fa-') ? iconName : `fa-${iconName}`;
             icon.classList.add(iconClass);
 
             // Label
