@@ -80,6 +80,46 @@ router.get('/', ensureAuthenticated, async (req, res) => {
             [userId]
         );
 
+        // 5. Weekly Chart Data (Last 7 Days)
+        const chartLabels = [];
+        const chartData = [];
+        const today = new Date();
+
+        // Generate last 7 days dates
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date(today);
+            d.setDate(today.getDate() - i);
+            chartLabels.push(d.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric' }));
+        }
+
+        // Get raw data from DB
+        const rawChartData = await all(`
+            SELECT date(started_at) as dateDay, SUM(completed_minutes) as minutes
+            FROM focus_sessions
+            WHERE user_id = ? AND started_at >= date('now', '-6 days')
+            GROUP BY dateDay
+            ORDER BY dateDay ASC
+        `, [userId]);
+
+        // Map DB data to the 7 days array (filling missing days with 0)
+        // Since we only need the values corresponding to chartLabels order, we can do a simpler match
+        // But to be precise with dates, let's reconstruct:
+        const dataMap = {};
+        if (rawChartData) {
+            rawChartData.forEach(row => {
+                // SQLite date() returns YYYY-MM-DD
+                dataMap[row.dateDay] = row.minutes;
+            });
+        }
+
+        const finalChartData = [];
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date(today);
+            d.setDate(today.getDate() - i);
+            const dateStr = d.toISOString().split('T')[0]; // YYYY-MM-DD
+            finalChartData.push(dataMap[dateStr] || 0);
+        }
+
         res.render('stats', {
             user: req.user,
             totalFocusMinutes: focusStats?.totalMinutes || 0,
@@ -93,6 +133,10 @@ router.get('/', ensureAuthenticated, async (req, res) => {
                 today: progressStats?.todayMinutes || 0,
                 week: progressStats?.weekMinutes || 0,
                 month: progressStats?.monthMinutes || 0
+            },
+            chart: {
+                labels: chartLabels,
+                data: finalChartData
             }
         });
 

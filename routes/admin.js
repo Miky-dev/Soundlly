@@ -31,7 +31,12 @@ router.use(ensureAuthenticated, ensureAdmin);
 // --- Pages ---
 router.get('/', async (req, res) => {
     try {
-        const ambientSounds = await all(`SELECT * FROM sounds WHERE category = 'ambient'`);
+        const ambientSounds = await all(`
+            SELECT s.*, u.username as owner_name 
+            FROM sounds s 
+            LEFT JOIN users u ON s.owner_id = u.id 
+            WHERE s.category = 'ambient'
+        `);
         const userSongs = await all(`
             SELECT s.*, u.username as owner_name 
             FROM sounds s 

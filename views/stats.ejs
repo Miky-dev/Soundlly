@@ -34,6 +34,16 @@
         <div class="stats-container">
             <h1 class="mb-5">Le Tue Statistiche</h1>
 
+
+            <!-- Hidden Data for Chart & Progress -->
+            <input type="hidden" id="chartDataInput"
+                value="<%= encodeURIComponent(JSON.stringify(chart || { labels: [], data: [] })) %>">
+            <input type="hidden" id="progressDataInput" value="<%= encodeURIComponent(JSON.stringify({
+                today: Math.min((progress.today / userGoals.daily_focus_goal) * 100, 100),
+                week: Math.min((progress.week / userGoals.weekly_focus_goal) * 100, 100),
+                month: Math.min((progress.month / userGoals.monthly_focus_goal) * 100, 100)
+            })) %>">
+
             <!-- Goals Section -->
             <div class="row mb-5">
                 <div class="col-12">
@@ -57,9 +67,8 @@
                                     </span>
                                 </div>
                                 <div class="progress progress-bg">
-                                    <div class="progress-bar progress-bar-teal" role="progressbar"
-                                        style="width: <%= Math.min((progress.today / userGoals.daily_focus_goal) * 100, 100) %>%;">
-                                    </div>
+                                    <div class="progress-bar progress-bar-teal" id="prog-today" role="progressbar"
+                                        style="width: 0%;"></div>
                                 </div>
                             </div>
 
@@ -73,9 +82,8 @@
                                     </span>
                                 </div>
                                 <div class="progress progress-bg">
-                                    <div class="progress-bar progress-bar-teal" role="progressbar"
-                                        style="width: <%= Math.min((progress.week / userGoals.weekly_focus_goal) * 100, 100) %>%;">
-                                    </div>
+                                    <div class="progress-bar progress-bar-teal" id="prog-week" role="progressbar"
+                                        style="width: 0%;"></div>
                                 </div>
                             </div>
 
@@ -89,9 +97,8 @@
                                     </span>
                                 </div>
                                 <div class="progress progress-bg">
-                                    <div class="progress-bar progress-bar-teal" role="progressbar"
-                                        style="width: <%= Math.min((progress.month / userGoals.monthly_focus_goal) * 100, 100) %>%;">
-                                    </div>
+                                    <div class="progress-bar progress-bar-teal" id="prog-month" role="progressbar"
+                                        style="width: 0%;"></div>
                                 </div>
                             </div>
                         </div>
@@ -240,6 +247,20 @@
                 </div>
             </div>
 
+            <!-- Weekly Chart Section -->
+            <div class="row mb-5">
+                <div class="col-12">
+                    <div class="stat-card-box stat-card-box-aligned">
+                        <div class="section-header">
+                            <h2><i class="fa-solid fa-chart-line"></i> Andamento Settimanale</h2>
+                        </div>
+                        <div style="height: 300px; width: 100%;">
+                            <canvas id="weeklyChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Detailed Tables -->
             <div class="row g-4">
                 <!-- Top Ambient Sounds -->
@@ -339,6 +360,91 @@
         </footer>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <script>
+            // Retrieve and parse data from hidden inputs
+            const chartDataInput = document.getElementById('chartDataInput');
+            const progressDataInput = document.getElementById('progressDataInput');
+
+            let chartData = { labels: [], data: [] };
+            let progressData = { today: 0, week: 0, month: 0 };
+
+            try {
+                if (chartDataInput && chartDataInput.value) {
+                    chartData = JSON.parse(decodeURIComponent(chartDataInput.value));
+                }
+                if (progressDataInput && progressDataInput.value) {
+                    progressData = JSON.parse(decodeURIComponent(progressDataInput.value));
+                }
+            } catch (e) {
+                console.error("Error parsing stats data", e);
+            }
+
+            // Set Progress Bars
+            const setWidth = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.style.width = val + '%';
+            };
+            setWidth('prog-today', progressData.today);
+            setWidth('prog-week', progressData.week);
+            setWidth('prog-month', progressData.month);
+
+
+            // Render Chart
+            const ctx = document.getElementById('weeklyChart').getContext('2d');
+            const myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: 'Minuti Focus',
+                        data: chartData.data,
+                        backgroundColor: 'rgba(42, 157, 143, 0.2)',
+                        borderColor: '#2a9d8f',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4, // Smooth curve
+                        pointBackgroundColor: '#2a9d8f'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return context.parsed.y + ' min';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#ccc'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#ccc'
+                            }
+                        }
+                    }
+                }
+            });
+        </script>
 </body>
 
 </html>
