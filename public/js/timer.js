@@ -1,145 +1,132 @@
 /**
  * timer.js
  * 
- * Gestisce il Timer Pomodoro (25/5/15) con interfaccia circolare, 
- * salvataggio delle sessioni sul server e configurazione personalizzata.
- * 
- * Funzionalità principali:
- * - Timer (Start/Pause/Reset)
- * - Gestione modalità (Pomodoro, Pausa Breve)
- * - Persistenza configurazione (durata sessioni)
- * - Comunicazione con il backend per tracciare le sessioni di focus
- * - Notifiche audio e desktop
+ * Gestisce il Timer Pomodoro (25/5/15) con interfaccia circolare.
+ * Refactoring: Conversione in Classe ES6 come richiesto dall'esame.
  */
 
-(function () {
-  const STORAGE_KEY = 'soundlly_timer_state_v1';
+class FocusTimer {
+  constructor() {
+    this.STORAGE_KEY = 'soundlly_timer_state_v1';
 
-  // --- ELEMENTI DEL DOM ---
-  // Riferimenti agli elementi HTML necessari per il funzionamento del timer
-  const els = {
-    time: document.getElementById('pomoTime'),       // Display del tempo (MM:SS)
-    progress: document.getElementById('pomoProgress'), // Cerchio di progresso SVG
-    mode: document.getElementById('pomoMode'),       // Testo modalità corrente
-    btnStart: document.getElementById('pomoStart'),  // Bottone Avvia
-    btnPause: document.getElementById('pomoPause'),  // Bottone Pausa
-    btnReset: document.getElementById('pomoReset'),  // Bottone Reset
-    btnSkip: document.getElementById('pomoSkip'),    // Bottone Salta (per cambio modalità manuale)
-    audio: document.getElementById('pomoDing'),      // Elemento audio per la fine del timer
-    // Impostazioni
-    btnSettings: document.getElementById('pomoSettingsBtn'), // Bottone apri settings
-    panelSettings: document.getElementById('pomoSettingsPanel'), // Pannello settings
-    btnSaveSettings: document.getElementById('saveSettingsBtn'), // Bottone salva settings
-    inputs: {
-      pomodoro: document.getElementById('setPomo'),   // Input durata Pomodoro
-      shortBreak: document.getElementById('setShort') // Input durata Pausa Breve
-    }
-  };
+    // --- CONFIGURAZIONE DEFAULT ---
+    this.MODES = {
+      pomodoro: { minutes: 25, label: 'Pomodoro', color: '#2a9d8f' },
+      shortBreak: { minutes: 5, label: 'Pausa Breve', color: '#e9c46a' }
+    };
 
-  // Se mancano elementi essenziali (es. in altre pagine), interrompiamo l'esecuzione
-  if (!els.time || !els.progress || !els.btnStart) return;
+    // --- STATO ---
+    this.currentMode = 'pomodoro';
+    this.timeLeft = this.MODES.pomodoro.minutes * 60;
+    this.timerId = null;
+    this.isRunning = false;
+    this.currentSessionId = null;
 
-  // --- CONFIGURAZIONE ---
-  // Impostazioni di default per le modalità. Vengono sovrascritte dalle impostazioni utente.
-  const MODES = {
-    pomodoro: { minutes: 25, label: 'Pomodoro', color: '#2a9d8f' },
-    shortBreak: { minutes: 5, label: 'Pausa Breve', color: '#e9c46a' }
-  };
-
-  // --- STATO DELL'APPLICAZIONE ---
-  let currentMode = 'pomodoro'; // Modalità corrente ('pomodoro' o 'shortBreak')
-  let timeLeft = MODES[currentMode].minutes * 60; // Tempo rimanente in secondi
-  let timerId = null;           // ID del timer (setInterval)
-  let isRunning = false;        // Stato del timer (in esecuzione o no)
-  let currentSessionId = null;  // ID della sessione backend (se attiva)
-
-  // --- INIZIALIZZAZIONE ---
-  function init() {
-    loadSettings(); // Carica le impostazioni dal server
-
-    // Tenta di ripristinare lo stato salvato
-    const restored = loadState();
-    if (!restored) {
-      // Se non c'è stato salvato, usa il default
-      updateUI();
-    }
-
-    // Event Listeners per i controlli principali
-    els.btnStart.addEventListener('click', startTimer);
-    els.btnPause.addEventListener('click', pauseTimer);
-    els.btnReset.addEventListener('click', resetTimer);
-    if (els.btnSkip) els.btnSkip.addEventListener('click', nextMode);
-
-    // Event Listeners per il pannello impostazioni
-    if (els.btnSettings) {
-      els.btnSettings.addEventListener('click', () => {
-        // Toggle visibilità pannello
-        const isHidden = els.panelSettings.style.display === 'none';
-        els.panelSettings.style.display = isHidden ? 'block' : 'none';
-      });
-    }
-    if (els.btnSaveSettings) {
-      els.btnSaveSettings.addEventListener('click', saveSettings);
-    }
-
-    // Imposta la modalità iniziale solo se non è stata ripristinata
-    if (!restored) {
-      setMode('pomodoro');
-    } else {
-      // Se ripristinato, assicurati che la UI rifletta lo stato
-      updateUI();
-      toggleButtons();
-      // Se stava correndo, riavvia il loop (il tick verrà gestito da startTimer o da un loop ad hoc?)
-      // startTimer() qui potrebbe resettare targetTime se non stiamo attenti.
-      // Meglio gestire il resume specificamente.
-      if (isRunning) {
-        startTimer(true); // true = resume
+    // --- ELEMENTI DOM ---
+    this.els = {
+      time: document.getElementById('pomoTime'),
+      progress: document.getElementById('pomoProgress'),
+      mode: document.getElementById('pomoMode'),
+      btnStart: document.getElementById('pomoStart'),
+      btnPause: document.getElementById('pomoPause'),
+      btnReset: document.getElementById('pomoReset'),
+      btnSkip: document.getElementById('pomoSkip'),
+      audio: document.getElementById('pomoDing'),
+      btnSettings: document.getElementById('pomoSettingsBtn'),
+      panelSettings: document.getElementById('pomoSettingsPanel'),
+      btnSaveSettings: document.getElementById('saveSettingsBtn'),
+      inputs: {
+        pomodoro: document.getElementById('setPomo'),
+        shortBreak: document.getElementById('setShort')
       }
+    };
+
+    // Avvio solo se gli elementi esistono
+    if (this.els.time && this.els.progress && this.els.btnStart) {
+      this.init();
     }
   }
 
-  // --- GESTIONE IMPOSTAZIONI ---
+  async init() {
+    await this.loadSettings();
 
-  /**
-   * Carica le impostazioni personalizzate dell'utente dal server.
-   * Se fallisce, rimangono i valori di default.
-   */
-  async function loadSettings() {
+    const restored = this.loadState();
+    if (!restored) {
+      this.updateUI();
+    }
+
+    this.bindEvents();
+
+    if (!restored) {
+      this.setMode('pomodoro');
+    } else {
+      this.updateUI();
+      this.toggleButtons();
+      if (this.isRunning) {
+        this.startTimer(true); // Resume
+      }
+    }
+
+    if ("Notification" in window && Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+  }
+
+  bindEvents() {
+    this.els.btnStart.addEventListener('click', () => this.startTimer());
+    this.els.btnPause.addEventListener('click', () => this.pauseTimer());
+    this.els.btnReset.addEventListener('click', () => this.resetTimer());
+    if (this.els.btnSkip) this.els.btnSkip.addEventListener('click', () => this.nextMode());
+
+    if (this.els.btnSettings) {
+      this.els.btnSettings.addEventListener('click', () => {
+        // Toggle visibility using classes if possible, but for minimal DOM change we keep toggle logic
+        // Ideally: this.els.panelSettings.classList.toggle('d-none');
+        // Checking current style for compatibility with existing inline logic if we haven't fully cleaned CSS yet
+        if (this.els.panelSettings.style.display === 'none' || this.els.panelSettings.classList.contains('hidden')) {
+          this.els.panelSettings.style.display = 'block';
+          this.els.panelSettings.classList.remove('hidden');
+        } else {
+          this.els.panelSettings.style.display = 'none';
+          this.els.panelSettings.classList.add('hidden');
+        }
+      });
+    }
+
+    if (this.els.btnSaveSettings) {
+      this.els.btnSaveSettings.addEventListener('click', () => this.saveSettings());
+    }
+  }
+
+  // --- API SETTINGS ---
+
+  async loadSettings() {
     try {
       const res = await fetch('/api/focus/settings');
       if (res.ok) {
         const cfg = await res.json();
-        // Aggiorna i minuti delle modalità se presenti nella risposta
-        if (cfg.pomodoro) MODES.pomodoro.minutes = cfg.pomodoro;
-        if (cfg.shortBreak) MODES.shortBreak.minutes = cfg.shortBreak;
+        if (cfg.pomodoro) this.MODES.pomodoro.minutes = cfg.pomodoro;
+        if (cfg.shortBreak) this.MODES.shortBreak.minutes = cfg.shortBreak;
 
-        // Se il timer è fermo, aggiorna il tempo visualizzato con i nuovi valori
-        if (!isRunning) {
-          timeLeft = MODES[currentMode].minutes * 60;
-          updateUI();
+        if (!this.isRunning) {
+          this.timeLeft = this.MODES[this.currentMode].minutes * 60;
+          this.updateUI();
         }
       }
     } catch (e) {
       console.error('Error loading settings', e);
     }
-
-    // Aggiorna i valori negli input del pannello impostazioni
-    if (els.inputs.pomodoro) els.inputs.pomodoro.value = MODES.pomodoro.minutes;
-    if (els.inputs.shortBreak) els.inputs.shortBreak.value = MODES.shortBreak.minutes;
+    if (this.els.inputs.pomodoro) this.els.inputs.pomodoro.value = this.MODES.pomodoro.minutes;
+    if (this.els.inputs.shortBreak) this.els.inputs.shortBreak.value = this.MODES.shortBreak.minutes;
   }
 
-  /**
-   * Salva le nuove impostazioni sul server e aggiorna lo stato locale.
-   */
-  async function saveSettings() {
-    const p = parseInt(els.inputs.pomodoro.value) || 25;
-    const s = parseInt(els.inputs.shortBreak.value) || 5;
+  async saveSettings() {
+    const p = parseInt(this.els.inputs.pomodoro.value) || 25;
+    const s = parseInt(this.els.inputs.shortBreak.value) || 5;
 
-    // Aggiorna configurazione locale
-    MODES.pomodoro.minutes = p;
-    MODES.shortBreak.minutes = s;
+    this.MODES.pomodoro.minutes = p;
+    this.MODES.shortBreak.minutes = s;
 
-    // Invia al server
     try {
       await fetch('/api/focus/settings', {
         method: 'POST',
@@ -150,169 +137,116 @@
       console.error('Error saving settings', e);
     }
 
-    // Chiude il pannello
-    els.panelSettings.style.display = 'none';
-
-    // Resetta il timer per applicare le modifiche (se non in esecuzione, resetta per aggiornare il tempo totale)
-    if (!isRunning) {
-      resetTimer();
+    this.els.panelSettings.style.display = 'none';
+    if (!this.isRunning) {
+      this.resetTimer();
     }
   }
 
-  // --- LOGICA TIMER ---
+  // --- LOGIC ---
 
-  /**
-   * Cambia la modalità del timer (es. da Studio a Pausa).
-   * @param {string} modeKey - La chiave della modalità ('pomodoro' o 'shortBreak')
-   */
-  function setMode(modeKey) {
-    if (isRunning) return; // Impedisce il cambio modalità mentre il timer corre
-    currentMode = modeKey;
-    timeLeft = MODES[modeKey].minutes * 60;
+  setMode(modeKey) {
+    if (this.isRunning) return;
+    this.currentMode = modeKey;
+    this.timeLeft = this.MODES[modeKey].minutes * 60;
 
-    // Aggiorna i colori dell'interfaccia in base alla modalità
-    const color = MODES[modeKey].color;
-    els.progress.style.stroke = color;
-    els.time.style.color = color;
+    const color = this.MODES[modeKey].color;
+    this.els.progress.style.stroke = color;
+    this.els.time.style.color = color;
 
-    updateUI();
-    saveState(); // Salva il cambio di modalità
+    this.updateUI();
+    this.saveState();
   }
 
-  /**
-   * Avvia il timer.
-   * Crea una sessione sul server se siamo in modalità Pomodoro.
-   * @param {boolean} isResume - Se true, non ricalcola il targetTime ma usa timeLeft corrente
-   */
-  async function startTimer(isResume = false) {
-    if (isRunning && !isResume) return;
+  async startTimer(isResume = false) {
+    if (this.isRunning && !isResume) return;
 
-    // Se si avvia un Pomodoro e non c'è una sessione attiva, creane una
-    if (currentMode === 'pomodoro' && !currentSessionId) {
+    if (this.currentMode === 'pomodoro' && !this.currentSessionId) {
       try {
         const res = await fetch('/api/focus/start', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            session_type: currentMode,
-            planned_minutes: MODES[currentMode].minutes
+            session_type: this.currentMode,
+            planned_minutes: this.MODES[this.currentMode].minutes
           })
         });
         const data = await res.json();
         if (data.ok) {
-          currentSessionId = data.session_id; // Memorizza l'ID sessione
-          saveState(); // Salva subito l'ID sessione
+          this.currentSessionId = data.session_id;
+          this.saveState();
         }
       } catch (err) {
         console.error('Error starting session:', err);
       }
     }
 
-    isRunning = true;
+    this.isRunning = true;
+    this.saveState();
+    this.toggleButtons();
 
-    // Se non è un ripristino, calcola il targetTime
-    // Se è un ripristino, assumiamo che timeLeft sia già stato calcolato/impostato da loadState
-    // Ma per coerenza con saveState che usa targetTime, dobbiamo impostarlo.
-    // In saveState: targetTime = Date.now() + timeLeft * 1000
-
-    // Per semplicità: salviamo sempre il targetTime quando si avvia/riprende.
-    // Se timeLeft è stato aggiornato correttamente, il targetTime sarà corretto.
-    saveState();
-
-    toggleButtons();
-
-    // Loop principale del timer (ogni secondo)
-    // Pulisci eventuale timer precedente per sicurezza
-    if (timerId) clearInterval(timerId);
-
-    timerId = setInterval(() => {
-      if (timeLeft > 0) {
-        timeLeft--;
-        updateUI();
+    if (this.timerId) clearInterval(this.timerId);
+    this.timerId = setInterval(() => {
+      if (this.timeLeft > 0) {
+        this.timeLeft--;
+        this.updateUI();
       } else {
-        completeTimer(); // Tempo scaduto
+        this.completeTimer();
       }
     }, 1000);
   }
 
-  /**
-   * Mette in pausa il timer.
-   */
-  function pauseTimer() {
-    if (!isRunning) return;
-    clearInterval(timerId); // Ferma il loop
-    isRunning = false;
-    saveState(); // Salva lo stato in pausa (con timeLeft statico)
-    toggleButtons();
+  pauseTimer() {
+    if (!this.isRunning) return;
+    clearInterval(this.timerId);
+    this.isRunning = false;
+    this.saveState();
+    this.toggleButtons();
   }
 
-  /**
-   * Resetta il timer allo stato iniziale della modalità corrente.
-   * Interrompe eventuali sessioni attive come 'abandoned'.
-   */
-  async function resetTimer() {
-    pauseTimer();
-
-    // Se c'era una sessione attiva, segnalala come abbandonata al server
-    if (currentSessionId) {
-      await stopSessionServer('abandoned');
+  async resetTimer() {
+    this.pauseTimer();
+    if (this.currentSessionId) {
+      await this.stopSessionServer('abandoned');
     }
-
-    // Ripristina il tempo totale
-    timeLeft = MODES[currentMode].minutes * 60;
-
-    // Pulisci lo stato salvato
-    clearState();
-
-    updateUI();
+    this.timeLeft = this.MODES[this.currentMode].minutes * 60;
+    this.clearState();
+    this.updateUI();
   }
 
-  /**
-   * Gestisce il completamento del timer (00:00).
-   */
-  async function completeTimer() {
-    pauseTimer();
-    timeLeft = 0;
-    clearState(); // Rimuove lo stato salvato poiché finito
-    updateUI();
+  async completeTimer() {
+    this.pauseTimer();
+    this.timeLeft = 0;
+    this.clearState();
+    this.updateUI();
 
-    // Suona l'audio di fine
-    if (els.audio) {
-      els.audio.currentTime = 0;
-      els.audio.play().catch(e => console.log('Audio play failed', e));
+    if (this.els.audio) {
+      this.els.audio.currentTime = 0;
+      this.els.audio.play().catch(e => console.log('Audio error', e));
     }
 
-    // Invia notifica desktop
     if (Notification.permission === "granted") {
-      new Notification("Timer completato!", { body: `${MODES[currentMode].label} terminato.` });
+      new Notification("Timer completato!", { body: `${this.MODES[this.currentMode].label} terminato.` });
     }
 
-    // Chiude la sessione sul server come 'completed'
-    if (currentSessionId) {
-      await stopSessionServer('completed');
+    if (this.currentSessionId) {
+      await this.stopSessionServer('completed');
     }
 
-    // Passa automaticamente alla modalità successiva (in pausa)
-    nextMode();
+    this.nextMode();
   }
 
-  /**
-   * Comunica al server di terminare la sessione corrente.
-   * @param {string} status - Lo stato finale ('completed' o 'abandoned')
-   */
-  async function stopSessionServer(status) {
-    if (!currentSessionId) return;
-
-    // Calcola i minuti completati (approssimato)
-    const totalSec = MODES[currentMode].minutes * 60;
-    const completedMinutes = Math.round((totalSec - timeLeft) / 60);
+  async stopSessionServer(status) {
+    if (!this.currentSessionId) return;
+    const totalSec = this.MODES[this.currentMode].minutes * 60;
+    const completedMinutes = Math.round((totalSec - this.timeLeft) / 60);
 
     try {
       await fetch('/api/focus/stop', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          session_id: currentSessionId,
+          session_id: this.currentSessionId,
           completed_minutes: completedMinutes,
           status: status
         })
@@ -320,136 +254,96 @@
     } catch (err) {
       console.error('Error stopping session', err);
     }
-    currentSessionId = null; // Reset ID sessione
+    this.currentSessionId = null;
   }
 
-  /**
-   * Passa alla modalità successiva (ciclo Pomodoro -> Pausa -> Pomodoro).
-   * Resetta il timer e lo lascia in pausa.
-   */
-  function nextMode() {
-    resetTimer();
-    if (currentMode === 'pomodoro') {
-      setMode('shortBreak');
+  nextMode() {
+    this.resetTimer();
+    this.setMode(this.currentMode === 'pomodoro' ? 'shortBreak' : 'pomodoro');
+  }
+
+  // --- UI ---
+
+  updateUI() {
+    const m = Math.floor(this.timeLeft / 60);
+    const s = this.timeLeft % 60;
+    this.els.time.textContent = `${this.pad(m)}:${this.pad(s)}`;
+    this.els.mode.textContent = `Modalità: ${this.MODES[this.currentMode].label}`;
+
+    document.title = this.isRunning ? `${this.pad(m)}:${this.pad(s)} - Soundlly` : 'Soundlly - Focus';
+
+    const totalTime = this.MODES[this.currentMode].minutes * 60;
+    const pct = ((totalTime - this.timeLeft) / totalTime) * 100;
+    this.els.progress.style.strokeDashoffset = pct;
+
+    this.toggleButtons();
+  }
+
+  toggleButtons() {
+    if (this.isRunning) {
+      this.els.btnStart.hidden = true;
+      this.els.btnPause.hidden = false;
+      if (this.els.btnSettings) this.els.btnSettings.disabled = true;
     } else {
-      setMode('pomodoro');
+      this.els.btnStart.hidden = false;
+      this.els.btnPause.hidden = true;
+      if (this.els.btnSettings) this.els.btnSettings.disabled = false;
     }
   }
 
-  // --- AGGIORNAMENTO INTERFACCIA ---
-
-  /**
-   * Aggiorna tutti gli elementi visuali (tempo, progress bar, titolo pagina).
-   */
-  function updateUI() {
-    // Formatta MM:SS
-    const m = Math.floor(timeLeft / 60);
-    const s = timeLeft % 60;
-    els.time.textContent = `${pad(m)}:${pad(s)}`;
-    els.mode.textContent = `Modalità: ${MODES[currentMode].label}`;
-
-    // Aggiorna titolo tab browser (solo se attivo)
-    if (isRunning) document.title = `${pad(m)}:${pad(s)} - Soundlly`;
-    else document.title = 'Soundlly - Focus';
-
-    // Calcola percentuale per il cerchio SVG
-    const totalTime = MODES[currentMode].minutes * 60;
-    const pct = ((totalTime - timeLeft) / totalTime) * 100;
-    els.progress.style.strokeDashoffset = pct;
-
-    toggleButtons();
-  }
-
-  /**
-   * Mostra/Nasconde i bottoni in base allo stato (Play vs Pause).
-   */
-  function toggleButtons() {
-    if (isRunning) {
-      els.btnStart.hidden = true;
-      els.btnPause.hidden = false;
-      if (els.btnSettings) els.btnSettings.disabled = true; // Disabilita settings durante il timer
-    } else {
-      els.btnStart.hidden = false;
-      els.btnPause.hidden = true;
-      if (els.btnSettings) els.btnSettings.disabled = false;
-    }
-  }
-
-  /**
-   * Aggiunge lo zero iniziale per numeri < 10 (es. 9 -> '09').
-   */
-  function pad(n) {
+  pad(n) {
     return n < 10 ? '0' + n : n;
   }
 
-  // --- PERSISTENZA (LocalStorage) ---
+  // --- PERSISTENCE ---
 
-  function saveState() {
+  saveState() {
     const state = {
-      mode: currentMode,
-      isRunning: isRunning,
-      timeLeft: timeLeft,
-      sessionId: currentSessionId,
+      mode: this.currentMode,
+      isRunning: this.isRunning,
+      timeLeft: this.timeLeft,
+      sessionId: this.currentSessionId,
       timestamp: Date.now()
     };
-
-    // Se sta correndo, salviamo il targetTime invece di solo timeLeft
-    // per essere precisi al millisecondo se si ricarica
-    if (isRunning) {
-      state.targetTime = Date.now() + (timeLeft * 1000);
+    if (this.isRunning) {
+      state.targetTime = Date.now() + (this.timeLeft * 1000);
     }
-
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(state));
   }
 
-  function loadState() {
+  loadState() {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(this.STORAGE_KEY);
       if (!raw) return false;
-
       const state = JSON.parse(raw);
 
-      // Ripristina variabili base
-      currentMode = state.mode || 'pomodoro';
-      currentSessionId = state.sessionId || null;
-      isRunning = state.isRunning || false;
+      this.currentMode = state.mode || 'pomodoro';
+      this.currentSessionId = state.sessionId || null;
+      this.isRunning = state.isRunning || false;
 
-      // Se era in esecuzione, calcola il tempo trascorso
-      if (isRunning && state.targetTime) {
-        const now = Date.now();
-        const diffSeconds = Math.round((state.targetTime - now) / 1000);
-
+      if (this.isRunning && state.targetTime) {
+        const diffSeconds = Math.round((state.targetTime - Date.now()) / 1000);
         if (diffSeconds > 0) {
-          timeLeft = diffSeconds;
+          this.timeLeft = diffSeconds;
         } else {
-          // Il tempo è scaduto mentre eravamo via
-          timeLeft = 0;
-          isRunning = false; // Non riavviare, mostra finito/reset
-          // Potremmo voler chiamare completeTimer() qui?
-          // Per ora resettiamo o mostriamo 0
+          this.timeLeft = 0;
+          this.isRunning = false;
         }
       } else {
-        // Se era in pausa, usa timeLeft salvato
-        timeLeft = state.timeLeft || MODES[currentMode].minutes * 60;
+        this.timeLeft = state.timeLeft || this.MODES[this.currentMode].minutes * 60;
       }
-
       return true;
     } catch (e) {
-      console.error("Errore recupero stato timer", e);
       return false;
     }
   }
 
-  function clearState() {
-    localStorage.removeItem(STORAGE_KEY);
+  clearState() {
+    localStorage.removeItem(this.STORAGE_KEY);
   }
+}
 
-  // Richiedi permessi notifica se necessario
-  if ("Notification" in window && Notification.permission !== "granted") {
-    Notification.requestPermission();
-  }
-
-  // Avvio
-  init();
-
-})();
+// Instantiate and expose
+document.addEventListener('DOMContentLoaded', () => {
+  window.focusTimer = new FocusTimer();
+});

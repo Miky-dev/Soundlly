@@ -33,7 +33,7 @@
   <nav class="navbar navbar-expand-lg navbar-dark bg-transaparent">
     <div class="container-fluid">
       <!-- Logo del sito -->
-      <a href="/home" style="text-decoration: none;">
+      <a href="/home" class="text-decoration-none">
         <span class="app-logo">soundlly</span>
       </a>
 
@@ -95,7 +95,7 @@
 
                     <% if (user) { %>
                       <!-- Se l'utente è loggato, mostra l'avatar -->
-                      <li class="nav-item mix-2" style="display: flex; align-items: center;">
+                      <li class="nav-item mix-2 nav-item-flex">
                         <a href="/profilo" aria-label="Profilo">
                           <img src="<%= user.avatar_url || '/immagini/usericon.png' %>" alt="Profilo" class="nav-avatar"
                             onerror="this.onerror=null;this.src='/immagini/usericon.png';">
@@ -115,7 +115,7 @@
        ================================================================== -->
   <div class="grid-container">
     <!-- Box 1: Messaggio di benvenuto personalizzato -->
-    <div class="box box-1">
+    <section class="box box-1" aria-label="Benvenuto e Todo">
       <div class="todo-box">
         <div class="header">
           <div class="input-row"> <!-- Removed input-group -->
@@ -126,22 +126,20 @@
         <ul id="todo-list">
           <!-- Items added via JS -->
         </ul>
-        <div class="todo-footer" style="margin-top: 10px; text-align: center;">
-          <button id="clear-completed-btn" class="btn-sm"
-            style="background: rgba(255,255,255,0.2); border:none; color:white; border-radius:4px; padding: 5px 10px; cursor: pointer;">
+        <div class="todo-footer todo-footer-center">
+          <button id="clear-completed-btn" class="btn-sm btn-clear-completed">
             Elimina completate
           </button>
         </div>
       </div>
-    </div>
+    </section>
 
 
 
 
-    <div class="box box-3">
+    <section class="box box-3" aria-label="Timer Pomodoro Wrapper">
       <!-- Widget del Timer Pomodoro -->
-      <section id="pane-timer" class="prod-pane active" role="region" aria-label="Timer Pomodoro"
-        style="height:100%; width:100%;">
+      <section id="pane-timer" class="prod-pane active full-size" role="region" aria-label="Timer Pomodoro">
         <div class="timer" id="pomoCard">
           <!-- Dial (quadrante) del timer -->
           <div class="dial">
@@ -170,9 +168,9 @@
             <button class="btn" id="pomoPause"><i class="fa-solid fa-pause"></i> Pausa</button>
             <button class="btn danger" id="pomoReset"><i class="fa-solid fa-rotate-right"></i> Reset</button>
             <button class="btn" id="pomoSkip" title="Salta allo step successivo"><i
-                class="fa-solid fa-forward-step"></i> Salta</button>
-            <button class="btn" id="pomoSettingsBtn" title="Impostazioni"
-              style="background:transparent; border:none; color:inherit; transform: scale(0.9);"><i
+                class="fa-solid fa-forward-step"></i>
+              Salta</button>
+            <button class="btn btn-icon-sm" id="pomoSettingsBtn" title="Impostazioni"><i
                 class="fa-solid fa-gear"></i></button>
           </div>
 
@@ -197,21 +195,21 @@
       <audio id="pomoDing" preload="auto">
         <source src="/audio/ding.mp3" type="audio/mp3">
       </audio>
-    </div>
+    </section>
 
     <!-- Box 4: Griglia per i suoni ambientali, popolata dinamicamente da loadSounds.js -->
-    <div class="box box-4">
+    <section class="box box-4" aria-label="Ambient Sounds">
       <div class="box-4-header">
         <h2 class="section-title">Suoni</h2>
       </div>
       <div id="sounds-container"></div>
-    </div>
+    </section>
 
 
 
     <!-- Box 6: Widget con statistiche rapide dell'utente.
          Cliccando, si viene reindirizzati alla pagina completa delle statistiche. -->
-    <div class="box box-6" role="region" aria-label="Statistiche rapide">
+    <section class="box box-6" role="region" aria-label="Statistiche rapide">
       <div class="stats-blur-container">
 
         <% if (!user) { %>
@@ -224,7 +222,7 @@
           </div>
           <% } %>
 
-            <a href="/stats" class="stats-link" style="text-decoration: none; color: inherit; display: contents;">
+            <a href="/stats" class="stats-link stats-link-wrapper">
               <div class="hub-card <%= !user ? 'blurred-content' : '' %>">
 
                 <div class="hub-header">
@@ -293,7 +291,7 @@
             </a>
 
       </div>
-    </div>
+    </section>
 
 
 
@@ -302,7 +300,7 @@
   <!-- =================================================================
          HORIZONTAL BOX - Contiene la barra di ricerca e le liste di brani a scorrimento orizzontale.
          ================================================================== -->
-  <div class="horizontal-box">
+  <section class="horizontal-box" aria-label="Music Discovery">
     <div class="horizontal-header">
       <!-- User Info (Left) -->
       <div class="user-profile">
@@ -362,7 +360,7 @@
         <div class="horizontal" data-grid="pref"></div>
       </section>
       <% } %>
-  </div>
+  </section>
 
 
 
@@ -374,7 +372,8 @@
       <div class="footer-column">
         <h4>Informazioni</h4>
         <p>La nostra azienda si impegna a fornire i migliori servizi dal 2025. I nostri servizi si basano
-          sull'intratteminemto multimediale, all'interno della piattaforma sei in grado di ascoltare suoni rilassanti e
+          sull'intratteminemto multimediale, all'interno della piattaforma sei in grado di ascoltare suoni
+          rilassanti e
           musica mentre studi in completa tranquillità.</p>
       </div>
       <div class="footer-column">
@@ -457,7 +456,10 @@
   <script>
     // Apply dynamic styles from data attributes to satisfy IDE parsers
     document.querySelectorAll('[data-width]').forEach(el => {
-      el.style.width = el.dataset.width + '%';
+      // el.style.width = el.dataset.width + '%'; 
+      // Changed to CSS variable for cleaner style manipulation
+      el.style.setProperty('--bar-width', el.dataset.width + '%');
+      el.style.width = 'var(--bar-width)';
     });
   </script>
   <script src="/js/switch-handler.js"></script>
