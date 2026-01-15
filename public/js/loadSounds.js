@@ -10,14 +10,17 @@
 
 document.addEventListener('DOMContentLoaded', async () => {
     const container = document.getElementById('sounds-container');
-    if (!container) return; // Guard clause
-
     // Global state
     let sounds = [];
     const audioPlayers = {};
     const sessionStats = {};
     const STATS_INTERVAL_MS = 10000;
     const COUNT_INTERVAL_MS = 1000;
+
+    // Headless mode check: if container is missing, we are likely in Immersive view or another page
+    // but we still want audio logic if we are navigating "internally".
+    const isHeadless = !container;
+
 
     try {
         // --- 1. FETCH DATA (Sounds List + User Prefs) ---
@@ -32,7 +35,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const prefs = await prefsRes.json(); // Array of { sound_id, volume, is_active }
 
         // Convert prefs to map
-        // Note: sound_id in DB might be string/int mix if legacy. We use loose equality or string keys.
         const prefsMap = {};
         if (Array.isArray(prefs)) {
             prefs.forEach(p => {
@@ -40,16 +42,43 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
-        renderGrid(prefsMap);
+        // CHECK NAVIGATION FLAG
+        // 'soundlly_navigating' is set in switch-handler.js before redirecting.
+        const isNavigating = sessionStorage.getItem('soundlly_navigating') === 'true';
+        if (isNavigating) {
+            sessionStorage.removeItem('soundlly_navigating'); // Clean up
+        }
+
+        if (!isHeadless) {
+            renderGrid(prefsMap, isNavigating);
+        } else {
+            // Headless mode (e.g. Immersive): just initialize audio players for active sounds
+            initHeadlessAudio(sounds, prefsMap, isNavigating);
+        }
+
         startStatsTracking();
 
     } catch (err) {
         console.error('Error initializing sounds:', err);
-        container.innerHTML = '<p class="text-danger">Impossibile caricare i suoni.</p>';
+        if (container) container.innerHTML = '<p class="text-danger">Impossibile caricare i suoni.</p>';
     }
 
 
-    function renderGrid(prefsMap) {
+    function initHeadlessAudio(soundsList, prefsMap, isNavigating) {
+        if (!isNavigating) return; // If not navigating, don't auto-play anything in headless
+
+        soundsList.forEach(sound => {
+            const pref = prefsMap[sound.id];
+            // Only play if USER specifically left it active in DB *AND* we are navigating
+            // (meaning we want to persist the session).
+            if (pref && pref.is_active) {
+                const savedVolume = pref.volume !== undefined ? pref.volume : 50;
+                playAudio(sound.id, sound.file, savedVolume);
+            }
+        });
+    }
+
+    function renderGrid(prefsMap, isNavigating) {
         // Create Grid Container
         const grid = document.createElement('div');
         grid.className = 'vertical-grid sound-grid-2col';
@@ -75,7 +104,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Actually, the previous code had `const savedVolume = pref.volume;` and `const isActive = false;`.
             // So I will keep `isActive = false` on load.
 
-            const isActive = false;
+            // Persistence Logic:
+            // If isNavigating is TRUE -> use pref.is_active from DB (persist state).
+            // If isNavigating is FALSE -> default to false (quiet start).
+            const isActive = isNavigating ? (pref && !!pref.is_active) : false;
             const savedVolume = pref.volume !== undefined ? pref.volume : 50;
 
             // Card Element

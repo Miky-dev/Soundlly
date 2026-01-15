@@ -47,6 +47,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (targetUrl) {
+                // Set flag to persist ambient sounds logic
+                sessionStorage.setItem('soundlly_navigating', 'true');
+
                 // Trigger animation
                 transitionEl.style.opacity = '1';
                 transitionEl.style.pointerEvents = 'auto';
