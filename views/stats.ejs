@@ -11,6 +11,17 @@
     <link rel="stylesheet" href="/css/styleHome.css">
     <link rel="icon" href="/immagini/logo3.png" type="image/png">
     <link rel="stylesheet" href="/css/stats.css">
+    <style>
+        .chart-wrapper {
+            height: 300px;
+            width: 100%;
+        }
+
+        /* Override generic progress bar widths */
+        .w-0 {
+            width: 0%;
+        }
+    </style>
 </head>
 
 <body>
@@ -19,7 +30,7 @@
     <!-- Simple Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-transaparent">
         <div class="container-fluid">
-            <a href="/home" style="text-decoration: none;">
+            <a href="/home" class="text-decoration-none">
                 <span class="app-logo">soundlly</span>
             </a>
             <a href="/home" class="btn btn-outline-light btn-sm"><i class="fa-solid fa-arrow-left"></i> Torna alla
@@ -67,8 +78,8 @@
                                     </span>
                                 </div>
                                 <div class="progress progress-bg">
-                                    <div class="progress-bar progress-bar-teal" id="prog-today" role="progressbar"
-                                        style="width: 0%;"></div>
+                                    <div class="progress-bar progress-bar-teal w-0" id="prog-today" role="progressbar">
+                                    </div>
                                 </div>
                             </div>
 
@@ -82,8 +93,8 @@
                                     </span>
                                 </div>
                                 <div class="progress progress-bg">
-                                    <div class="progress-bar progress-bar-teal" id="prog-week" role="progressbar"
-                                        style="width: 0%;"></div>
+                                    <div class="progress-bar progress-bar-teal w-0" id="prog-week" role="progressbar">
+                                    </div>
                                 </div>
                             </div>
 
@@ -97,8 +108,8 @@
                                     </span>
                                 </div>
                                 <div class="progress progress-bg">
-                                    <div class="progress-bar progress-bar-teal" id="prog-month" role="progressbar"
-                                        style="width: 0%;"></div>
+                                    <div class="progress-bar progress-bar-teal w-0" id="prog-month" role="progressbar">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -254,7 +265,7 @@
                         <div class="section-header">
                             <h2><i class="fa-solid fa-chart-line"></i> Andamento Settimanale</h2>
                         </div>
-                        <div style="height: 300px; width: 100%;">
+                        <div class="chart-wrapper">
                             <canvas id="weeklyChart"></canvas>
                         </div>
                     </div>
@@ -363,85 +374,90 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
         <script>
-            // Retrieve and parse data from hidden inputs
-            const chartDataInput = document.getElementById('chartDataInput');
-            const progressDataInput = document.getElementById('progressDataInput');
+            document.addEventListener('DOMContentLoaded', () => {
+                // Retrieve and parse data from hidden inputs
+                const chartDataInput = document.getElementById('chartDataInput');
+                const progressDataInput = document.getElementById('progressDataInput');
 
-            let chartData = { labels: [], data: [] };
-            let progressData = { today: 0, week: 0, month: 0 };
+                let chartData = { labels: [], data: [] };
+                let progressData = { today: 0, week: 0, month: 0 };
 
-            try {
-                if (chartDataInput && chartDataInput.value) {
-                    chartData = JSON.parse(decodeURIComponent(chartDataInput.value));
+                try {
+                    if (chartDataInput && chartDataInput.value) {
+                        chartData = JSON.parse(decodeURIComponent(chartDataInput.value));
+                    }
+                    if (progressDataInput && progressDataInput.value) {
+                        progressData = JSON.parse(decodeURIComponent(progressDataInput.value));
+                    }
+                } catch (e) {
+                    console.error("Error parsing stats data", e);
                 }
-                if (progressDataInput && progressDataInput.value) {
-                    progressData = JSON.parse(decodeURIComponent(progressDataInput.value));
-                }
-            } catch (e) {
-                console.error("Error parsing stats data", e);
-            }
 
-            // Set Progress Bars
-            const setWidth = (id, val) => {
-                const el = document.getElementById(id);
-                if (el) el.style.width = val + '%';
-            };
-            setWidth('prog-today', progressData.today);
-            setWidth('prog-week', progressData.week);
-            setWidth('prog-month', progressData.month);
+                // Set Progress Bars
+                const setWidth = (id, val) => {
+                    const el = document.getElementById(id);
+                    if (el) el.style.width = val + '%';
+                };
+                setWidth('prog-today', progressData.today);
+                setWidth('prog-week', progressData.week);
+                setWidth('prog-month', progressData.month);
 
 
-            // Render Chart
-            const ctx = document.getElementById('weeklyChart').getContext('2d');
-            const myChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: chartData.labels,
-                    datasets: [{
-                        label: 'Minuti Focus',
-                        data: chartData.data,
-                        backgroundColor: 'rgba(42, 157, 143, 0.2)',
-                        borderColor: '#2a9d8f',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4, // Smooth curve
-                        pointBackgroundColor: '#2a9d8f'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
+                // Render Chart
+                const canvas = document.getElementById('weeklyChart');
+                if (canvas) {
+                    const ctx = canvas.getContext('2d');
+                    const myChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: chartData.labels,
+                            datasets: [{
+                                label: 'Minuti Focus',
+                                data: chartData.data,
+                                backgroundColor: 'rgba(42, 157, 143, 0.2)',
+                                borderColor: '#2a9d8f',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.4, // Smooth curve
+                                pointBackgroundColor: '#2a9d8f'
+                            }]
                         },
-                        tooltip: {
-                            callbacks: {
-                                label: function (context) {
-                                    return context.parsed.y + ' min';
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (context) {
+                                            return context.parsed.y + ' min';
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        color: 'rgba(255, 255, 255, 0.1)'
+                                    },
+                                    ticks: {
+                                        color: '#ccc'
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        display: false
+                                    },
+                                    ticks: {
+                                        color: '#ccc'
+                                    }
                                 }
                             }
                         }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            },
-                            ticks: {
-                                color: '#ccc'
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                color: '#ccc'
-                            }
-                        }
-                    }
+                    });
                 }
             });
         </script>

@@ -200,7 +200,9 @@ app.get('/', async (req, res) => {
 
       // Get Today's Progress
       const now = new Date();
-      const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+      // SQLite uses 'YYYY-MM-DD HH:MM:SS' (UTC default). JS toISOString uses 'T' separator which breaks string comparison.
+      // We convert local midnight to UTC, then format strictly to match SQLite.
+      const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString().replace('T', ' ').split('.')[0];
 
       // 1. Focus Minutes & Pomo Count
       const progressRow = await get(

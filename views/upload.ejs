@@ -110,7 +110,7 @@
                             </div>
 
                             <!-- Cover File (Music only) -->
-                            <div class="col-md-6" id="cover-container" style="display:none;">
+                            <div class="col-md-6 d-none" id="cover-container">
                                 <label class="form-label">Copertina</label>
                                 <div class="drop-zone" id="drop-zone-cover">
                                     <div class="drop-zone-content">
@@ -133,92 +133,96 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function setupDropzone(zoneId, inputId, labelId, nameId) {
-            const dropZone = document.getElementById(zoneId);
-            const fileInput = document.getElementById(inputId);
-            const fileLabel = document.getElementById(labelId);
-            const fileNameDisplay = document.getElementById(nameId);
+        document.addEventListener('DOMContentLoaded', () => {
+            function setupDropzone(zoneId, inputId, labelId, nameId) {
+                const dropZone = document.getElementById(zoneId);
+                const fileInput = document.getElementById(inputId);
+                const fileLabel = document.getElementById(labelId);
+                const fileNameDisplay = document.getElementById(nameId);
 
-            if (!dropZone || !fileInput) return;
+                if (!dropZone || !fileInput) return;
 
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropZone.addEventListener(eventName, preventDefaults, false);
-            });
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, preventDefaults, false);
+                });
 
-            function preventDefaults(e) {
-                e.preventDefault();
-                e.stopPropagation();
+                function preventDefaults(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, () => dropZone.classList.add('drag-over'), false);
+                });
+
+                ['dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, () => dropZone.classList.remove('drag-over'), false);
+                });
+
+                dropZone.addEventListener('drop', (e) => {
+                    const dt = e.dataTransfer;
+                    const files = dt.files;
+                    if (files.length > 0) {
+                        fileInput.files = files;
+                        updateFileName(files[0]);
+                    }
+                }, false);
+
+                fileInput.addEventListener('change', function () {
+                    if (this.files && this.files[0]) {
+                        updateFileName(this.files[0]);
+                    }
+                });
+
+                function updateFileName(file) {
+                    if (file) {
+                        // fileLabel.style.display = 'none'; // Keep label but update text? Or hide?
+                        // Let's hide label or update it
+                        fileLabel.textContent = "File Caricato";
+                        fileNameDisplay.textContent = file.name;
+                        fileNameDisplay.style.color = '#2a9d8f';
+                        fileNameDisplay.style.fontWeight = 'bold';
+                    }
+                }
             }
 
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropZone.addEventListener(eventName, () => dropZone.classList.add('drag-over'), false);
-            });
+            // Setup Audio Dropzone
+            setupDropzone('drop-zone-audio', 'audio', 'label-audio', 'name-audio');
+            // Setup Cover Dropzone
+            setupDropzone('drop-zone-cover', 'cover', 'label-cover', 'name-cover');
 
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropZone.addEventListener(eventName, () => dropZone.classList.remove('drag-over'), false);
-            });
+            // Toggle Icon field based on category
+            const catAmbient = document.getElementById('cat-ambient');
+            const catMusic = document.getElementById('cat-music');
+            const iconContainer = document.getElementById('icon-container');
+            const coverContainer = document.getElementById('cover-container');
 
-            dropZone.addEventListener('drop', (e) => {
-                const dt = e.dataTransfer;
-                const files = dt.files;
-                if (files.length > 0) {
-                    fileInput.files = files;
-                    updateFileName(files[0]);
-                }
-            }, false);
+            function toggleIconField() {
+                if (catMusic.checked) {
+                    // Show Cover, Hide Icon
+                    iconContainer.style.display = 'none';
+                    document.getElementById('icon').disabled = true;
 
-            fileInput.addEventListener('change', function () {
-                if (this.files && this.files[0]) {
-                    updateFileName(this.files[0]);
-                }
-            });
+                    coverContainer.style.display = 'block';
+                    document.getElementById('cover').disabled = false;
+                } else {
+                    // Show Icon, Hide Cover
+                    iconContainer.style.display = 'block';
+                    document.getElementById('icon').disabled = false;
 
-            function updateFileName(file) {
-                if (file) {
-                    // fileLabel.style.display = 'none'; // Keep label but update text? Or hide?
-                    // Let's hide label or update it
-                    fileLabel.textContent = "File Caricato";
-                    fileNameDisplay.textContent = file.name;
-                    fileNameDisplay.style.color = '#2a9d8f';
-                    fileNameDisplay.style.fontWeight = 'bold';
+                    coverContainer.style.display = 'none';
+                    document.getElementById('cover').disabled = true;
                 }
             }
-        }
 
-        // Setup Audio Dropzone
-        setupDropzone('drop-zone-audio', 'audio', 'label-audio', 'name-audio');
-        // Setup Cover Dropzone
-        setupDropzone('drop-zone-cover', 'cover', 'label-cover', 'name-cover');
+            if (catAmbient && catMusic) {
+                catAmbient.addEventListener('change', toggleIconField);
+                catMusic.addEventListener('change', toggleIconField);
 
-        // Toggle Icon field based on category
-        const catAmbient = document.getElementById('cat-ambient');
-        const catMusic = document.getElementById('cat-music');
-        const iconContainer = document.getElementById('icon-container');
-        const coverContainer = document.getElementById('cover-container');
-
-        function toggleIconField() {
-            if (catMusic.checked) {
-                // Show Cover, Hide Icon
-                iconContainer.style.display = 'none';
-                document.getElementById('icon').disabled = true;
-
-                coverContainer.style.display = 'block';
-                document.getElementById('cover').disabled = false;
-            } else {
-                // Show Icon, Hide Cover
-                iconContainer.style.display = 'block';
-                document.getElementById('icon').disabled = false;
-
-                coverContainer.style.display = 'none';
-                document.getElementById('cover').disabled = true;
+                // Init
+                toggleIconField();
             }
-        }
-
-        catAmbient.addEventListener('change', toggleIconField);
-        catMusic.addEventListener('change', toggleIconField);
-
-        // Init
-        toggleIconField();
+        });
     </script>
 </body>
 

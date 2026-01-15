@@ -185,5 +185,6 @@ class TodoManager {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    window.todoManager = new TodoManager();
+    window.Soundlly = window.Soundlly || {};
+    window.Soundlly.todo = new TodoManager();
 });

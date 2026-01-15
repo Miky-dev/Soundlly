@@ -8,15 +8,18 @@ const { ensureAuthenticated } = require('../middleware/auth');
 const getStartDates = () => {
     const now = new Date();
 
-    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+    // Helper to format for SQLite (YYYY-MM-DD HH:MM:SS)
+    const toSqlite = (d) => d.toISOString().replace('T', ' ').split('.')[0];
+
+    const startOfDay = toSqlite(new Date(now.getFullYear(), now.getMonth(), now.getDate()));
 
     const startOfWeekDate = new Date(now);
     const day = startOfWeekDate.getDay() || 7; // Get current day number, converting Sun (0) to 7
     if (day !== 1) startOfWeekDate.setHours(-24 * (day - 1)); // Go back to Monday
     startOfWeekDate.setHours(0, 0, 0, 0);
-    const startOfWeek = startOfWeekDate.toISOString();
+    const startOfWeek = toSqlite(startOfWeekDate);
 
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    const startOfMonth = toSqlite(new Date(now.getFullYear(), now.getMonth(), 1));
 
     return { startOfDay, startOfWeek, startOfMonth };
 };

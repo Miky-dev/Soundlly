@@ -16,6 +16,13 @@ class FocusTimer {
       shortBreak: { minutes: 5, label: 'Pausa Breve', color: '#e9c46a' }
     };
 
+    if (userId === 'guest') {
+      console.warn("Timer in Guest Mode. Stats will not be saved.");
+      // Optional: Add a visual indicator
+      const label = document.getElementById('pomoMode');
+      if (label) label.title = "Modalità Ospite: le statistiche non verranno salvate";
+    }
+
     // --- STATO ---
     this.currentMode = 'pomodoro';
     this.timeLeft = this.MODES.pomodoro.minutes * 60;
@@ -179,6 +186,7 @@ class FocusTimer {
         }
       } catch (err) {
         console.error('Error starting session:', err);
+        alert('Attenzione: Impossibile avviare la sessione di studio sul server. Le statistiche potrebbero non essere salvate. Verifica la connessione o effettua il login.');
       }
     }
 
@@ -240,7 +248,9 @@ class FocusTimer {
   async stopSessionServer(status) {
     if (!this.currentSessionId) return;
     const totalSec = this.MODES[this.currentMode].minutes * 60;
-    const completedMinutes = Math.round((totalSec - this.timeLeft) / 60);
+    // Ensure we don't return negative minutes if settings changed mid-session
+    const rawMinutes = Math.ceil((totalSec - this.timeLeft) / 60);
+    const completedMinutes = Math.max(0, rawMinutes);
 
     try {
       await fetch('/api/focus/stop', {
@@ -254,6 +264,9 @@ class FocusTimer {
       });
     } catch (err) {
       console.error('Error stopping session', err);
+      // Don't alert here to avoid annoying popups on completion, but log clearly.
+      // Actually, if it fails here, stats are definitely lost.
+      // alert('Errore nel salvataggio dei minuti di studio.');
     }
     this.currentSessionId = null;
   }
@@ -346,5 +359,6 @@ class FocusTimer {
 
 // Instantiate and expose
 document.addEventListener('DOMContentLoaded', () => {
-  window.focusTimer = new FocusTimer();
+  window.Soundlly = window.Soundlly || {};
+  window.Soundlly.timer = new FocusTimer();
 });

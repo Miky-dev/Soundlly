@@ -228,9 +228,9 @@ document.addEventListener('DOMContentLoaded', () => {
             playBtn.onclick = (e) => {
                 e.stopPropagation(); // Evita di attivare il click della card genitore
 
-                // Chiama il player musicale globale (definito altrove, vedi `js/loadSounds.js` o simile)
-                if (typeof musicPlayer !== 'undefined') {
-                    musicPlayer.playTrack(item);
+                // Chiama il player musicale globale (namespace Soundlly)
+                if (window.Soundlly && window.Soundlly.player) {
+                    window.Soundlly.player.playTrack(item);
                 } else {
                     console.error('Music Player not loaded');
                 }

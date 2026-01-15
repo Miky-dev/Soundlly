@@ -81,7 +81,9 @@ router.post('/stop', ensureAuthenticated, async (req, res) => {
 
         // Verify session ownership
         const row = await get(`SELECT id FROM focus_sessions WHERE id=? AND user_id=?`, [session_id, userId]);
-        if (!row) return res.status(404).json({ error: 'session_not_found' });
+        if (!row) {
+            return res.status(404).json({ error: 'session_not_found' });
+        }
 
         // Validate status
         const validStatuses = ['in_progress', 'completed', 'interrupted', 'abandoned'];

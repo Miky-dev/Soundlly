@@ -98,7 +98,7 @@
                       <li class="nav-item mix-2 nav-item-flex">
                         <a href="/profilo" aria-label="Profilo">
                           <img src="<%= user.avatar_url || '/immagini/usericon.png' %>" alt="Profilo" class="nav-avatar"
-                            onerror="this.onerror=null;this.src='/immagini/usericon.png';">
+                            data-fallback="/immagini/usericon.png">
                         </a>
                       </li>
                       <% } %>
@@ -146,8 +146,8 @@
             <svg viewBox="0 0 120 120" aria-hidden="true">
               <defs>
                 <linearGradient id="pomoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" style="stop-color:#2a9d8f; stop-opacity:1" />
-                  <stop offset="100%" style="stop-color:#21cfbd; stop-opacity:1" />
+                  <stop offset="0%" stop-color="#2a9d8f" stop-opacity="1" />
+                  <stop offset="100%" stop-color="#21cfbd" stop-opacity="1" />
                 </linearGradient>
               </defs>
               <!-- Cerchio di sfondo (grigio) -->
@@ -306,14 +306,14 @@
       <div class="user-profile">
         <!-- Assuming user object exists, otherwise fallback -->
         <img src="<%= (user && user.avatar_url) ? user.avatar_url : '/immagini/usericon.png' %>" alt="User"
-          class="user-avatar" onerror="this.onerror=null;this.src='/immagini/usericon.png';">
+          class="user-avatar" data-fallback="/immagini/usericon.png">
         <span class="user-name">
           <%= user ? user.username : 'Ospite' %>
         </span>
       </div>
 
       <!-- Search Bar (Center) -->
-      <form id="footer-searchbar" class="search-bar-modern" onsubmit="event.preventDefault();">
+      <form id="footer-searchbar" class="search-bar-modern">
         <input class="search-input-modern" type="search" placeholder="Cerca suoni, artisti..." aria-label="Cerca">
         <button type="submit" class="search-btn-modern" aria-label="Cerca">
           <i class="fas fa-search"></i>
@@ -454,12 +454,32 @@
   <script src="/js/player.js"></script>
   <script src="/js/music-search.js"></script>
   <script>
-    // Apply dynamic styles from data attributes to satisfy IDE parsers
-    document.querySelectorAll('[data-width]').forEach(el => {
-      // el.style.width = el.dataset.width + '%'; 
-      // Changed to CSS variable for cleaner style manipulation
-      el.style.setProperty('--bar-width', el.dataset.width + '%');
-      el.style.width = 'var(--bar-width)';
+    document.addEventListener('DOMContentLoaded', () => {
+      // Form submit prevention
+      const searchForm = document.getElementById('footer-searchbar');
+      if (searchForm) {
+        searchForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+        });
+      }
+
+      // Image fallback handling
+      const imagesWithFallback = document.querySelectorAll('img[data-fallback]');
+      imagesWithFallback.forEach(img => {
+        img.addEventListener('error', function () {
+          if (this.src !== this.dataset.fallback) {
+            this.src = this.dataset.fallback;
+          }
+        });
+      });
+
+      // Apply dynamic styles from data attributes to satisfy IDE parsers
+      document.querySelectorAll('[data-width]').forEach(el => {
+        // el.style.width = el.dataset.width + '%'; 
+        // Changed to CSS variable for cleaner style manipulation
+        el.style.setProperty('--bar-width', el.dataset.width + '%');
+        el.style.width = 'var(--bar-width)';
+      });
     });
   </script>
   <script src="/js/switch-handler.js"></script>
