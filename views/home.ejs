@@ -28,7 +28,7 @@
   <title>Soundlly - La tua oasi di suoni e produttività</title>
 </head>
 
-<body data-logged-in="<%= !!user %>">
+<body data-logged-in="<%= !!user %>" data-user-id="<%= user ? user.id : 'guest' %>">
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-transaparent">
     <div class="container-fluid">

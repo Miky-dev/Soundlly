@@ -7,7 +7,8 @@
 
 class FocusTimer {
   constructor() {
-    this.STORAGE_KEY = 'soundlly_timer_state_v1';
+    const userId = document.body.dataset.userId || 'guest';
+    this.STORAGE_KEY = `soundlly_timer_state_v1_${userId}`;
 
     // --- CONFIGURAZIONE DEFAULT ---
     this.MODES = {
