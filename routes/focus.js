@@ -95,7 +95,25 @@ router.post('/stop', ensureAuthenticated, async (req, res) => {
        WHERE id=?`,
             [completed_minutes, finalStatus, session_id]
         );
-        return res.json({ ok: true });
+
+        // Fetch updated stats for the user to update widget real-time
+        const now = new Date();
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString().replace('T', ' ').split('.')[0];
+
+        const statsRow = await get(
+            `SELECT 
+               SUM(completed_minutes) as todayMinutes,
+               COUNT(CASE WHEN status = 'completed' THEN 1 END) as pomoCount
+             FROM focus_sessions 
+             WHERE user_id = ? AND started_at >= ?`,
+            [userId, startOfDay]
+        );
+
+        return res.json({
+            ok: true,
+            todayMinutes: statsRow?.todayMinutes || 0,
+            pomoCount: statsRow?.pomoCount || 0
+        });
     } catch (err) {
         console.error('focus/stop error:', err);
         res.status(500).json({ error: 'focus_stop_failed' });

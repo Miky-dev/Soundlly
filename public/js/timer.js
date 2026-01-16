@@ -253,7 +253,7 @@ class FocusTimer {
     const completedMinutes = Math.max(0, rawMinutes);
 
     try {
-      await fetch('/api/focus/stop', {
+      const res = await fetch('/api/focus/stop', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -262,13 +262,41 @@ class FocusTimer {
           status: status
         })
       });
+      const data = await res.json();
+      if (data.ok) {
+        this.updateHomeWidget(data);
+      }
     } catch (err) {
       console.error('Error stopping session', err);
-      // Don't alert here to avoid annoying popups on completion, but log clearly.
-      // Actually, if it fails here, stats are definitely lost.
-      // alert('Errore nel salvataggio dei minuti di studio.');
     }
     this.currentSessionId = null;
+  }
+
+  updateHomeWidget(data) {
+    const { todayMinutes, pomoCount } = data;
+    const widget = document.getElementById('focusWidget');
+    if (!widget) return; // Not on home page or widget missing
+
+    const elCount = document.getElementById('widgetPomoCount');
+    const elTime = document.getElementById('widgetBigTime');
+    const elRing = document.getElementById('widgetRing');
+
+    if (elCount) elCount.textContent = pomoCount;
+    if (elTime) {
+      const hours = Math.floor(todayMinutes / 60);
+      const mins = todayMinutes % 60;
+      elTime.textContent = (hours > 0 ? hours + 'h ' : '') + mins + 'm';
+    }
+
+    if (elRing && widget.dataset.dailyGoal) {
+      const dailyGoal = parseInt(widget.dataset.dailyGoal) || 60;
+      const goalPercent = Math.min((todayMinutes / dailyGoal) * 100, 100);
+      const radius = 42;
+      const circumference = 2 * Math.PI * radius;
+      const offset = circumference - (goalPercent / 100) * circumference;
+
+      elRing.style.strokeDashoffset = offset;
+    }
   }
 
   nextMode() {

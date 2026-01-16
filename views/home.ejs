@@ -232,7 +232,7 @@
 
                 <div class="hub-content">
 
-                  <div class="focus-section">
+                  <div class="focus-section" id="focusWidget" data-daily-goal="<%= dailyGoal %>">
                     <div class="ring-container">
                       <svg class="progress-ring" width="100" height="100">
                         <circle class="ring-bg" stroke="#334155" stroke-width="8" fill="transparent" r="42" cx="50"
@@ -240,18 +240,19 @@
                         <% const goalPercent=Math.min((todayMinutes / dailyGoal) * 100, 100); const radius=42; const
                           circumference=2 * Math.PI * radius; const offset=circumference - (goalPercent / 100) *
                           circumference; %>
-                          <circle class="ring-fill" stroke="#f43f5e" stroke-width="8" fill="transparent" r="42" cx="50"
-                            cy="50" stroke-dasharray="<%= circumference %>" stroke-dashoffset="<%= offset %>" />
+                          <circle class="ring-fill" id="widgetRing" stroke="#f43f5e" stroke-width="8" fill="transparent"
+                            r="42" cx="50" cy="50" stroke-dasharray="<%= circumference %>"
+                            stroke-dashoffset="<%= offset %>" />
                       </svg>
                       <div class="ring-text">
-                        <span class="pomo-count">
+                        <span class="pomo-count" id="widgetPomoCount">
                           <%= pomoCount %>
                         </span>
                         <span class="pomo-label">Pomo</span>
                       </div>
                     </div>
                     <div class="focus-data">
-                      <span class="big-time">
+                      <span class="big-time" id="widgetBigTime">
                         <% const hours=Math.floor(todayMinutes / 60); const mins=todayMinutes % 60; const
                           timeString=(hours> 0 ? hours + 'h ' : '') + mins + 'm';
                           %>
