@@ -29,6 +29,7 @@ class FocusTimer {
     this.timerId = null;
     this.isRunning = false;
     this.currentSessionId = null;
+    this.sessionStartDuration = null; // Snapshot of duration at start
 
     // --- ELEMENTI DOM ---
     this.els = {
@@ -169,6 +170,11 @@ class FocusTimer {
   async startTimer(isResume = false) {
     if (this.isRunning && !isResume) return;
 
+    // Snapshot duration if starting fresh
+    if (!isResume) {
+      this.sessionStartDuration = this.MODES[this.currentMode].minutes * 60;
+    }
+
     if (this.currentMode === 'pomodoro' && !this.currentSessionId) {
       try {
         const res = await fetch('/api/focus/start', {
@@ -219,6 +225,7 @@ class FocusTimer {
       await this.stopSessionServer('abandoned');
     }
     this.timeLeft = this.MODES[this.currentMode].minutes * 60;
+    this.sessionStartDuration = null;
     this.clearState();
     this.updateUI();
   }
@@ -247,7 +254,10 @@ class FocusTimer {
 
   async stopSessionServer(status) {
     if (!this.currentSessionId) return;
-    const totalSec = this.MODES[this.currentMode].minutes * 60;
+
+    // Use snapshot if available, else fallback to current settings
+    const totalSec = this.sessionStartDuration || (this.MODES[this.currentMode].minutes * 60);
+
     // Ensure we don't return negative minutes if settings changed mid-session
     const rawMinutes = Math.ceil((totalSec - this.timeLeft) / 60);
     const completedMinutes = Math.max(0, rawMinutes);
@@ -270,6 +280,7 @@ class FocusTimer {
       console.error('Error stopping session', err);
     }
     this.currentSessionId = null;
+    this.sessionStartDuration = null;
   }
 
   updateHomeWidget(data) {
@@ -314,7 +325,8 @@ class FocusTimer {
 
     document.title = this.isRunning ? `${this.pad(m)}:${this.pad(s)} - Soundlly` : 'Soundlly - Focus';
 
-    const totalTime = this.MODES[this.currentMode].minutes * 60;
+    // For progress bar, use sessionStartDuration if running/paused, else current settings
+    const totalTime = this.sessionStartDuration || (this.MODES[this.currentMode].minutes * 60);
     const pct = ((totalTime - this.timeLeft) / totalTime) * 100;
     this.els.progress.style.strokeDashoffset = pct;
 
@@ -345,6 +357,7 @@ class FocusTimer {
       isRunning: this.isRunning,
       timeLeft: this.timeLeft,
       sessionId: this.currentSessionId,
+      sessionStartDuration: this.sessionStartDuration, // Save snapshot
       timestamp: Date.now()
     };
     if (this.isRunning) {
@@ -362,6 +375,7 @@ class FocusTimer {
       this.currentMode = state.mode || 'pomodoro';
       this.currentSessionId = state.sessionId || null;
       this.isRunning = state.isRunning || false;
+      this.sessionStartDuration = state.sessionStartDuration || null; // Restore snapshot
 
       if (this.isRunning && state.targetTime) {
         const diffSeconds = Math.round((state.targetTime - Date.now()) / 1000);
