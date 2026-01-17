@@ -1,35 +1,39 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const filterSwitch = document.getElementById('filter'); // Standard
-    const filterSwitchImmersive = document.getElementById('filter-immersive'); // Immersive
+    const filterSwitch = document.getElementById('filter'); // Switch Standard (Navbar Home)
+    const filterSwitchImmersive = document.getElementById('filter-immersive'); // Switch Immersive (Navbar Immersive)
     const body = document.body;
 
-    // Timer Containers
-    const standardTimerContainer = document.querySelector('.box-3');
-    const immersiveTimerContainer = document.querySelector('.immersive-timer-wrapper');
-    const timerElement = document.getElementById('pane-timer');
+    // Contenitori del Timer
+    const standardTimerContainer = document.querySelector('.box-3'); // Contenitore originale nella griglia
+    const immersiveTimerContainer = document.querySelector('.immersive-timer-wrapper'); // Contenitore per la modalità immersive
+    const timerElement = document.getElementById('pane-timer'); // L'elemento del timer da spostare
 
     function toggleImmersiveMode(isImmersive) {
         if (isImmersive) {
+            // Attiva la modalità immersive aggiungendo la classe al body
             body.classList.add('immersive-mode');
+            // Se gli elementi esistono, sposta il timer nel contenitore immersive
             if (timerElement && immersiveTimerContainer) {
                 immersiveTimerContainer.appendChild(timerElement);
             }
         } else {
+            // Disattiva la modalità immersive
             body.classList.remove('immersive-mode');
+            // Riporta il timer nella sua posizione originale (box-3)
             if (timerElement && standardTimerContainer) {
-                standardTimerContainer.appendChild(timerElement); // Appends to end, which is fine as box-3 only has timer
+                standardTimerContainer.appendChild(timerElement);
             }
         }
 
-        // Sync switches
+        // Sincronizza lo stato dei due switch (quello nella home e quello nella immersive)
         if (filterSwitch) filterSwitch.checked = isImmersive;
         if (filterSwitchImmersive) filterSwitchImmersive.checked = isImmersive;
 
-        // Persist state if needed (optional, or just rely on current session)
+        // Opzionale: Salva lo stato nella sessione se necessario
         // sessionStorage.setItem('immersiveResult', isImmersive); 
     }
 
-    // Event Listeners
+    // Event Listeners per i click sugli switch
     if (filterSwitch) {
         filterSwitch.addEventListener('change', function () {
             toggleImmersiveMode(this.checked);
@@ -42,6 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Check URL or session to auto-start (Optional)
+    // Controllo URL o sessione per avvio automatico (Opzionale)
     // if (window.location.hash === '#immersive') toggleImmersiveMode(true);
 });

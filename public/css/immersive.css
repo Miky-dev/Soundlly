@@ -1,11 +1,11 @@
-/* Default: Hide immersive elements */
+/* Default: Nascondi gli elementi Immersive nella vista standard */
 .immersive-container,
 .immersive-navbar,
 .immersive-timer-wrapper {
     display: none;
 }
 
-/* Immersive Mode Active */
+/* Modalità Immersive Attiva */
 body.immersive-mode,
 html.immersive-mode {
     margin: 0;
@@ -17,9 +17,9 @@ html.immersive-mode {
     background: black;
 }
 
+/* Mostra i contenitori Immersive quando la classe è attiva */
 body.immersive-mode .immersive-container {
     display: block !important;
-    /* Force show */
 }
 
 body.immersive-mode .immersive-navbar {
@@ -30,7 +30,7 @@ body.immersive-mode .immersive-timer-wrapper {
     display: block !important;
 }
 
-/* Hide standard view and player in immersive mode */
+/* Nascondi la vista Standard e il player musicale in modalità Immersive */
 body.immersive-mode #standard-view,
 body.immersive-mode #music-player-bar {
     display: none !important;

@@ -260,7 +260,7 @@ app.get('/', async (req, res) => {
   }
 });
 
-// Immersive Mode Route - Redirect to home
+// Route Modalità Immersive - Reindirizza alla home (gestita ora lato client)
 app.get('/immersive', (req, res) => {
   res.redirect('/');
 });
