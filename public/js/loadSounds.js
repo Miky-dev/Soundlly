@@ -208,8 +208,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function playAudio(id, filename, volumePct) {
         if (!audioPlayers[id]) {
+            // Recupera l'oggetto sound dalla lista caricata
+            const soundObj = sounds.find(s => s.id == id);
+            const folder = soundObj ? soundObj.folder : 'ambient';
+
             // Crea oggetto Audio se non esiste (Singleton pattern per ID)
-            const audio = new Audio(`/audio/ambient/${filename}`);
+            const audio = new Audio(`/audio/${folder}/${filename}`);
             audio.loop = true; // Loop infinito per suoni ambientali
             audioPlayers[id] = audio;
         }

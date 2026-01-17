@@ -15,12 +15,12 @@ const getUserId = (req) => req.user ? req.user.id : null;
 // Query Base:
 // Seleziona i dettagli della canzone e aggiunge un flag 'is_liked' se l'utente corrente ha messo like.
 const MUSIC_QUERY = `
-    SELECT s.id, s.title, s.description, s.filename, s.icon, s.category, u.username as author,
+    SELECT s.id, s.title, s.description, s.filename, s.icon, s.category, u.username as author, s.owner_id, u.role as owner_role,
     CASE WHEN sl.user_id IS NOT NULL THEN 1 ELSE 0 END as is_liked
     FROM sounds s
     LEFT JOIN users u ON s.owner_id = u.id
     LEFT JOIN sound_likes sl ON s.id = sl.sound_id AND sl.user_id = ?
-`;
+    `;
 
 // GET /api/music/latest - Ultime uscite musicali (Pubbliche)
 router.get('/latest', async (req, res) => {
@@ -31,7 +31,7 @@ router.get('/latest', async (req, res) => {
             WHERE s.category = 'music' AND s.access_level = 'public'
             ORDER BY s.created_at DESC
             LIMIT 10
-        `;
+    `;
         const results = await all(sql, [userId]);
         res.json(results);
     } catch (err) {
@@ -49,7 +49,7 @@ router.get('/premium', async (req, res) => {
             WHERE s.access_level = 'premium'
             ORDER BY s.created_at DESC
             LIMIT 10
-        `;
+    `;
         const results = await all(sql, [userId]);
         res.json(results);
     } catch (err) {
@@ -64,10 +64,10 @@ router.get('/creators', async (req, res) => {
         const userId = getUserId(req);
         const sql = `
             ${MUSIC_QUERY}
-            WHERE s.category = 'ambient' AND s.access_level = 'public'
+            WHERE s.category = 'ambient' AND s.access_level = 'public' AND u.role != 'admin'
             ORDER BY s.created_at DESC
             LIMIT 10
-        `;
+    `;
         const results = await all(sql, [userId]);
         res.json(results);
     } catch (err) {
@@ -119,9 +119,9 @@ router.get('/favorites', async (req, res) => {
             JOIN sound_likes sl ON s.id = sl.sound_id
             LEFT JOIN users u ON s.owner_id = u.id
             WHERE sl.user_id = ?
-            ORDER BY sl.created_at DESC
+    ORDER BY sl.created_at DESC
             LIMIT 20
-        `;
+    `;
         const results = await all(sql, [req.user.id]);
         res.json(results);
     } catch (err) {

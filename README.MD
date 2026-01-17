@@ -106,9 +106,9 @@ Soundlly/
 └── README.md                           # Documentazione
 ```
 
-## 📄 Descrizione Funzionalità Chiave
+## Descrizione Funzionalità Chiave
 
-### ⏱️ Timer Pomodoro Avanzato (`public/js/timer.js`)
+### Timer Pomodoro Avanzato (`public/js/timer.js`)
 Il cuore della produttività di Soundlly.
 - **Logica**: Cicli di 25 min (Pomodoro) / 5 min (Pausa Breve).
 - **Auto-Switch**: Al termine di un timer, il sistema passa **automaticamente** alla modalità successiva (es. da Studio a Pausa).
@@ -116,19 +116,19 @@ Il cuore della produttività di Soundlly.
 - **Session Tracking**: Ogni sessione viene registrata nel database (`focus_sessions`) per le statistiche.
 - **Notifiche**: Suoni e notifiche desktop avvisano del cambio fase.
 
-### 🛡️ Gestione Ruoli e Upload (`routes/upload.js`)
+### Gestione Ruoli e Upload (`routes/upload.js`)
 - L'accesso alla pagina di `upload` è ristretto.
 - Solo gli utenti con ruolo `admin` o `creator` possono accedere.
 - Gli altri utenti vengono reindirizzati alla pagina `/abbonamento`.
 
-### 📊 Statistiche e Obiettivi
+### Statistiche e Obiettivi
 - Tracciamento del tempo totale di focus, sessioni completate e streak giornaliere.
 - Visualizzazione dati tramite `chart.js` o progress bar custom.
 - Persistenza degli obiettivi giornalieri/settimanali nel DB sqlite.
 
 ---
 
-## 📄 Pagina Index (Homepage)
+## Pagina Index (Homepage)
 
 ### Panoramica
 
@@ -151,7 +151,7 @@ La homepage è una SPA (Single Page Application) ibrida che integra navigazione 
 
 ---
 
-## 🛠️ Tecnologie
+## Tecnologie
 
 - **Backend**: Node.js, Express.js
 - **Database**: SQLite3
@@ -161,18 +161,19 @@ La homepage è una SPA (Single Page Application) ibrida che integra navigazione 
 
 ---
 
-## 🚀 Avvio Rapido
+## Avvio Rapido
 
 ```bash
 npm install
+npm run init-project
 npm start
 ```
 
-L'app sarà disponibile su `http://localhost:3000`
+L'app sarà disponibile su `http://localhost:3003`
 
 ---
 
-## 📝 Note Database
+## Note Database
 
 Il database utilizza SQLite. Le migrazioni sono disponibili in `migrations/`.
 - `init.sql`: Tabelle base (`users`, `sounds`, `music`).
@@ -180,5 +181,5 @@ Il database utilizza SQLite. Le migrazioni sono disponibili in `migrations/`.
 
 ---
 
-**Autore**: Team Soundlly  
+**Autore**: Michele Vitella matricola: 20045272  
 **Anno**: 2025-2026

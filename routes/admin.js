@@ -1,3 +1,5 @@
+// ROUTES/ADMIN.JS
+
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
@@ -8,52 +10,49 @@ const { run, all, get } = require('../db/sqlite');
 
 /**
  * ROUTES/ADMIN.JS
- * 
- * Questo file gestisce le funzionalità del pannello di amministrazione.
- * Accessibile solo agli utenti con ruolo 'admin'.
- * 
- * Funzionalità principali:
- * 1. Upload di file audio (suoni ambientali).
- * 2. Visualizzazione liste suoni e musiche utenti.
- * 3. Operazioni CRUD (Create, Read, Update, Delete) sui suoni.
+ * Gestione pannello di amministrazione.
  */
 
-// --- Configurazione Multer (Gestione Upload File) ---
-// Definiamo dove salvare i file audio caricati dagli admin
+// --- Configurazione Multer ---
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        // Percorso di destinazione: public/audio/ambient
         const dir = path.join(__dirname, '..', 'public', 'audio', 'ambient');
-        // Crea la cartella se non esiste
         if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
         cb(null, dir);
     },
     filename: (req, file, cb) => {
-        // Genera un nome file univoco per evitare sovrascritture
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = path.extname(file.originalname);
-        cb(null, 'sound-' + uniqueSuffix + ext);
+        // Usa il nome originale del file
+        cb(null, file.originalname);
     }
 });
 const upload = multer({ storage: storage });
 
-// MIDDLEWARE DI SICUREZZA
-// Tutte le rotte in questo file richiedono che l'utente sia loggato E sia admin.
+// MIDDLEWARE
 router.use(ensureAuthenticated, ensureAdmin);
 
-// --- ROTTE PAGINE (Visualizzazione) ---
+// --- ROTTE PAGINE ---
 
-// GET /admin - Dashboard Amministratore
+// GET /admin
 router.get('/', async (req, res) => {
     try {
-        // Recupera tutti i suoni ambientali
-        const ambientSounds = await all(`
+        // 1. Suoni di Sistema (Admin)
+        // Usa LEFT JOIN per includere anche suoni senza owner (legacy) considerandoli di sistema
+        const systemSounds = await all(`
             SELECT s.*, u.username as owner_name 
             FROM sounds s 
             LEFT JOIN users u ON s.owner_id = u.id 
-            WHERE s.category = 'ambient'
+            WHERE s.category = 'ambient' AND (u.role = 'admin' OR s.owner_id IS NULL)
         `);
-        // Recupera tutte le canzoni caricate dagli utenti
+
+        // 2. Suoni Utenti (Non Admin)
+        const userAmbientSounds = await all(`
+            SELECT s.*, u.username as owner_name 
+            FROM sounds s 
+            JOIN users u ON s.owner_id = u.id 
+            WHERE s.category = 'ambient' AND u.role != 'admin'
+        `);
+
+        // 3. Canzoni Utenti
         const userSongs = await all(`
             SELECT s.*, u.username as owner_name 
             FROM sounds s 
@@ -61,10 +60,10 @@ router.get('/', async (req, res) => {
             WHERE s.category = 'music'
         `);
 
-        // Renderizza la vista 'admin.ejs' passando i dati
         res.render('admin', {
             user: req.user,
-            ambientSounds,
+            systemSounds,
+            userAmbientSounds,
             userSongs
         });
     } catch (err) {
@@ -73,43 +72,38 @@ router.get('/', async (req, res) => {
     }
 });
 
-// --- API (Operazioni Dati) ---
+// --- API ---
 
-// POST /admin/sounds - Caricamento Nuovo Suono Ambientale
+// POST /admin/sounds - Nuovo Suono
 router.post('/sounds', upload.single('audioFile'), async (req, res) => {
     try {
         const { title, icon, description } = req.body;
         const filename = req.file ? req.file.filename : null;
 
-        // Validazione minima
         if (!title || !filename) {
-            return res.status(400).json({ error: 'Titolo e File sono obbligatori' });
+            return res.status(400).json({ error: 'Titolo e File obbligatori' });
         }
 
-        // Inserimento nel database
         await run(
-            `INSERT INTO sounds (owner_id, title, description, filename, media_type, access_level, icon)
-             VALUES (?, ?, ?, ?, 'audio', 'public', ?)`,
+            `INSERT INTO sounds (owner_id, title, description, filename, media_type, access_level, icon, category)
+             VALUES (?, ?, ?, ?, 'audio', 'public', ?, 'ambient')`,
             [req.user.id, title, description || 'Suono Ambientale', filename, icon]
         );
 
         res.json({ ok: true });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'Impossibile aggiungere il suono' });
+        res.status(500).json({ error: 'Errore inserimento' });
     }
 });
 
-// PUT /admin/sounds/:id - Modifica Suono Esistente
+// PUT /admin/sounds/:id - Modifica
 router.put('/sounds/:id', async (req, res) => {
     try {
         const { title, icon, description } = req.body;
-
-        // Recupera i dati attuali per permettere modifiche parziali
         const current = await get(`SELECT * FROM sounds WHERE id = ?`, [req.params.id]);
         if (!current) return res.status(404).json({ error: 'Suono non trovato' });
 
-        // Usa il nuovo valore se presente, altrimenti mantieni il vecchio
         const newTitle = title !== undefined ? title : current.title;
         const newIcon = icon !== undefined ? icon : current.icon;
         const newDesc = description !== undefined ? description : current.description;
@@ -121,28 +115,59 @@ router.put('/sounds/:id', async (req, res) => {
         res.json({ ok: true });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'Operazione fallita' });
+        res.status(500).json({ error: 'Errore update' });
     }
 });
 
-// DELETE /admin/sounds/:id - Eliminazione Suono
+// DELETE /admin/sounds/:id - Singolo
 router.delete('/sounds/:id', async (req, res) => {
     try {
-        // Recupera il nome del file per poterlo cancellare anche dal disco
-        const sound = await get(`SELECT filename FROM sounds WHERE id=?`, [req.params.id]);
+        const sound = await get(`SELECT filename, category FROM sounds WHERE id=?`, [req.params.id]);
         if (sound && sound.filename) {
-            const filePath = path.join(__dirname, '..', 'public', 'audio', 'ambient', sound.filename);
-            // Verifica esistenza e cancella file fisico
+            const folder = (sound.category === 'music') ? 'musiche' : 'ambient';
+            const filePath = path.join(__dirname, '..', 'public', 'audio', folder, sound.filename);
             if (fs.existsSync(filePath)) {
-                try { fs.unlinkSync(filePath); } catch (e) { console.error('Errore eliminazione file:', e); }
+                try { fs.unlinkSync(filePath); } catch (e) { console.error(e); }
             }
         }
-        // Cancella record dal database
         await run(`DELETE FROM sounds WHERE id=?`, [req.params.id]);
         res.json({ ok: true });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'Eliminazione fallita' });
+        res.status(500).json({ error: 'Errore delete' });
+    }
+});
+
+// POST /admin/api/bulk-delete - Multiplo
+router.post('/api/bulk-delete', async (req, res) => {
+    try {
+        const { ids } = req.body;
+        if (!ids || !ids.length) return res.status(400).json({ error: 'No IDs' });
+
+        const placeholders = ids.map(() => '?').join(',');
+        const sounds = await all(`SELECT id, filename, category FROM sounds WHERE id IN (${placeholders})`, ids);
+
+        for (const sound of sounds) {
+            if (sound.filename) {
+                let folder = (sound.category === 'music') ? 'musiche' : 'ambient';
+                let filePath = path.join(__dirname, '..', 'public', 'audio', folder, sound.filename);
+
+                if (sound.category === 'ambient' && !fs.existsSync(filePath)) {
+                    folder = 'suoni';
+                    filePath = path.join(__dirname, '..', 'public', 'audio', folder, sound.filename);
+                }
+
+                if (fs.existsSync(filePath)) {
+                    try { fs.unlinkSync(filePath); } catch (e) { console.error(e); }
+                }
+            }
+        }
+
+        await run(`DELETE FROM sounds WHERE id IN (${placeholders})`, ids);
+        res.json({ ok: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Errore bulk delete' });
     }
 });
 

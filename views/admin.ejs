@@ -34,7 +34,11 @@
         <ul class="nav nav-pills mb-4" id="adminTabs" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="ambient-tab" data-bs-toggle="pill" data-bs-target="#ambient"
-                    type="button" role="tab">Suoni Ambientali</button>
+                    type="button" role="tab">Suoni Sistema</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="usersounds-tab" data-bs-toggle="pill" data-bs-target="#usersounds"
+                    type="button" role="tab">Suoni Utenti</button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="usersongs-tab" data-bs-toggle="pill" data-bs-target="#usersongs"
@@ -69,23 +73,25 @@
                 </div>
 
                 <div class="admin-card">
-                    <h3>Lista Suoni</h3>
+                    <h3>Suoni Sistema</h3>
                     <table class="table table-dark-transparent align-middle">
                         <thead>
                             <tr>
+                                <th class="bulk-check-col"></th>
                                 <th>Icona</th>
                                 <th>Nome</th>
-                                <th>Autore</th>
                                 <th>File</th>
                                 <th>Azioni</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <% ambientSounds.forEach(sound=> { %>
+                            <% systemSounds.forEach(sound=> { %>
                                 <tr>
+                                    <td class="text-center">
+                                        <input type="checkbox" class="select-item" value="<%= sound.id %>">
+                                    </td>
                                     <td><i class="fa-solid <%= sound.icon %> fa-lg"></i></td>
                                     <td>
-                                        <!-- Edit Mode Toggle -->
                                         <span class="view-mode">
                                             <%= sound.title %>
                                         </span>
@@ -93,26 +99,15 @@
                                             value="<%= sound.title %>">
                                     </td>
                                     <td>
-                                        <span class="text-info">
-                                            <%= sound.owner_name ? sound.owner_name : 'Admin' %>
-                                        </span>
-                                    </td>
-                                    <td>
                                         <%= sound.filename %>
                                     </td>
                                     <td>
                                         <button class="btn btn-sm btn-outline-warning btn-edit"
-                                            data-id="<%= sound.id %>">
-                                            <i class="fa-solid fa-pen"></i>
-                                        </button>
+                                            data-id="<%= sound.id %>"><i class="fa-solid fa-pen"></i></button>
                                         <button class="btn btn-sm btn-success btn-save d-none"
-                                            data-id="<%= sound.id %>">
-                                            <i class="fa-solid fa-check"></i>
-                                        </button>
+                                            data-id="<%= sound.id %>"><i class="fa-solid fa-check"></i></button>
                                         <button class="btn btn-sm btn-outline-danger btn-delete"
-                                            data-id="<%= sound.id %>">
-                                            <i class="fa-solid fa-trash"></i>
-                                        </button>
+                                            data-id="<%= sound.id %>"><i class="fa-solid fa-trash"></i></button>
                                     </td>
                                 </tr>
                                 <% }) %>
@@ -121,36 +116,88 @@
                 </div>
             </div>
 
-            <!-- USER SONGS TAB -->
-            <div class="tab-pane fade" id="usersongs" role="tabpanel">
+            <!-- USER SOUNDS TAB (AMBIENT) -->
+            <div class="tab-pane fade" id="usersounds" role="tabpanel">
                 <div class="admin-card">
-                    <h3>Canzoni Caricate dagli Utenti</h3>
-                    <table class="table table-dark-transparent">
+                    <h3>Suoni Caricati dagli Utenti</h3>
+                    <table class="table table-dark-transparent align-middle">
                         <thead>
                             <tr>
-                                <th>Titolo</th>
-                                <th>Proprietario</th>
-                                <th>Data</th>
+                                <th class="bulk-check-col"></th>
+                                <th>Icona</th>
+                                <th>Nome</th>
+                                <th>Utente</th>
+                                <th>File</th>
                                 <th>Azioni</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <% userSongs.forEach(song=> { %>
+                            <% userAmbientSounds.forEach(sound=> { %>
                                 <tr>
-                                    <td>
-                                        <%= song.title %>
+                                    <td class="text-center">
+                                        <input type="checkbox" class="select-item" value="<%= sound.id %>">
                                     </td>
+                                    <td><i class="fa-solid <%= sound.icon %> fa-lg"></i></td>
                                     <td>
-                                        <%= song.owner_name %>
+                                        <%= sound.title %>
                                     </td>
+                                    <td><span class="text-info">
+                                            <%= sound.owner_name %>
+                                        </span></td>
                                     <td>
-                                        <%= song.created_at %>
+                                        <%= sound.filename %>
                                     </td>
                                     <td>
                                         <button class="btn btn-sm btn-outline-danger btn-delete"
-                                            data-id="<%= song.id %>">
-                                            Elimina
-                                        </button>
+                                            data-id="<%= sound.id %>"><i class="fa-solid fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- USER SONGS TAB (MUSIC) -->
+            <div class="tab-pane fade" id="usersongs" role="tabpanel">
+                <div class="admin-card">
+                    <h3>Canzoni Caricate dagli Utenti</h3>
+                    <table class="table table-dark-transparent align-middle">
+                        <thead>
+                            <tr>
+                                <th class="bulk-check-col"></th>
+                                <th>Titolo</th>
+                                <th>Utente</th>
+                                <th>File</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% userSongs.forEach(sound=> { %>
+                                <tr>
+                                    <td class="text-center">
+                                        <input type="checkbox" class="select-item" value="<%= sound.id %>">
+                                    </td>
+                                    <td>
+                                        <% if (sound.icon && sound.icon.startsWith('/')) { %>
+                                            <img src="<%= sound.icon %>" alt="cover"
+                                                style="width: 30px; height: 30px; border-radius: 4px; object-fit: cover;">
+                                            <% } else { %>
+                                                <i class="fa-solid fa-music fa-lg"></i>
+                                                <% } %>
+                                                    <span class="ms-2">
+                                                        <%= sound.title %>
+                                                    </span>
+                                    </td>
+                                    <td><span class="text-info">
+                                            <%= sound.owner_name %>
+                                        </span></td>
+                                    <td>
+                                        <%= sound.filename %>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-danger btn-delete"
+                                            data-id="<%= sound.id %>"><i class="fa-solid fa-trash"></i></button>
                                     </td>
                                 </tr>
                                 <% }) %>
@@ -159,6 +206,7 @@
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
@@ -193,6 +241,26 @@
             }
         });
     </script>
+    <!-- Custom Confirmation Modal -->
+    <div id="deleteModal" class="delete-modal-overlay hidden">
+        <div class="delete-modal">
+            <h3>Conferma Eliminazione</h3>
+            <p id="deleteModalText">Sei sicuro di voler eliminare questo elemento?</p>
+            <div class="modal-actions">
+                <button id="cancelDelete" class="btn btn-secondary">Annulla</button>
+                <button id="confirmDelete" class="btn btn-danger">Elimina</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Actions Floating Bar -->
+    <div id="bulkActionsBar" class="bulk-actions-bar">
+        <span class="bulk-info"><span id="selectedCount">0</span> selezionati</span>
+        <button id="bulkDeleteBtn" class="btn-bulk-delete">
+            <i class="fa-solid fa-trash"></i> Elimina
+        </button>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- ADD SOUND ---
@@ -218,21 +286,113 @@
                 });
             }
 
-            // --- DELETE ---
+            // --- CUSTOM DELETE MODAL LOGIC ---
+            let deleteTargetId = null;
+            let isBulkDelete = false;
+
+            const deleteModal = document.getElementById('deleteModal');
+            const deleteModalText = document.getElementById('deleteModalText');
+            const confirmBtn = document.getElementById('confirmDelete');
+            const cancelBtn = document.getElementById('cancelDelete');
+
+            const bulkActionsBar = document.getElementById('bulkActionsBar');
+            const selectedCountSpan = document.getElementById('selectedCount');
+            const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+
+            // --- BULK SELECTION LOGIC ---
+            const updateBulkUI = () => {
+                const checked = document.querySelectorAll('.select-item:checked');
+                const count = checked.length;
+                selectedCountSpan.textContent = count;
+
+                if (count > 0) {
+                    bulkActionsBar.classList.add('visible');
+                } else {
+                    bulkActionsBar.classList.remove('visible');
+                }
+            };
+
+            // Individual checkboxes
+            document.addEventListener('change', (e) => {
+                if (e.target.classList.contains('select-item')) {
+                    updateBulkUI();
+                }
+            });
+
+            // Select All Ambient
+
+
+
+            // --- MODAL & DELETE LOGIC ---
+
+            // Open Modal for Single Delete
             document.querySelectorAll('.btn-delete').forEach(btn => {
-                btn.addEventListener('click', async () => {
-                    if (!confirm('Sei sicuro di voler eliminare questo elemento?')) return;
-                    const id = btn.dataset.id;
-                    try {
-                        const res = await fetch(`/admin/sounds/${id}`, { method: 'DELETE' });
+                btn.addEventListener('click', () => {
+                    deleteTargetId = btn.dataset.id;
+                    isBulkDelete = false;
+                    deleteModalText.textContent = "Sei sicuro di voler eliminare questo elemento?";
+                    deleteModal.classList.remove('hidden');
+                });
+            });
+
+            // Open Modal for Bulk Delete
+            if (bulkDeleteBtn) {
+                bulkDeleteBtn.addEventListener('click', () => {
+                    const count = document.querySelectorAll('.select-item:checked').length;
+                    if (count === 0) return;
+
+                    isBulkDelete = true;
+                    deleteTargetId = null;
+                    deleteModalText.textContent = `Sei sicuro di voler eliminare ${count} elementi selezionati?`;
+                    deleteModal.classList.remove('hidden');
+                });
+            }
+
+            // Close Modal
+            cancelBtn.addEventListener('click', () => {
+                deleteTargetId = null;
+                isBulkDelete = false;
+                deleteModal.classList.add('hidden');
+            });
+
+            // Confirm Delete (Handles both Single and Bulk)
+            confirmBtn.addEventListener('click', async () => {
+                try {
+                    if (isBulkDelete) {
+                        // BULK DELETE
+                        const checkboxes = document.querySelectorAll('.select-item:checked');
+                        const ids = Array.from(checkboxes).map(cb => cb.value);
+
+                        const res = await fetch('/admin/api/bulk-delete', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ ids })
+                        });
+                        const data = await res.json();
+                        if (data.ok) location.reload();
+                        else alert('Errore Bulk: ' + data.error);
+
+                    } else {
+                        // SINGLE DELETE
+                        if (!deleteTargetId) return;
+                        const res = await fetch(`/admin/sounds/${deleteTargetId}`, { method: 'DELETE' });
                         const data = await res.json();
                         if (data.ok) location.reload();
                         else alert('Errore: ' + data.error);
-                    } catch (err) {
-                        alert('Errore network');
                     }
-                });
+                } catch (err) {
+                    alert('Errore network');
+                }
+                deleteModal.classList.add('hidden');
             });
+
+            // Close on outside click
+            deleteModal.addEventListener('click', (e) => {
+                if (e.target === deleteModal) {
+                    deleteModal.classList.add('hidden');
+                }
+            });
+
 
             // --- EDIT ---
             document.querySelectorAll('.btn-edit').forEach(btn => {

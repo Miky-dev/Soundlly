@@ -17,10 +17,8 @@ const storage = multer.diskStorage({
         cb(null, tempDir);
     },
     filename: (req, file, cb) => {
-        // Genera nome file unico
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = path.extname(file.originalname);
-        cb(null, 'upload-' + uniqueSuffix + ext);
+        // Usa il nome originale del file
+        cb(null, file.originalname);
     }
 });
 
@@ -79,7 +77,8 @@ router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.fie
 
         // 1. Gestione File Audio
         // Determina cartella target in base alla categoria
-        const targetDirName = selectedCategory === 'music' ? 'musiche' : 'ambient';
+        // User/Creator uploads: Music -> musiche, Ambient -> suoni
+        const targetDirName = selectedCategory === 'music' ? 'musiche' : 'suoni';
         const targetDir = path.join(__dirname, '..', 'public', 'audio', targetDirName);
         if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
 
