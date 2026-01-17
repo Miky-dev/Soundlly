@@ -22,7 +22,7 @@
 
 </head>
 
-<body>
+<body data-user-id="<%= typeof user !== 'undefined' && user ? user.id : 'guest' %>">
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-transaparent">
     <div class="container-fluid">
@@ -185,6 +185,7 @@
   </div>
 
   <!-- JS esterno -->
+  <script src="/js/background-timer.js"></script>
   <script src="/js/auth-login.js"></script>
 </body>
 

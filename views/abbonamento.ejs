@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="/css/abbonamento.css" />
 </head>
 
-<body>
+<body data-user-id="<%= typeof user !== 'undefined' && user ? user.id : 'guest' %>">
     <!-- Standard Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-transparent fixed-top">
         <div class="container-fluid">
@@ -111,6 +111,7 @@
     </div>
 
     <!-- Script for Logic -->
+    <script src="/js/background-timer.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             let selectedPlan = '';

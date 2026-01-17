@@ -73,6 +73,10 @@ class FocusTimer {
       this.toggleButtons();
       if (this.isRunning) {
         this.startTimer(true); // Resume
+      } else if (this.timeLeft === 0 && this.MODES[this.currentMode].minutes > 0) {
+        // Did we expire while away?
+        console.log('[Timer] Found expired timer on load. Completing...');
+        this.completeTimer();
       }
     }
 

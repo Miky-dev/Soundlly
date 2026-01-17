@@ -148,6 +148,17 @@ router.post('/ambient/preference', ensureAuthenticated, async (req, res) => {
     }
 });
 
+// Reset All Active Sounds (Sync Logic)
+router.post('/ambient/reset-active', ensureAuthenticated, async (req, res) => {
+    try {
+        await AmbientModel.resetAllActive(req.user.id);
+        res.json({ ok: true });
+    } catch (err) {
+        console.error('Ambient Reset Active Error:', err);
+        res.status(500).json({ error: 'Failed to reset active sounds' });
+    }
+});
+
 // Batch Update Stats
 router.post('/ambient/stats', ensureAuthenticated, async (req, res) => {
     try {

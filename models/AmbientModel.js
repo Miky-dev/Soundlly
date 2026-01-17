@@ -22,6 +22,14 @@ const AmbientModel = {
         );
     },
 
+    // Reset all preferences to inactive for a user
+    resetAllActive: async (userId) => {
+        return await run(
+            `UPDATE user_ambient_sounds SET is_active = 0 WHERE user_id = ?`,
+            [userId]
+        );
+    },
+
     // --- Statistics ---
 
     // Increment listening time safely

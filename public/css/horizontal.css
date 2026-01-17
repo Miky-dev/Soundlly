@@ -244,5 +244,41 @@
     padding: 4px 10px;
     border-radius: 999px;
     margin-bottom: 12px;
+    margin-bottom: 12px;
     font-weight: 700;
+}
+
+/* --------------------------- Responsive ----------------------------------- */
+@media (max-width: 768px) {
+    .horizontal-header {
+        grid-template-columns: auto 1fr auto;
+        gap: 10px;
+    }
+
+    .user-name {
+        display: none;
+    }
+
+    .search-bar-modern {
+        min-width: 0;
+        /* Allow shrinking */
+        width: 100%;
+        padding: 8px 12px;
+    }
+
+    .btn-playlist-modern span {
+        display: none;
+    }
+
+    .btn-playlist-modern {
+        padding: 0;
+        width: 40px;
+        height: 40px;
+        justify-content: center;
+        border-radius: 50%;
+    }
+
+    .btn-playlist-modern i {
+        font-size: 16px;
+    }
 }

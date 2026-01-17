@@ -79,6 +79,40 @@ body {
   text-decoration: underline;
 }
 
+/* ----------------------- Navbar Mobile (Switch Fix) ----------------------- */
+@media (max-width: 768px) {
+  .navbar .container-fluid {
+    display: grid;
+    grid-template-areas:
+      "logo toggler"
+      "switch switch";
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+  }
+
+  /* Logo Area */
+  .navbar-brand {
+    grid-area: logo;
+  }
+
+  /* Toggler Area */
+  .navbar-toggler {
+    grid-area: toggler;
+    justify-self: end;
+  }
+
+  /* Switch Area - Override Absolute Positioning */
+  .navbar .switch {
+    grid-area: switch;
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    transform: none !important;
+    justify-self: center;
+    margin-top: 5px;
+  }
+}
+
 /* -------------------------- Search bar --------------------------- */
 .search-bar-navbar {
   margin: 0 auto;
@@ -296,23 +330,21 @@ body {
   }
 }
 
-@media (max-width: 42em) {
-  .box-4 .box-4-header {
-    padding: 0 .5rem;
-  }
+@media (max-width: 960px) {
 
   .grid-container {
     grid-template-areas:
-      "box-1 box-3"
-      "box-4 box-3"
-      "box-4 box-3"
-      "box-2 box-2";
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(2, 200px);
+      "box-3 box-4 box-4"
+      "box-3 box-4 box-4"
+      "box-1 box-6 box-6"
+      "box-1 box-6 box-6";
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 270px 270px 200px 200px;
+    gap: 1rem;
   }
 }
 
-@media (max-width: 960px) {
+@media (max-width: 500px) {
   .grid-container {
     display: flex;
     flex-direction: column;
@@ -329,38 +361,33 @@ body {
     box-sizing: border-box;
   }
 
+  /* Specific Order requested: 3 (Timer), 4 (Sounds), 1 (Welcome), 6 (Stats) */
+  .box-3 {
+    order: 1;
+    min-height: 500px;
+    height: auto;
+  }
+
+  .box-4 {
+    order: 2;
+    max-height: 600px;
+  }
+
   .box-1 {
+    order: 3;
     padding: .5rem;
     border-radius: .7rem;
     box-sizing: border-box;
   }
 
-  .box-2 {
-    display: none;
+  .box-6 {
+    order: 4;
   }
 
-  .box-3 {
-    min-height: 650px;
-    height: auto;
-  }
-
-  .box-4 {
-    max-height: 600px;
-  }
-
+  .box-2,
   .box-5 {
     display: none;
-  }
-}
-
-@media (max-width: 500px) {
-  .box {
-    gap: .5rem;
-    padding: 1.5rem;
-  }
-
-  .text {
-    font-size: clamp(1rem, 4vw, 1.8rem);
+    order: 5;
   }
 }
 
@@ -638,16 +665,20 @@ body {
   border-radius: 2px;
   outline: none;
   cursor: grab;
+  touch-action: none;
+  /* Prevents scroll while dragging */
 }
 
 .sound-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  /* Larger hit area */
+  height: 16px;
   border-radius: 50%;
   background: #fff;
   cursor: grab;
   transition: transform 0.1s;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 .sound-card-item.active .sound-slider::-webkit-slider-thumb {
@@ -3184,6 +3215,7 @@ body {
   transform: scale(1.1);
   border-color: rgba(255, 255, 255, 0.5);
 }
+
 /* --- Utility Classes for Exam Compliance (No Inline Styles) --- */
 
 .text-decoration-none {
@@ -3237,4 +3269,3 @@ body {
 .hidden {
   display: none !important;
 }
-

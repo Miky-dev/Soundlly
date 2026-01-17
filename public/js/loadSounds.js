@@ -42,11 +42,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
-        // CHECK NAVIGATION FLAG
-        // 'soundlly_navigating' is set in switch-handler.js before redirecting.
         const isNavigating = sessionStorage.getItem('soundlly_navigating') === 'true';
         if (isNavigating) {
             sessionStorage.removeItem('soundlly_navigating'); // Clean up
+        }
+
+        // BUG FIX: Sync DB state with UI "Quiet Start"
+        // If we are NOT navigating (i.e., fresh load or reload), the UI starts silent.
+        // We must ensure the DB also knows everything is silent, otherwise hitting "Immersive" later 
+        // will resume these "ghost" sounds.
+        if (!isNavigating && Array.isArray(prefs) && prefs.some(p => p.is_active)) {
+            fetch('/api/focus/ambient/reset-active', { method: 'POST' })
+                .catch(e => console.error('Silent Sync Error:', e));
         }
 
         if (!isHeadless) {
@@ -153,9 +160,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             slider.value = savedVolume;
             slider.className = 'sound-slider';
 
-            // Stop bubbling so clicking slider doesn't toggle card active state
+            // Stop bubbling and prevent scroll interference
             slider.addEventListener('click', (e) => e.stopPropagation());
-            slider.addEventListener('mousedown', (e) => e.stopPropagation()); // Prevent drag conflict
+            slider.addEventListener('mousedown', (e) => e.stopPropagation());
+            slider.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: false });
+            slider.addEventListener('touchend', (e) => e.stopPropagation());
             slider.addEventListener('input', (e) => {
                 const vol = parseInt(e.target.value, 10);
                 updateVolume(sound.id, vol);

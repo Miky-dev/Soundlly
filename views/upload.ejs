@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="/css/upload.css" />
 </head>
 
-<body>
+<body data-user-id="<%= typeof user !== 'undefined' && user ? user.id : 'guest' %>">
 
     <!-- Navbar (Simplified) -->
     <!-- Navbar (Simplified) -->
@@ -132,6 +132,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/background-timer.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             function setupDropzone(zoneId, inputId, labelId, nameId) {
