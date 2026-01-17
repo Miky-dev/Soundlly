@@ -2,9 +2,18 @@ const express = require('express');
 const router = express.Router();
 const { all, run, get } = require('../db/sqlite');
 
-// Helper to get user ID specific queries
+/**
+ * ROUTES/MUSIC.JS
+ * 
+ * Gestione delle tracce musicali.
+ * Fornisce API per recuperare diverse categorie di musica e gestire i "Mi piace".
+ */
+
+// Helper per ottenere ID utente sicuro (null se non loggato)
 const getUserId = (req) => req.user ? req.user.id : null;
 
+// Query Base:
+// Seleziona i dettagli della canzone e aggiunge un flag 'is_liked' se l'utente corrente ha messo like.
 const MUSIC_QUERY = `
     SELECT s.id, s.title, s.description, s.filename, s.icon, s.category, u.username as author,
     CASE WHEN sl.user_id IS NOT NULL THEN 1 ELSE 0 END as is_liked
@@ -13,7 +22,7 @@ const MUSIC_QUERY = `
     LEFT JOIN sound_likes sl ON s.id = sl.sound_id AND sl.user_id = ?
 `;
 
-// GET /api/music/latest
+// GET /api/music/latest - Ultime uscite musicali (Pubbliche)
 router.get('/latest', async (req, res) => {
     try {
         const userId = getUserId(req);
@@ -26,12 +35,12 @@ router.get('/latest', async (req, res) => {
         const results = await all(sql, [userId]);
         res.json(results);
     } catch (err) {
-        console.error('Latest Music Error:', err);
-        res.status(500).json({ error: 'Failed to fetch music' });
+        console.error('Errore Latest Music:', err);
+        res.status(500).json({ error: 'Recupero musica fallito' });
     }
 });
 
-// GET /api/music/premium
+// GET /api/music/premium - Musica Riservata (Premium)
 router.get('/premium', async (req, res) => {
     try {
         const userId = getUserId(req);
@@ -44,12 +53,12 @@ router.get('/premium', async (req, res) => {
         const results = await all(sql, [userId]);
         res.json(results);
     } catch (err) {
-        console.error('Premium Music Error:', err);
-        res.status(500).json({ error: 'Failed to fetch premium music' });
+        console.error('Errore Premium Music:', err);
+        res.status(500).json({ error: 'Recupero musica premium fallito' });
     }
 });
 
-// GET /api/music/creators (Ambient sounds uploaded by users)
+// GET /api/music/creators - Suoni Ambientali creati dagli utenti (Community)
 router.get('/creators', async (req, res) => {
     try {
         const userId = getUserId(req);
@@ -62,14 +71,15 @@ router.get('/creators', async (req, res) => {
         const results = await all(sql, [userId]);
         res.json(results);
     } catch (err) {
-        console.error('Creators Music Error:', err);
-        res.status(500).json({ error: 'Failed to fetch creators music' });
+        console.error('Errore Creators Music:', err);
+        res.status(500).json({ error: 'Recupero musica creators fallito' });
     }
 });
 
 
+// --- GESTIONE PREFERITI (LIKES) ---
 
-// POST /api/music/favorites/:id/toggle
+// POST /api/music/favorites/:id/toggle - Aggiunge/Rimuove dai preferiti
 router.post('/favorites/:id/toggle', async (req, res) => {
     if (!req.isAuthenticated()) {
         return res.status(401).json({ error: 'Devi essere loggato' });
@@ -79,29 +89,30 @@ router.post('/favorites/:id/toggle', async (req, res) => {
     const soundId = req.params.id;
 
     try {
-        // Check if exists
+        // Controlla se il like esiste già
         const existing = await get('SELECT 1 FROM sound_likes WHERE user_id = ? AND sound_id = ?', [userId, soundId]);
 
         if (existing) {
-            // Remove
+            // Se esiste, rimuovi (Unlike)
             await run('DELETE FROM sound_likes WHERE user_id = ? AND sound_id = ?', [userId, soundId]);
             res.json({ success: true, liked: false });
         } else {
-            // Add
+            // Se non esiste, aggiungi (Like)
             await run('INSERT INTO sound_likes (user_id, sound_id) VALUES (?, ?)', [userId, soundId]);
             res.json({ success: true, liked: true });
         }
     } catch (err) {
-        console.error('Favorites Toggle Error:', err);
-        res.status(500).json({ error: 'Failed to toggle favorite' });
+        console.error('Errore Toggle Favorite:', err);
+        res.status(500).json({ error: 'Operazione fallita' });
     }
 });
 
-// GET /api/music/favorites
+// GET /api/music/favorites - Lista dei brani preferiti dall'utente
 router.get('/favorites', async (req, res) => {
     try {
         if (!req.isAuthenticated()) return res.json([]);
 
+        // Join con la tabella sound_likes per ottenere solo i brani "piaciuti"
         const sql = `
             SELECT s.id, s.title, s.description, s.filename, s.icon, s.category, u.username as author
             FROM sounds s
@@ -114,8 +125,8 @@ router.get('/favorites', async (req, res) => {
         const results = await all(sql, [req.user.id]);
         res.json(results);
     } catch (err) {
-        console.error('Favorites Error:', err);
-        res.status(500).json({ error: 'Failed to fetch favorites' });
+        console.error('Errore Favorites:', err);
+        res.status(500).json({ error: 'Recupero preferiti fallito' });
     }
 });
 

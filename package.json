@@ -8,6 +8,7 @@
     "db:migrate": "node scripts/seed.js",
     "db:seed:users": "node scripts/create_test_users.js",
     "db:seed:admin": "node scripts/popolate_admin.js",
+    "init-project": "node scripts/init_project.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

@@ -1,39 +1,39 @@
 const { run, get, all } = require('../db/sqlite');
 
-const AmbientModel = {
+class AmbientModel {
     // --- Preferences ---
 
     // Get all preferences for a user
-    getPreferences: async (userId) => {
+    static async getPreferences(userId) {
         // Returns array of { sound_id, volume, is_active }
         return await all(
             `SELECT sound_id, volume, is_active FROM user_ambient_sounds WHERE user_id = ?`,
             [userId]
         );
-    },
+    }
 
     // Set preference for a single sound (Upsert)
-    setPreference: async (userId, soundId, volume, isActive) => {
+    static async setPreference(userId, soundId, volume, isActive) {
         // SQLite upsert using REPLACE or INSERT OR REPLACE
         return await run(
             `INSERT OR REPLACE INTO user_ambient_sounds (user_id, sound_id, volume, is_active, updated_at)
        VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)`,
             [userId, soundId, volume, isActive ? 1 : 0]
         );
-    },
+    }
 
     // Reset all preferences to inactive for a user
-    resetAllActive: async (userId) => {
+    static async resetAllActive(userId) {
         return await run(
             `UPDATE user_ambient_sounds SET is_active = 0 WHERE user_id = ?`,
             [userId]
         );
-    },
+    }
 
     // --- Statistics ---
 
     // Increment listening time safely
-    incrementStats: async (userId, batchStats) => {
+    static async incrementStats(userId, batchStats) {
         // batchStats is array of { soundId, seconds }
         // Process sequentially or parallel
         const promises = batchStats.map(({ soundId, seconds }) => {
@@ -57,6 +57,6 @@ const AmbientModel = {
         });
         return Promise.all(promises);
     }
-};
+}
 
 module.exports = AmbientModel;

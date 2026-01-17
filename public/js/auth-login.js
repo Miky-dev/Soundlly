@@ -1,172 +1,205 @@
-// public/js/auth-login.js
-// Funzione auto-invocante (IIFE) per incapsulare lo scope e non inquinare quello globale
-(function () {
-  // Alias breve per document.querySelector
-  const $ = (sel) => document.querySelector(sel);
+/**
+ * auth-login.js
+ * 
+ * Gestisce la logica di login e registrazione lato client.
+ * Funzionalità:
+ * 1. Switch tra Login e Registrazione.
+ * 2. Gestione messaggi di errore (da URL o validazione).
+ * 3. Caricamento token CSRF per la sicurezza.
+ * 4. Validazione form (campi vuoti, password, età, email).
+ */
 
-  // Selezione elementi del DOM (form, bottoni, alert)
-  const loginForm = $('#login-form');
-  const registerForm = $('#register-form');
-  const showRegisterBtn = $('#show-register');
-  const backToLoginBtn = $('#back-to-login');
-  const loginAlert = $('#login-alert');
-  const loginCsrf = $('#login-csrf');
-  const registerCsrf = $('#register-csrf');
+class AuthManager {
+  constructor() {
+    // Alias breve per selezione elementi
+    this.$ = (sel) => document.querySelector(sel);
 
-  // Funzione per mostrare messaggi di errore/successo
-  function show(el, msg, type = 'error') {
+    // Riferimenti agli elementi del DOM
+    this.els = {
+      loginForm: this.$('#login-form'),
+      registerForm: this.$('#register-form'),
+      showRegisterBtn: this.$('#show-register'),
+      backToLoginBtn: this.$('#back-to-login'),
+      loginAlert: this.$('#login-alert'),
+      registerError: this.$('#register-error'),
+      loginCsrf: this.$('#login-csrf'),
+      registerCsrf: this.$('#register-csrf'),
+      formTitle: this.$('#form-title')
+    };
+
+    this.init();
+  }
+
+  init() {
+    this.bindEvents();
+    this.checkUrlParams();
+    this.loadCsrf();
+  }
+
+  // --- GESTIONE EVENTI (Click & Submit) ---
+  bindEvents() {
+    // Switch Login -> Registrazione
+    if (this.els.showRegisterBtn) {
+      this.els.showRegisterBtn.addEventListener('click', () => this.toggleView('register'));
+    }
+
+    // Switch Registrazione -> Login
+    if (this.els.backToLoginBtn) {
+      this.els.backToLoginBtn.addEventListener('click', () => this.toggleView('login'));
+    }
+
+    // Submit Form Login
+    if (this.els.loginForm) {
+      this.els.loginForm.addEventListener('submit', (e) => this.handleLoginSubmit(e));
+    }
+
+    // Submit Form Registrazione
+    if (this.els.registerForm) {
+      this.els.registerForm.addEventListener('submit', (e) => this.handleRegisterSubmit(e));
+    }
+  }
+
+  // --- LOGICA UI ---
+
+  // Cambia vista tra login e registrazione
+  toggleView(view) {
+    if (view === 'register') {
+      this.els.registerForm.style.display = 'block';
+      this.els.loginForm.style.display = 'none';
+      if (this.els.formTitle) this.els.formTitle.textContent = 'Registrazione';
+      this.hideMessage(this.els.loginAlert);
+    } else {
+      this.els.registerForm.style.display = 'none';
+      this.els.loginForm.style.display = 'block';
+      if (this.els.formTitle) this.els.formTitle.textContent = 'Login';
+      this.hideMessage(this.els.loginAlert);
+    }
+  }
+
+  // Mostra messaggio di errore/successo
+  showMessage(el, msg, type = 'error') {
     if (!el) return;
     el.textContent = msg;
-    el.classList.remove('hidden'); // Mostra
-    el.classList.remove('ok', 'error', 'info'); // Reset classi
-    el.classList.add(type); // Assegna tipo
+    el.classList.remove('hidden');
+    el.classList.remove('ok', 'error', 'info');
+    el.classList.add(type);
+    el.style.display = 'block'; // Assicura visibilità
   }
 
-  // Funzione per nascondere i messaggi
-  function hide(el) {
+  hideMessage(el) {
     if (!el) return;
     el.textContent = '';
-    el.classList.add('hidden'); // Nasconde
-    el.classList.remove('ok', 'error', 'info');
+    el.classList.add('hidden');
+    el.style.display = 'none';
   }
 
-  // ======= VISUALIZZAZIONE FORM =======
-  // Gestisce il cambio tra Login e Registrazione se i bottoni esistono
-  showRegisterBtn?.addEventListener('click', () => {
-    registerForm.style.display = 'block';
-    loginForm.style.display = 'none';
-    $('#form-title').textContent = 'Registrazione';
-  });
+  // --- CONTROLLI INIZIALI ---
 
-  backToLoginBtn?.addEventListener('click', () => {
-    registerForm.style.display = 'none';
-    loginForm.style.display = 'block';
-    $('#form-title').textContent = 'Login';
-    hide(loginAlert); // Pulisce eventuali errori precedenti
-  });
+  // Controlla parametri URL (es. ?error=1) per feedback server
+  checkUrlParams() {
+    const params = new URLSearchParams(location.search);
 
-  // ======= GESTIONE QUERYSTRING =======
-  // Controlla parametri URL per messaggi di stato dal server
-  const params = new URLSearchParams(location.search);
-  if (params.get('error') === '1') {
-    show(loginAlert, 'Credenziali non valide. Riprova.', 'error');
-  }
-  if (params.get('registered') === '1') {
-    show(loginAlert, 'Registrazione completata! Ora effettua il login.', 'ok');
-  }
-  if (params.get('exists') === '1') {
-    // Errore generico di esistenza utente
-    show(loginAlert, 'Username già esistente. Scegline un altro.', 'error');
+    if (params.get('error') === '1') {
+      this.showMessage(this.els.loginAlert, 'Credenziali non valide. Riprova.', 'error');
+    }
+    if (params.get('registered') === '1') {
+      this.showMessage(this.els.loginAlert, 'Registrazione completata! Ora effettua il login.', 'ok');
+    }
+    if (params.get('exists') === '1') {
+      this.showMessage(this.els.loginAlert, 'Username già esistente. Scegline un altro.', 'error');
+    }
   }
 
-  // ======= SICUREZZA (CSRF) =======
-  // Recupera il token CSRF dal server e lo inietta nei form nascosti
-  async function loadCsrf() {
+  // Carica token CSRF (Cross-Site Request Forgery) dal server
+  async loadCsrf() {
     try {
       const res = await fetch('/api/csrf', { credentials: 'include' });
       if (!res.ok) return;
       const data = await res.json();
-      // Se riceviamo un token, lo inseriamo nei campi input hidden
+
+      // Inietta il token negli input hidden dei form
       if (data?.csrfToken) {
-        if (loginCsrf) loginCsrf.value = data.csrfToken;
-        if (registerCsrf) registerCsrf.value = data.csrfToken;
+        const inputs = document.querySelectorAll('input[name="_csrf"]');
+        inputs.forEach(inp => inp.value = data.csrfToken);
       }
     } catch (e) {
-      console.error('CSRF load error', e);
+      console.error('Errore caricamento CSRF', e);
     }
   }
-  loadCsrf(); // Avvia caricamento token
 
-  // ======= VALIDAZIONE LOGIN =======
-  loginForm?.addEventListener('submit', (e) => {
-    hide(loginAlert);
-    // safe access ai campi
-    const u = loginForm.username?.value?.trim();
-    const p = loginForm.password?.value || '';
+  // --- VALIDAZIONE ---
 
-    // Controllo campi vuoti
+  handleLoginSubmit(e) {
+    this.hideMessage(this.els.loginAlert);
+
+    const form = this.els.loginForm;
+    const u = form.elements['username']?.value?.trim();
+    const p = form.elements['password']?.value;
+
     if (!u || !p) {
       e.preventDefault();
-      show(loginAlert, 'Inserisci username e password.', 'error');
+      this.showMessage(this.els.loginAlert, 'Inserisci username e password.', 'error');
     }
-  });
+  }
 
-  // ======= VALIDAZIONE BASE REGISTRAZIONE (FORM 1) =======
-  // Questa parte sembra gestire un form di registrazione generico o parziale
-  registerForm?.addEventListener('submit', (e) => {
-    hide(loginAlert);
-    const u = registerForm.username?.value?.trim();
-    const p = registerForm.password?.value || '';
+  handleRegisterSubmit(e) {
+    const form = this.els.registerForm;
+    const errBox = this.els.registerError;
 
-    if (!u || !p) {
+    // Reset errori
+    errBox.style.display = 'none';
+    errBox.textContent = '';
+
+    const email = form.elements['email']?.value?.trim();
+    const pwd = form.elements['password']?.value;
+    const birth = form.elements['birth_date']?.value;
+
+    // 1. Validazione Email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
       e.preventDefault();
-      show(loginAlert, 'Compila tutti i campi.', 'error');
+      errBox.textContent = 'Inserisci un’email valida.';
+      errBox.style.display = 'block';
       return;
     }
-    if (p.length < 6) {
+
+    // 2. Validazione Password (>6 caratteri)
+    if (!pwd || pwd.length < 6) {
       e.preventDefault();
-      show(loginAlert, 'La password deve avere almeno 6 caratteri.', 'error');
-    }
-  });
-
-
-  // ======= VALIDAZIONE ESTESA REGISTRAZIONE =======
-  // Listener addizionale per validazioni più complesse (data nascita, email)
-  document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('register-form');
-    const errorBox = document.getElementById('register-error');
-
-    // Calcola età da data di nascita
-    function calcAge(d) {
-      const today = new Date();
-      let age = today.getFullYear() - d.getFullYear();
-      const m = today.getMonth() - d.getMonth();
-      // Aggiusta se compleanno non ancora passato quest'anno
-      if (m < 0 || (m === 0 && today.getDate() < d.getDate())) age--;
-      return age;
+      errBox.textContent = 'La password deve contenere almeno 6 caratteri.';
+      errBox.style.display = 'block';
+      return;
     }
 
-    form?.addEventListener('submit', (e) => {
-      if (!form) return;
-      // Reset errori
-      errorBox.style.display = 'none';
-      errorBox.textContent = '';
+    // 3. Validazione Età (Minimo 14 anni)
+    const bd = birth ? new Date(birth) : null;
+    if (!bd || isNaN(bd.getTime())) {
+      e.preventDefault();
+      errBox.textContent = 'Inserisci una data di nascita valida.';
+      errBox.style.display = 'block';
+      return;
+    }
 
-      const birthVal = form.elements['birth_date']?.value || '';
-      const emailVal = form.elements['email']?.value || '';
-      const pwdVal = form.elements['password']?.value || '';
+    if (this.calculateAge(bd) < 14) {
+      e.preventDefault();
+      errBox.textContent = 'Spiacenti, devi avere almeno 14 anni per registrarti.';
+      errBox.style.display = 'block';
+      return;
+    }
+  }
 
-      // Regex validazione Email semplice
-      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal);
-      if (!emailOk) {
-        e.preventDefault();
-        errorBox.textContent = 'Inserisci un’email valida.';
-        errorBox.style.display = 'block';
-        return;
-      }
+  calculateAge(birthDate) {
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  }
+}
 
-      // Password min 6 caratteri
-      if (!pwdVal || String(pwdVal).length < 6) {
-        e.preventDefault();
-        errorBox.textContent = 'La password deve contenere almeno 6 caratteri.';
-        errorBox.style.display = 'block';
-        return;
-      }
-
-      // Validazione Età ≥ 14
-      const bd = birthVal ? new Date(birthVal) : null;
-      if (!bd || isNaN(bd)) {
-        e.preventDefault();
-        errorBox.textContent = 'Inserisci una data di nascita valida.';
-        errorBox.style.display = 'block';
-        return;
-      }
-      if (calcAge(bd) < 14) {
-        e.preventDefault();
-        errorBox.textContent = 'Spiacenti, devi avere almeno 14 anni per registrarti.';
-        errorBox.style.display = 'block';
-        return;
-      }
-    });
-  });
-})();
+// Inizializzazione al caricamento del documento
+document.addEventListener('DOMContentLoaded', () => {
+  new AuthManager();
+});

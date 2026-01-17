@@ -157,6 +157,12 @@
     stroke-dashoffset: 100;
     transform: rotate(-90deg);
     transform-origin: 50% 50%;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    /* transition removed here, added via class .pomo-animated */
+}
+
+.pomo-animated {
     transition: stroke-dashoffset 1s linear;
 }
 

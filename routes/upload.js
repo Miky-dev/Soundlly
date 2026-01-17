@@ -8,14 +8,16 @@ const fs = require('fs');
 const { ensureAuthenticated } = require('../middleware/auth');
 const { run } = require('../db/sqlite');
 
-// --- Multer Config ---
+// --- Configurazione Multer (Upload File) ---
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
+        // Cartella temporanea iniziale
         const tempDir = path.join(__dirname, '..', 'public', 'temp_uploads');
         if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
         cb(null, tempDir);
     },
     filename: (req, file, cb) => {
+        // Genera nome file unico
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
         const ext = path.extname(file.originalname);
         cb(null, 'upload-' + uniqueSuffix + ext);
@@ -24,7 +26,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Middleware to check for Creator or Admin role
+// Middleware: Controlla se l'utente è un Creator o Admin
 const ensureCreatorOrAdmin = (req, res, next) => {
     if (req.user && (req.user.role === 'creator' || req.user.role === 'admin')) {
         return next();
@@ -32,7 +34,10 @@ const ensureCreatorOrAdmin = (req, res, next) => {
     res.redirect('/abbonamento');
 };
 
-// GET /upload - Show the upload form
+/**
+ * GET /upload
+ * Mostra il form di caricamento file.
+ */
 router.get('/', ensureAuthenticated, ensureCreatorOrAdmin, (req, res) => {
     res.render('upload', {
         user: req.user,
@@ -42,7 +47,11 @@ router.get('/', ensureAuthenticated, ensureCreatorOrAdmin, (req, res) => {
     });
 });
 
-// POST /api/upload - Handle the file upload
+/**
+ * POST /api/upload
+ * Gestisce l'upload effettivo del file audio e della copertina.
+ * Sposta i file nelle cartelle definitive, estrae i metadati e salva nel DB.
+ */
 router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.fields([{ name: 'audio', maxCount: 1 }, { name: 'cover', maxCount: 1 }]), async (req, res) => {
     const renderWithMsg = (msg, type = 'danger') => {
         res.render('upload', {
@@ -64,22 +73,23 @@ router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.fie
 
         if (!title) return renderWithMsg('Il titolo è obbligatorio.');
 
-        // Validation: Music requires Cover (or default)
-        // Removed blocking check. Now applying default if missing.
-
+        // Categorie valide
         const validCategories = ['ambient', 'music'];
         const selectedCategory = validCategories.includes(category) ? category : 'ambient';
 
-        // 1. Handle Audio
+        // 1. Gestione File Audio
+        // Determina cartella target in base alla categoria
         const targetDirName = selectedCategory === 'music' ? 'musiche' : 'ambient';
         const targetDir = path.join(__dirname, '..', 'public', 'audio', targetDirName);
         if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
 
         const targetFilename = audioFile.filename;
         const targetPath = path.join(targetDir, targetFilename);
+
+        // Sposta file da temp a target
         fs.renameSync(audioFile.path, targetPath);
 
-        // 2. Handle Cover (only for Music usually, but we save it if provided)
+        // 2. Gestione Copertina (Opzionale per Ambient, necessaria o default per Music)
         let coverPath = null;
         if (selectedCategory === 'music') {
             if (coverFiles && coverFiles.length > 0) {
@@ -87,18 +97,18 @@ router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.fie
                 const coversDir = path.join(__dirname, '..', 'public', 'uploads', 'covers');
                 if (!fs.existsSync(coversDir)) fs.mkdirSync(coversDir, { recursive: true });
 
-                const coverFilename = coverFile.filename; // multer already generated unique name
+                const coverFilename = coverFile.filename; // nome generato da multer
                 const coverTarget = path.join(coversDir, coverFilename);
                 fs.renameSync(coverFile.path, coverTarget);
 
                 coverPath = '/uploads/covers/' + coverFilename;
             } else {
-                // Use DEFAULT cover
+                // Copertina di default
                 coverPath = '/immagini/copertinaDef.png';
             }
         }
 
-        // Extract Duration
+        // 3. Estrazione Metadati (Durata)
         let duration = 0;
         try {
             const metadata = await mm.parseFile(targetPath);
@@ -106,19 +116,20 @@ router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.fie
                 duration = Math.round(metadata.format.duration);
             }
         } catch (e) {
-            console.error('Metadata extract error:', e);
+            console.error('Errore estrazione metadati:', e);
         }
 
-        // Determine "icon" field value:
-        // - Ambient: use the font-awesome icon string (e.g. "fa-cloud")
-        // - Music: use the cover image path (e.g. "/uploads/covers/...")
+        // 4. Determina Icona
+        // - Ambient: classe FontAwesome (es. "fa-cloud")
+        // - Music: path immagine copertina
         let finalIcon = null;
         if (selectedCategory === 'ambient') {
             finalIcon = icon || null;
         } else {
-            finalIcon = coverPath || '/immagini/usericon.png'; // Fallback to usericon if logic fails, but coverPath should be set above
+            finalIcon = coverPath || '/immagini/usericon.png';
         }
 
+        // 5. Salvataggio su DB
         await run(
             `INSERT INTO sounds (
                 owner_id, title, description, filename, media_type, 
@@ -142,9 +153,6 @@ router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.fie
 
     } catch (err) {
         console.error('Upload Error:', err);
-        if (err.message && err.message.includes('no column named category')) {
-            return renderWithMsg('Errore Database: Schema non aggiornato. Riprova più tardi.', 'danger');
-        }
         renderWithMsg('Si è verificato un errore durante il caricamento.', 'danger');
     }
 });

@@ -1,75 +1,84 @@
-// In attesa che il DOM sia completamente caricato per assicurarsi che gli elementi esistano
-document.addEventListener('DOMContentLoaded', () => {
-    // Seleziona il pulsante per il fullscreen tramite il suo ID
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
+/**
+ * immersive-controls.js
+ * 
+ * Gestisce i controlli specifici della "Immersive Mode" (modalità focus globale).
+ * 
+ * Funzionalità:
+ * 1. Orologio in tempo reale (formattato in italiano).
+ * 2. Toggle Fullscreen (schermo intero) con cambio icona dinamico.
+ */
 
-    // Se il pulsante esiste nella pagina, aggiunge un ascoltatore per l'evento click
-    if (fullscreenBtn) {
-        fullscreenBtn.addEventListener('click', toggleFullScreen);
+class ImmersiveControls {
+    constructor() {
+        // Elementi DOM
+        this.clockEl = document.getElementById('realTimeClock');
+        this.fullscreenBtn = document.getElementById('fullscreenBtn');
+
+        // Avvia solo se gli elementi esistono
+        this.init();
     }
 
-    // Funzione per attivare/disattivare la modalità a schermo intero
-    function toggleFullScreen() {
-        // Se non siamo già in fullscreen (document.fullscreenElement è null)
+    init() {
+        // Gestione Orologio
+        if (this.clockEl) {
+            this.updateClock(); // Primo aggiornamento immediato
+            setInterval(() => this.updateClock(), 1000); // Aggiornamento periodico
+        }
+
+        // Gestione Fullscreen
+        if (this.fullscreenBtn) {
+            this.fullscreenBtn.addEventListener('click', () => this.toggleFullScreen());
+            // Ascolta cambiamenti esterni (es. tasto ESC) per aggiornare l'icona
+            document.addEventListener('fullscreenchange', () => this.updateFullscreenIcon());
+        }
+    }
+
+    // --- OROLOGIO ---
+    updateClock() {
+        const now = new Date();
+        const options = { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' };
+
+        // Formattazione data locale italiana
+        const timeString = now.toLocaleDateString('it-IT', options).replace(',', '');
+
+        // Capitalizzazione prima lettera (es. "lun 10 gen" -> "Lun 10 gen")
+        const finalString = timeString.charAt(0).toUpperCase() + timeString.slice(1);
+
+        this.clockEl.textContent = finalString;
+    }
+
+    // --- FULLSCREEN ---
+    toggleFullScreen() {
         if (!document.fullscreenElement) {
-            // Richiede al browser di mandare l'elemento radice (document.documentElement) in fullscreen
-            document.documentElement.requestFullscreen().catch((err) => {
-                // Gestisce e logga eventuali errori (es. permesso negato)
-                console.error(`Error attempting to enable fullscreen: ${err.message} (${err.name})`);
+            // Entra in fullscreen
+            document.documentElement.requestFullscreen().catch(err => {
+                console.error(`Errore attivazione fullscreen: ${err.message}`);
             });
         } else {
-            // Se siamo già in fullscreen, usciamo
-            // Controlla se la funzione exitFullscreen esiste (compatibilità)
+            // Esci da fullscreen
             if (document.exitFullscreen) {
                 document.exitFullscreen();
             }
         }
     }
 
-    // Aggiorna l'icona del pulsante in base allo stato del fullscreen
-    document.addEventListener('fullscreenchange', () => {
-        // Seleziona l'elemento icona (<i>) all'interno del pulsante
-        const icon = fullscreenBtn.querySelector('i');
+    updateFullscreenIcon() {
+        const icon = this.fullscreenBtn.querySelector('i');
+        if (!icon) return;
 
-        // Se c'è un elemento in fullscreen attivo
         if (document.fullscreenElement) {
-            // Rimuove l'icona di espansione e aggiunge quella di compressione (uscita)
+            // Icona "Comprimi" se siamo già full screen
             icon.classList.remove('fa-expand');
             icon.classList.add('fa-compress');
         } else {
-            // Altrimenti, ripristina l'icona di espansione
+            // Icona "Espandi" se siamo in finestra normale
             icon.classList.remove('fa-compress');
             icon.classList.add('fa-expand');
         }
-    });
-
-    // Logica per l'orologio in tempo reale
-    const clockEl = document.getElementById('realTimeClock');
-
-    // Se l'elemento orologio esiste nella pagina
-    if (clockEl) {
-        // Funzione per aggiornare il testo dell'orologio
-        function updateClock() {
-
-            const now = new Date();
-
-
-            const options = { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' };
-
-            // Crea la stringa formattata e rimuove eventuali virgole indesiderate
-            const timeString = now.toLocaleDateString('it-IT', options).replace(',', '');
-
-            // Assicura che la prima lettera sia maiuscola (estetica)
-            const finalString = timeString.charAt(0).toUpperCase() + timeString.slice(1);
-
-            // Imposta il testo dell'elemento orologio
-            clockEl.textContent = finalString;
-        }
-
-        // Chiama la funzione subito per evitare ritardi iniziali
-        updateClock();
-
-        // Imposta un intervallo per aggiornare l'orologio ogni 1000ms (1 secondo)
-        setInterval(updateClock, 1000);
     }
+}
+
+// Istanziazione
+document.addEventListener('DOMContentLoaded', () => {
+    new ImmersiveControls();
 });

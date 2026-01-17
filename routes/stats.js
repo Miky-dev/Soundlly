@@ -3,41 +3,51 @@ const router = express.Router();
 const { get, all, run } = require('../db/sqlite');
 const { ensureAuthenticated } = require('../middleware/auth');
 
-// GET /stats
-// Helper to get start of day/week/month in ISO format
+/**
+ * Funzione Helper: getStartDates
+ * Calcola l'inizio del giorno, della settimana (lunedì) e del mese corrente.
+ * Restituisce le date in formato compatibile con SQLite (YYYY-MM-DD HH:MM:SS)
+ */
 const getStartDates = () => {
     const now = new Date();
 
-    // Helper to format for SQLite (YYYY-MM-DD HH:MM:SS)
+    // Formatta data per SQLite
     const toSqlite = (d) => d.toISOString().replace('T', ' ').split('.')[0];
 
+    // Inizio Giorno
     const startOfDay = toSqlite(new Date(now.getFullYear(), now.getMonth(), now.getDate()));
 
+    // Inizio Settimana (Lunedì)
     const startOfWeekDate = new Date(now);
-    const day = startOfWeekDate.getDay() || 7; // Get current day number, converting Sun (0) to 7
-    if (day !== 1) startOfWeekDate.setHours(-24 * (day - 1)); // Go back to Monday
+    const day = startOfWeekDate.getDay() || 7; // 0=Dom -> converte a 7
+    if (day !== 1) startOfWeekDate.setHours(-24 * (day - 1)); // Torna indietro a Lunedì
     startOfWeekDate.setHours(0, 0, 0, 0);
     const startOfWeek = toSqlite(startOfWeekDate);
 
+    // Inizio Mese
     const startOfMonth = toSqlite(new Date(now.getFullYear(), now.getMonth(), 1));
 
     return { startOfDay, startOfWeek, startOfMonth };
 };
 
-// GET /stats
+/*
+ * GET /stats
+ * Renderizza la pagina delle statistiche utente.
+ * Recupera obiettivi, sessioni completate, task e grafici settimanali.
+ */
 router.get('/', ensureAuthenticated, async (req, res) => {
     try {
         const userId = req.user.id;
         const { startOfDay, startOfWeek, startOfMonth } = getStartDates();
 
-        // 0. Ensure User Goals Exist
+        // 0. Assicura che l'utente abbia degli obiettivi impostati
         let userGoals = await get(`SELECT * FROM user_goals WHERE user_id = ?`, [userId]);
         if (!userGoals) {
             await run(`INSERT INTO user_goals (user_id) VALUES (?)`, [userId]);
             userGoals = { daily_focus_goal: 60, weekly_focus_goal: 300, monthly_focus_goal: 1200 };
         }
 
-        // 1. Focus Stats (Total)
+        // 1. Statistiche Sessioni Focus Totali
         const focusStats = await get(
             `SELECT 
              SUM(completed_minutes) as totalMinutes, 
@@ -47,7 +57,7 @@ router.get('/', ensureAuthenticated, async (req, res) => {
             [userId]
         );
 
-        // 1b. Progress Stats (Daily, Weekly, Monthly)
+        // 1b. Progresso (Oggi, Settimana, Mese)
         const progressStats = await get(
             `SELECT 
                 SUM(CASE WHEN started_at >= ? THEN completed_minutes ELSE 0 END) as todayMinutes,
@@ -58,11 +68,11 @@ router.get('/', ensureAuthenticated, async (req, res) => {
             [startOfDay, startOfWeek, startOfMonth, userId]
         );
 
-        // 2. To-Do Stats
+        // 2. Statistiche To-Do
         const todoCompleted = await get(`SELECT COUNT(*) as count FROM todos WHERE user_id = ? AND is_done = 1`, [userId]);
         const todoPending = await get(`SELECT COUNT(*) as count FROM todos WHERE user_id = ? AND is_done = 0`, [userId]);
 
-        // 3. Ambient Sounds Stats (Top 5)
+        // 3. Suoni Ambientali più ascoltati (Top 5)
         const topSounds = await all(
             `SELECT s.title, a.sound_id, a.total_seconds, a.last_listened_at 
                  FROM ambient_listening_stats a
@@ -73,7 +83,7 @@ router.get('/', ensureAuthenticated, async (req, res) => {
             [userId]
         );
 
-        // 4. Recent Focus Sessions (Last 5)
+        // 4. Sessioni Recenti (Ultime 5)
         const recentSessions = await all(
             `SELECT started_at, session_type, completed_minutes, status 
                  FROM focus_sessions 
@@ -83,19 +93,18 @@ router.get('/', ensureAuthenticated, async (req, res) => {
             [userId]
         );
 
-        // 5. Weekly Chart Data (Last 7 Days)
+        // 5. Dati Grafico Settimanale (Ultimi 7 Giorni)
         const chartLabels = [];
-        const chartData = [];
         const today = new Date();
 
-        // Generate last 7 days dates
+        // Genera etichette per gli ultimi 7 giorni
         for (let i = 6; i >= 0; i--) {
             const d = new Date(today);
             d.setDate(today.getDate() - i);
             chartLabels.push(d.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric' }));
         }
 
-        // Get raw data from DB
+        // Recupera dati grezzi dal DB raggruppati per giorno
         const rawChartData = await all(`
             SELECT date(started_at) as dateDay, SUM(completed_minutes) as minutes
             FROM focus_sessions
@@ -104,13 +113,10 @@ router.get('/', ensureAuthenticated, async (req, res) => {
             ORDER BY dateDay ASC
         `, [userId]);
 
-        // Map DB data to the 7 days array (filling missing days with 0)
-        // Since we only need the values corresponding to chartLabels order, we can do a simpler match
-        // But to be precise with dates, let's reconstruct:
+        // Mappatura dati DB sull'array dei 7 giorni (riempie i buchi con 0)
         const dataMap = {};
         if (rawChartData) {
             rawChartData.forEach(row => {
-                // SQLite date() returns YYYY-MM-DD
                 dataMap[row.dateDay] = row.minutes;
             });
         }
@@ -123,6 +129,7 @@ router.get('/', ensureAuthenticated, async (req, res) => {
             finalChartData.push(dataMap[dateStr] || 0);
         }
 
+        // Renderizza la vista
         res.render('stats', {
             user: req.user,
             totalFocusMinutes: focusStats?.totalMinutes || 0,
@@ -149,7 +156,10 @@ router.get('/', ensureAuthenticated, async (req, res) => {
     }
 });
 
-// POST /stats/goals - Update Goals
+/*
+ * POST /stats/goals
+ * Aggiorna gli obiettivi di tempo (giornaliero, settimanale, mensile) dell'utente.
+ */
 router.post('/goals', ensureAuthenticated, async (req, res) => {
     try {
         const userId = req.user.id;
@@ -159,6 +169,7 @@ router.post('/goals', ensureAuthenticated, async (req, res) => {
             monthly_hours, monthly_minutes
         } = req.body;
 
+        // Conversione tutto in minuti
         const dailyTotal = (parseInt(daily_hours) || 0) * 60 + (parseInt(daily_minutes) || 0);
         const weeklyTotal = (parseInt(weekly_hours) || 0) * 60 + (parseInt(weekly_minutes) || 0);
         const monthlyTotal = (parseInt(monthly_hours) || 0) * 60 + (parseInt(monthly_minutes) || 0);

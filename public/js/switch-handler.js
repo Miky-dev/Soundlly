@@ -1,47 +1,67 @@
+/**
+ * switch-handler.js
+ * 
+ * Gestisce la transizione tra la modalità "Standard" e la modalità "Immersive".
+ * 
+ * La sfida tecnica risolta qui è spostare elementi del DOM (come il Timer) in contenitori diversi
+ * senza ricaricare la pagina o perdere lo stato del timer stesso.
+ * 
+ * Funzionamento:
+ * 1. Ascolta il cambio degli switch (toggle) nella navbar.
+ * 2. Attiva una transizione visiva (Fade to Black).
+ * 3. Dietro le quinte, sposta il nodo HTML del timer dal layout a griglia al layout centrale.
+ * 4. Rimuove la transizione (Fade In).
+ */
+
 document.addEventListener('DOMContentLoaded', () => {
-    const filterSwitch = document.getElementById('filter'); // Switch Standard (Navbar Home)
-    const filterSwitchImmersive = document.getElementById('filter-immersive'); // Switch Immersive (Navbar Immersive)
+    // Riferimenti agli switch (Navbar Standard e Navbar Immersive)
+    const filterSwitch = document.getElementById('filter');
+    const filterSwitchImmersive = document.getElementById('filter-immersive');
     const body = document.body;
 
     // Contenitori del Timer
-    const standardTimerContainer = document.querySelector('.box-3'); // Contenitore originale nella griglia
-    const immersiveTimerContainer = document.querySelector('.immersive-timer-wrapper'); // Contenitore per la modalità immersive
-    const timerElement = document.getElementById('pane-timer'); // L'elemento del timer da spostare
+    const standardTimerContainer = document.querySelector('.box-3');            // Posizione griglia dashboard
+    const immersiveTimerContainer = document.querySelector('.immersive-timer-wrapper'); // Posizione centrale focus
+    const timerElement = document.getElementById('pane-timer');                 // Il componente Timer vero e proprio
 
+    // Elemento per l'animazione di transizione (tenda nera)
     const pageTransition = document.querySelector('.page-transition');
 
     function toggleImmersiveMode(isImmersive) {
-        // 1. Start Transition (Fade to Black)
+        // --- FASE 1: Inizio Transizione (Scurisci schermo) ---
         if (pageTransition) {
-            pageTransition.classList.add('visible');
+            pageTransition.classList.add('visible'); // Usa elemento dedicato
         } else {
-            body.classList.add('fade-out');
+            body.classList.add('fade-out'); // Fallback CSS sul body
         }
 
-        // 2. Wait for fade to complete (300ms matches CSS transition)
+        // --- FASE 2: Manipolazione DOM (durante il buio) ---
+        // Attendiamo 300ms che corrisponde alla durata dell'animazione CSS
         setTimeout(() => {
             if (isImmersive) {
-                // Attiva la modalità immersive aggiungendo la classe al body
+                // Attiva stili globali per immersive mode
                 body.classList.add('immersive-mode');
-                // Se gli elementi esistono, sposta il timer nel contenitore immersive
+
+                // Sposta fisicamente il timer nel nuovo contenitore
                 if (timerElement && immersiveTimerContainer) {
                     immersiveTimerContainer.appendChild(timerElement);
                 }
             } else {
-                // Disattiva la modalità immersive
+                // Disattiva stili immersive
                 body.classList.remove('immersive-mode');
-                // Riporta il timer nella sua posizione originale (box-3)
+
+                // Riporta il timer nella posizione originale
                 if (timerElement && standardTimerContainer) {
                     standardTimerContainer.appendChild(timerElement);
                 }
             }
 
-            // Sincronizza lo stato dei due switch
+            // Sincronizza visivamente i due switch (per coerenza se l'utente torna indietro)
             if (filterSwitch) filterSwitch.checked = isImmersive;
             if (filterSwitchImmersive) filterSwitchImmersive.checked = isImmersive;
 
-            // 3. End Transition (Fade In from Black)
-            // Small delay to ensure DOM updates are rendered behind the curtain
+            // --- FASE 3: Fine Transizione (Schiarisci schermo) ---
+            // Breve ritardo per assicurare che il browser abbia renderizzato il nuovo layout
             setTimeout(() => {
                 if (pageTransition) {
                     pageTransition.classList.remove('visible');
@@ -50,13 +70,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }, 50);
 
-        }, 300);
-
-        // Opzionale: Salva lo stato nella sessione se necessario
-        // sessionStorage.setItem('immersiveResult', isImmersive); 
+        }, 300); // Durata del fade out
     }
 
-    // Event Listeners per i click sugli switch
+    // --- EVENT LISTENERS ---
+
     if (filterSwitch) {
         filterSwitch.addEventListener('change', function () {
             toggleImmersiveMode(this.checked);
@@ -69,6 +87,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Controllo URL o sessione per avvio automatico (Opzionale)
+    // Opzionale: Se volessimo gestire lo stato via URL (es. #immersive)
     // if (window.location.hash === '#immersive') toggleImmersiveMode(true);
 });

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { run, all, get } = require('../db/sqlite');
 
-// Middleware to ensure authentication
+// Middleware di autenticazione locale per questo router
 function ensureAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
         return next();
@@ -10,9 +10,13 @@ function ensureAuthenticated(req, res, next) {
     res.status(401).json({ error: 'Unauthorized' });
 }
 
+// Applica il middleware a tutte le route di questo file
 router.use(ensureAuthenticated);
 
-// GET /api/todos - Get all tasks for user
+/**
+ * GET /api/todos
+ * Restituisce tutte le attività dell'utente corrente, ordinate per creazione.
+ */
 router.get('/', async (req, res) => {
     try {
         const tasks = await all('SELECT * FROM todos WHERE user_id = ? ORDER BY created_at ASC', [req.user.id]);
@@ -27,16 +31,18 @@ router.get('/', async (req, res) => {
     }
 });
 
-// POST /api/todos - Add new task
+/**
+ * POST /api/todos
+ * Aggiunge una nuova attività per l'utente.
+ */
 router.post('/', async (req, res) => {
     try {
         const { text } = req.body;
         if (!text || !text.trim()) return res.status(400).json({ error: 'Text required' });
 
         await run('INSERT INTO todos (user_id, text) VALUES (?, ?)', [req.user.id, text.trim()]);
-        // Get the inserted item to return it (SQLite doesn't support RETURNING in older versions, but let's try standard flow)
-        // We can just get the last inserted for this user or standard rowid
-        // For simplicity/robustness, just fetch the last one created.
+
+        // Recupera l'ultimo elemento inserito per restituirlo completo di ID
         const newTask = await get('SELECT * FROM todos WHERE user_id = ? ORDER BY id DESC LIMIT 1', [req.user.id]);
 
         res.json({
@@ -50,7 +56,10 @@ router.post('/', async (req, res) => {
     }
 });
 
-// PUT /api/todos/:id - Toggle status
+/**
+ * PUT /api/todos/:id
+ * Aggiorna lo stato di completamento di un'attività.
+ */
 router.put('/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -69,7 +78,10 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// DELETE /api/todos/completed - Clear completed
+/**
+ * DELETE /api/todos/completed
+ * Elimina tutte le attività completate dell'utente (Bulk Delete).
+ */
 router.delete('/completed', async (req, res) => {
     try {
         await run('DELETE FROM todos WHERE user_id = ? AND is_done = 1', [req.user.id]);
@@ -80,7 +92,10 @@ router.delete('/completed', async (req, res) => {
     }
 });
 
-// DELETE /api/todos/:id - Delete single task
+/**
+ * DELETE /api/todos/:id
+ * Elimina una singola attività specificata dall'ID.
+ */
 router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
