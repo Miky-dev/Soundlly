@@ -1,5 +1,13 @@
-body,
-html {
+/* Default: Hide immersive elements */
+.immersive-container,
+.immersive-navbar,
+.immersive-timer-wrapper {
+    display: none;
+}
+
+/* Immersive Mode Active */
+body.immersive-mode,
+html.immersive-mode {
     margin: 0;
     padding: 0;
     height: 100%;
@@ -7,6 +15,25 @@ html {
     overflow: hidden;
     font-family: 'Inter', sans-serif;
     background: black;
+}
+
+body.immersive-mode .immersive-container {
+    display: block !important;
+    /* Force show */
+}
+
+body.immersive-mode .immersive-navbar {
+    display: flex !important;
+}
+
+body.immersive-mode .immersive-timer-wrapper {
+    display: block !important;
+}
+
+/* Hide standard view and player in immersive mode */
+body.immersive-mode #standard-view,
+body.immersive-mode #music-player-bar {
+    display: none !important;
 }
 
 /* Container for the immersive background */

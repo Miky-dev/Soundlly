@@ -260,11 +260,9 @@ app.get('/', async (req, res) => {
   }
 });
 
-// Immersive Mode Route
+// Immersive Mode Route - Redirect to home
 app.get('/immersive', (req, res) => {
-  res.render('immersive', {
-    user: req.user || null
-  });
+  res.redirect('/');
 });
 
 // Legacy /home redirect

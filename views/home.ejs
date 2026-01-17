@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="/css/horizontal.css" />
   <link rel="stylesheet" href="/css/stats-blur.css" />
   <link rel="stylesheet" href="/css/switch.css" />
+  <link rel="stylesheet" href="/css/immersive.css" />
   <link rel="stylesheet" href="/css/music-overlay.css" />
   <link rel="stylesheet" href="/css/player.css" />
 
@@ -29,381 +30,414 @@
 </head>
 
 <body data-logged-in="<%= !!user %>" data-user-id="<%= user ? user.id : 'guest' %>">
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-transaparent">
-    <div class="container-fluid">
-      <!-- Logo del sito -->
-      <a href="/home" class="text-decoration-none">
-        <span class="app-logo">soundlly</span>
-      </a>
 
+  <div class="page-transition"></div>
 
-      <!-- switch -->
-      <label for="filter" class="switch" aria-label="Toggle Filter">
-        <input type="checkbox" id="filter" />
-        <span>Standard</span>
-        <span>Immersive</span>
-      </label>
-
-
-
-
-
-      <!-- Pulsante "hamburger" per aprire la sidebar su schermi piccoli -->
-      <button class="navbar-toggler shadow-none border-0" type="button" data-bs-toggle="offcanvas"
-        data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
-        <i class="fa-solid fa-bars"></i>
-      </button>
-
-      <!-- Sidebar (menu laterale) che appare su mobile, gestita da Bootstrap Offcanvas -->
-      <div class="sidebar offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar"
-        aria-labelledby="offcanvasNavbarLabel">
-        <div class="offcanvas-header text-#1a2a33 border-bottom">
-          <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Navigation bar</h5>
-          <button type="button" class="btn-close btn-close-#1a2a33 shadow-none" data-bs-dismiss="offcanvas"
-            aria-label="Close"></button>
-        </div>
-
-        <!-- Corpo della sidebar con i link di navigazione -->
-        <div class="offcanvas-body">
-          <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-            <li class="nav-item mix-2">
-              <!-- Link per la pagina di caricamento file -->
-              <a class="nav-link" href="/upload">Crea</a>
-            </li>
-
-            <% if (!user) { %>
-              <li class="nav-item mix-2">
-                <a class="nav-link" href="/login">Accedi</a>
-              </li>
-              <% } %>
-
-                <!-- Link statici sempre visibili -->
-                <li class="nav-item mix-2">
-                  <a class="nav-link" href="/abbonamento">Abbonati</a>
-                </li>
-                <li class="nav-item mix-2">
-                  <a class="nav-link" href="/about.html">About</a>
-                </li>
-
-                <!-- Link alla pagina di amministrazione (visibile solo agli admin) -->
-                <% if (isAdmin) { %>
-                  <li class="nav-item mix-2">
-                    <a class="nav-link" href="/admin">Admin</a>
-                  </li>
-                  <% } %>
-
-                    <% if (user) { %>
-                      <!-- Se l'utente è loggato, mostra l'avatar -->
-                      <li class="nav-item mix-2 nav-item-flex">
-                        <a href="/profilo" aria-label="Profilo">
-                          <img src="<%= user.avatar_url || '/immagini/usericon.png' %>" alt="Profilo" class="nav-avatar"
-                            data-fallback="/immagini/usericon.png">
-                        </a>
-                      </li>
-                      <% } %>
-          </ul>
-        </div>
-      </div>
+  <!-- Immersive Elements (Hidden by default via CSS when not in immersive-mode) -->
+  <div class="immersive-container">
+    <div class="blobs">
+      <div class="blob a"></div>
+      <div class="blob b"></div>
+      <div class="blob c"></div>
     </div>
-  </nav>
+  </div>
+
+  <div class="immersive-navbar">
+    <!-- Switch initialized as unchecked (Standard) -->
+    <label for="filter-immersive" class="switch" aria-label="Toggle Filter">
+      <input type="checkbox" id="filter-immersive" />
+      <span>Standard</span>
+      <span>Immersive</span>
+    </label>
+
+    <div id="realTimeClock" class="real-time-clock"></div>
+
+    <button id="fullscreenBtn" class="fullscreen-toggle" aria-label="Toggle Fullscreen">
+      <i class="fa-solid fa-expand"></i>
+    </button>
+  </div>
+
+  <!-- Container for reparenting the timer in immersive mode -->
+  <div class="immersive-timer-wrapper"></div>
+
+  <!-- Standard View Wrapper -->
+  <div id="standard-view">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transaparent">
+      <div class="container-fluid">
+        <!-- Logo del sito -->
+        <a href="/home" class="text-decoration-none">
+          <span class="app-logo">soundlly</span>
+        </a>
+
+
+        <!-- switch -->
+        <label for="filter" class="switch" aria-label="Toggle Filter">
+          <input type="checkbox" id="filter" />
+          <span>Standard</span>
+          <span>Immersive</span>
+        </label>
 
 
 
-  <!-- =================================================================
-       GRID CONTAINER - Layout principale della dashboard, organizzato in box.
-       ================================================================== -->
-  <div class="grid-container">
-    <!-- Box 1: Messaggio di benvenuto personalizzato -->
-    <section class="box box-1" aria-label="Benvenuto e Todo">
-      <div class="todo-box">
-        <div class="header">
-          <div class="input-row"> <!-- Removed input-group -->
-            <input type="text" id="todo-input" placeholder="Aggiungi nuova attività...">
-            <button id="add-btn">+</button>
+
+
+        <!-- Pulsante "hamburger" per aprire la sidebar su schermi piccoli -->
+        <button class="navbar-toggler shadow-none border-0" type="button" data-bs-toggle="offcanvas"
+          data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <!-- Sidebar (menu laterale) che appare su mobile, gestita da Bootstrap Offcanvas -->
+        <div class="sidebar offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar"
+          aria-labelledby="offcanvasNavbarLabel">
+          <div class="offcanvas-header text-#1a2a33 border-bottom">
+            <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Navigation bar</h5>
+            <button type="button" class="btn-close btn-close-#1a2a33 shadow-none" data-bs-dismiss="offcanvas"
+              aria-label="Close"></button>
+          </div>
+
+          <!-- Corpo della sidebar con i link di navigazione -->
+          <div class="offcanvas-body">
+            <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+              <li class="nav-item mix-2">
+                <!-- Link per la pagina di caricamento file -->
+                <a class="nav-link" href="/upload">Crea</a>
+              </li>
+
+              <% if (!user) { %>
+                <li class="nav-item mix-2">
+                  <a class="nav-link" href="/login">Accedi</a>
+                </li>
+                <% } %>
+
+                  <!-- Link statici sempre visibili -->
+                  <li class="nav-item mix-2">
+                    <a class="nav-link" href="/abbonamento">Abbonati</a>
+                  </li>
+                  <li class="nav-item mix-2">
+                    <a class="nav-link" href="/about.html">About</a>
+                  </li>
+
+                  <!-- Link alla pagina di amministrazione (visibile solo agli admin) -->
+                  <% if (isAdmin) { %>
+                    <li class="nav-item mix-2">
+                      <a class="nav-link" href="/admin">Admin</a>
+                    </li>
+                    <% } %>
+
+                      <% if (user) { %>
+                        <!-- Se l'utente è loggato, mostra l'avatar -->
+                        <li class="nav-item mix-2 nav-item-flex">
+                          <a href="/profilo" aria-label="Profilo">
+                            <img src="<%= user.avatar_url || '/immagini/usericon.png' %>" alt="Profilo"
+                              class="nav-avatar" data-fallback="/immagini/usericon.png">
+                          </a>
+                        </li>
+                        <% } %>
+            </ul>
           </div>
         </div>
-        <ul id="todo-list">
-          <!-- Items added via JS -->
-        </ul>
-        <div class="todo-footer todo-footer-center">
-          <button id="clear-completed-btn" class="btn-sm btn-clear-completed">
-            Elimina completate
+      </div>
+    </nav>
+
+
+
+    <!-- =================================================================
+       GRID CONTAINER - Layout principale della dashboard, organizzato in box.
+       ================================================================== -->
+    <div class="grid-container">
+      <!-- Box 1: Messaggio di benvenuto personalizzato -->
+      <section class="box box-1" aria-label="Benvenuto e Todo">
+        <div class="todo-box">
+          <div class="header">
+            <div class="input-row"> <!-- Removed input-group -->
+              <input type="text" id="todo-input" placeholder="Aggiungi nuova attività...">
+              <button id="add-btn">+</button>
+            </div>
+          </div>
+          <ul id="todo-list">
+            <!-- Items added via JS -->
+          </ul>
+          <div class="todo-footer todo-footer-center">
+            <button id="clear-completed-btn" class="btn-sm btn-clear-completed">
+              Elimina completate
+            </button>
+          </div>
+        </div>
+      </section>
+
+
+
+
+      <section class="box box-3" aria-label="Timer Pomodoro Wrapper">
+        <!-- Widget del Timer Pomodoro -->
+        <section id="pane-timer" class="prod-pane active full-size" role="region" aria-label="Timer Pomodoro">
+          <div class="timer" id="pomoCard">
+            <!-- Dial (quadrante) del timer -->
+            <div class="dial">
+              <svg viewBox="0 0 120 120" aria-hidden="true">
+                <defs>
+                  <linearGradient id="pomoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#2a9d8f" stop-opacity="1" />
+                    <stop offset="100%" stop-color="#21cfbd" stop-opacity="1" />
+                  </linearGradient>
+                </defs>
+                <!-- Cerchio di sfondo (grigio) -->
+                <circle cx="60" cy="60" r="50"></circle>
+                <!-- Cerchio di progresso (verde), animato via CSS/JS -->
+                <circle id="pomoProgress" cx="60" cy="60" r="50" pathLength="100" stroke="url(#pomoGradient)">
+                </circle>
+              </svg>
+              <!-- Display del tempo rimanente -->
+              <div class="time" id="pomoTime">25:00</div>
+            </div>
+
+            <div class="label" id="pomoMode">Modalità: Pomodoro</div>
+
+            <!-- Pulsanti di controllo del timer -->
+            <div class="controls">
+              <button class="btn good" id="pomoStart"><i class="fa-solid fa-play"></i> Avvia</button>
+              <button class="btn" id="pomoPause"><i class="fa-solid fa-pause"></i> Pausa</button>
+              <button class="btn danger" id="pomoReset"><i class="fa-solid fa-rotate-right"></i> Reset</button>
+              <button class="btn" id="pomoSkip" title="Salta allo step successivo"><i
+                  class="fa-solid fa-forward-step"></i>
+                Salta</button>
+              <button class="btn btn-icon-sm" id="pomoSettingsBtn" title="Impostazioni"><i
+                  class="fa-solid fa-gear"></i></button>
+            </div>
+
+            <!-- Settings Panel (Hidden by default) -->
+            <div id="pomoSettingsPanel">
+              <div class="setting-row">
+                <label>Pomodoro (min)</label>
+                <input type="number" id="setPomo" value="25" min="1" max="60">
+              </div>
+              <div class="setting-row">
+                <label>Pausa (min)</label>
+                <input type="number" id="setShort" value="5" min="1" max="60">
+              </div>
+              <div class="setting-actions">
+                <button id="saveSettingsBtn" class="btn btn-sm btn-primary">Salva</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Elemento audio per il suono di notifica del timer -->
+        <audio id="pomoDing" preload="auto">
+          <source src="/audio/ding.mp3" type="audio/mp3">
+        </audio>
+      </section>
+
+      <!-- Box 4: Griglia per i suoni ambientali, popolata dinamicamente da loadSounds.js -->
+      <section class="box box-4" aria-label="Ambient Sounds">
+        <div class="box-4-header">
+          <h2 class="section-title">Suoni</h2>
+        </div>
+        <div id="sounds-container"></div>
+      </section>
+
+
+
+      <!-- Box 6: Widget con statistiche rapide dell'utente.
+         Cliccando, si viene reindirizzati alla pagina completa delle statistiche. -->
+      <section class="box box-6" role="region" aria-label="Statistiche rapide">
+        <div class="stats-blur-container">
+
+          <% if (!user) { %>
+            <div class="stats-overlay">
+              <div class="stats-lock-msg">
+                <i class="fa-solid fa-lock"></i>
+                <span>Accedi per visualizzare le statistiche</span>
+                <a href="/login" class="btn btn-sm btn-primary mt-2">Accedi</a>
+              </div>
+            </div>
+            <% } %>
+
+              <a href="/stats" class="stats-link stats-link-wrapper">
+                <div class="hub-card <%= !user ? 'blurred-content' : '' %>">
+
+                  <div class="hub-header">
+                    <span class="hub-title">Daily Summary</span>
+                    <span class="hub-date">Oggi</span>
+                  </div>
+
+                  <div class="hub-content">
+
+                    <div class="focus-section" id="focusWidget" data-daily-goal="<%= dailyGoal %>">
+                      <div class="ring-container">
+                        <svg class="progress-ring" width="100" height="100">
+                          <circle class="ring-bg" stroke="#334155" stroke-width="8" fill="transparent" r="42" cx="50"
+                            cy="50" />
+                          <% const goalPercent=Math.min((todayMinutes / dailyGoal) * 100, 100); const radius=42; const
+                            circumference=2 * Math.PI * radius; const offset=circumference - (goalPercent / 100) *
+                            circumference; %>
+                            <circle class="ring-fill" id="widgetRing" stroke="#f43f5e" stroke-width="8"
+                              fill="transparent" r="42" cx="50" cy="50" stroke-dasharray="<%= circumference %>"
+                              stroke-dashoffset="<%= offset %>" />
+                        </svg>
+                        <div class="ring-text">
+                          <span class="pomo-count" id="widgetPomoCount">
+                            <%= pomoCount %>
+                          </span>
+                          <span class="pomo-label">Pomo</span>
+                        </div>
+                      </div>
+                      <div class="focus-data">
+                        <span class="big-time" id="widgetBigTime">
+                          <% const hours=Math.floor(todayMinutes / 60); const mins=todayMinutes % 60; const
+                            timeString=(hours> 0 ? hours + 'h ' : '') + mins + 'm';
+                            %>
+                            <%= timeString %>
+                        </span>
+                        <span class="sub-label">Tempo di Focus</span>
+                      </div>
+                    </div>
+
+                    <div class="side-stats">
+
+                      <div class="stat-row">
+                        <div class="stat-header">
+                          <span class="icon task-icon">✅</span>
+                          <span class="stat-name">To-Do Completati</span>
+                        </div>
+                        <div class="stat-bar-bg">
+                          <% const todoPercent=todoStats.total> 0 ? Math.round((todoStats.completed / todoStats.total) *
+                            100) : 0;
+                            %>
+                            <div class="stat-bar-fill task-fill" data-width="<%= todoPercent %>"></div>
+                        </div>
+                        <div class="stat-footer">
+                          <span>
+                            <%= todoStats.completed %> su <%= todoStats.total %> tasks
+                          </span>
+                          <span class="percent">
+                            <%= todoPercent %>%
+                          </span>
+                        </div>
+                      </div>
+
+
+                    </div>
+                  </div>
+                </div>
+              </a>
+
+        </div>
+      </section>
+
+
+
+    </div>
+
+    <!-- =================================================================
+         HORIZONTAL BOX - Contiene la barra di ricerca e le liste di brani a scorrimento orizzontale.
+         ================================================================== -->
+    <section class="horizontal-box" aria-label="Music Discovery">
+      <div class="horizontal-header">
+        <!-- User Info (Left) -->
+        <div class="user-profile">
+          <!-- Assuming user object exists, otherwise fallback -->
+          <img src="<%= (user && user.avatar_url) ? user.avatar_url : '/immagini/usericon.png' %>" alt="User"
+            class="user-avatar" data-fallback="/immagini/usericon.png">
+          <span class="user-name">
+            <%= user ? user.username : 'Ospite' %>
+          </span>
+        </div>
+
+        <!-- Search Bar (Center) -->
+        <form id="footer-searchbar" class="search-bar-modern">
+          <input class="search-input-modern" type="search" placeholder="Cerca suoni, artisti..." aria-label="Cerca">
+          <button type="submit" class="search-btn-modern" aria-label="Cerca">
+            <i class="fas fa-search"></i>
+          </button>
+        </form>
+
+        <!-- Actions (Right: Button) -->
+        <div class="header-actions">
+          <button class="btn-playlist-modern" id="createPlaylistBtn">
+            <i class="fas fa-plus"></i> <span>Crea Playlist</span>
           </button>
         </div>
       </div>
-    </section>
 
-
-
-
-    <section class="box box-3" aria-label="Timer Pomodoro Wrapper">
-      <!-- Widget del Timer Pomodoro -->
-      <section id="pane-timer" class="prod-pane active full-size" role="region" aria-label="Timer Pomodoro">
-        <div class="timer" id="pomoCard">
-          <!-- Dial (quadrante) del timer -->
-          <div class="dial">
-            <svg viewBox="0 0 120 120" aria-hidden="true">
-              <defs>
-                <linearGradient id="pomoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#2a9d8f" stop-opacity="1" />
-                  <stop offset="100%" stop-color="#21cfbd" stop-opacity="1" />
-                </linearGradient>
-              </defs>
-              <!-- Cerchio di sfondo (grigio) -->
-              <circle cx="60" cy="60" r="50"></circle>
-              <!-- Cerchio di progresso (verde), animato via CSS/JS -->
-              <circle id="pomoProgress" cx="60" cy="60" r="50" pathLength="100" stroke="url(#pomoGradient)">
-              </circle>
-            </svg>
-            <!-- Display del tempo rimanente -->
-            <div class="time" id="pomoTime">25:00</div>
-          </div>
-
-          <div class="label" id="pomoMode">Modalità: Pomodoro</div>
-
-          <!-- Pulsanti di controllo del timer -->
-          <div class="controls">
-            <button class="btn good" id="pomoStart"><i class="fa-solid fa-play"></i> Avvia</button>
-            <button class="btn" id="pomoPause"><i class="fa-solid fa-pause"></i> Pausa</button>
-            <button class="btn danger" id="pomoReset"><i class="fa-solid fa-rotate-right"></i> Reset</button>
-            <button class="btn" id="pomoSkip" title="Salta allo step successivo"><i
-                class="fa-solid fa-forward-step"></i>
-              Salta</button>
-            <button class="btn btn-icon-sm" id="pomoSettingsBtn" title="Impostazioni"><i
-                class="fa-solid fa-gear"></i></button>
-          </div>
-
-          <!-- Settings Panel (Hidden by default) -->
-          <div id="pomoSettingsPanel">
-            <div class="setting-row">
-              <label>Pomodoro (min)</label>
-              <input type="number" id="setPomo" value="25" min="1" max="60">
-            </div>
-            <div class="setting-row">
-              <label>Pausa (min)</label>
-              <input type="number" id="setShort" value="5" min="1" max="60">
-            </div>
-            <div class="setting-actions">
-              <button id="saveSettingsBtn" class="btn btn-sm btn-primary">Salva</button>
-            </div>
-          </div>
-        </div>
+      <!-- Sezione per i risultati della ricerca, inizialmente nascosta e mostrata dopo una ricerca -->
+      <section class="horizontal-scroll-container" id="search-results-section" hidden>
+        <h2 class="scroll-title">Risultati ricerca</h2>
+        <div class="horizontal" data-grid="search"></div>
       </section>
 
-      <!-- Elemento audio per il suono di notifica del timer -->
-      <audio id="pomoDing" preload="auto">
-        <source src="/audio/ding.mp3" type="audio/mp3">
-      </audio>
-    </section>
-
-    <!-- Box 4: Griglia per i suoni ambientali, popolata dinamicamente da loadSounds.js -->
-    <section class="box box-4" aria-label="Ambient Sounds">
-      <div class="box-4-header">
-        <h2 class="section-title">Suoni</h2>
-      </div>
-      <div id="sounds-container"></div>
-    </section>
-
-
-
-    <!-- Box 6: Widget con statistiche rapide dell'utente.
-         Cliccando, si viene reindirizzati alla pagina completa delle statistiche. -->
-    <section class="box box-6" role="region" aria-label="Statistiche rapide">
-      <div class="stats-blur-container">
-
-        <% if (!user) { %>
-          <div class="stats-overlay">
-            <div class="stats-lock-msg">
-              <i class="fa-solid fa-lock"></i>
-              <span>Accedi per visualizzare le statistiche</span>
-              <a href="/login" class="btn btn-sm btn-primary mt-2">Accedi</a>
-            </div>
-          </div>
-          <% } %>
-
-            <a href="/stats" class="stats-link stats-link-wrapper">
-              <div class="hub-card <%= !user ? 'blurred-content' : '' %>">
-
-                <div class="hub-header">
-                  <span class="hub-title">Daily Summary</span>
-                  <span class="hub-date">Oggi</span>
-                </div>
-
-                <div class="hub-content">
-
-                  <div class="focus-section" id="focusWidget" data-daily-goal="<%= dailyGoal %>">
-                    <div class="ring-container">
-                      <svg class="progress-ring" width="100" height="100">
-                        <circle class="ring-bg" stroke="#334155" stroke-width="8" fill="transparent" r="42" cx="50"
-                          cy="50" />
-                        <% const goalPercent=Math.min((todayMinutes / dailyGoal) * 100, 100); const radius=42; const
-                          circumference=2 * Math.PI * radius; const offset=circumference - (goalPercent / 100) *
-                          circumference; %>
-                          <circle class="ring-fill" id="widgetRing" stroke="#f43f5e" stroke-width="8" fill="transparent"
-                            r="42" cx="50" cy="50" stroke-dasharray="<%= circumference %>"
-                            stroke-dashoffset="<%= offset %>" />
-                      </svg>
-                      <div class="ring-text">
-                        <span class="pomo-count" id="widgetPomoCount">
-                          <%= pomoCount %>
-                        </span>
-                        <span class="pomo-label">Pomo</span>
-                      </div>
-                    </div>
-                    <div class="focus-data">
-                      <span class="big-time" id="widgetBigTime">
-                        <% const hours=Math.floor(todayMinutes / 60); const mins=todayMinutes % 60; const
-                          timeString=(hours> 0 ? hours + 'h ' : '') + mins + 'm';
-                          %>
-                          <%= timeString %>
-                      </span>
-                      <span class="sub-label">Tempo di Focus</span>
-                    </div>
-                  </div>
-
-                  <div class="side-stats">
-
-                    <div class="stat-row">
-                      <div class="stat-header">
-                        <span class="icon task-icon">✅</span>
-                        <span class="stat-name">To-Do Completati</span>
-                      </div>
-                      <div class="stat-bar-bg">
-                        <% const todoPercent=todoStats.total> 0 ? Math.round((todoStats.completed / todoStats.total) *
-                          100) : 0;
-                          %>
-                          <div class="stat-bar-fill task-fill" data-width="<%= todoPercent %>"></div>
-                      </div>
-                      <div class="stat-footer">
-                        <span>
-                          <%= todoStats.completed %> su <%= todoStats.total %> tasks
-                        </span>
-                        <span class="percent">
-                          <%= todoPercent %>%
-                        </span>
-                      </div>
-                    </div>
-
-
-                  </div>
-                </div>
-              </div>
-            </a>
-
-      </div>
-    </section>
-
-
-
-  </div>
-
-  <!-- =================================================================
-         HORIZONTAL BOX - Contiene la barra di ricerca e le liste di brani a scorrimento orizzontale.
-         ================================================================== -->
-  <section class="horizontal-box" aria-label="Music Discovery">
-    <div class="horizontal-header">
-      <!-- User Info (Left) -->
-      <div class="user-profile">
-        <!-- Assuming user object exists, otherwise fallback -->
-        <img src="<%= (user && user.avatar_url) ? user.avatar_url : '/immagini/usericon.png' %>" alt="User"
-          class="user-avatar" data-fallback="/immagini/usericon.png">
-        <span class="user-name">
-          <%= user ? user.username : 'Ospite' %>
-        </span>
-      </div>
-
-      <!-- Search Bar (Center) -->
-      <form id="footer-searchbar" class="search-bar-modern">
-        <input class="search-input-modern" type="search" placeholder="Cerca suoni, artisti..." aria-label="Cerca">
-        <button type="submit" class="search-btn-modern" aria-label="Cerca">
-          <i class="fas fa-search"></i>
-        </button>
-      </form>
-
-      <!-- Actions (Right: Button) -->
-      <div class="header-actions">
-        <button class="btn-playlist-modern" id="createPlaylistBtn">
-          <i class="fas fa-plus"></i> <span>Crea Playlist</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Sezione per i risultati della ricerca, inizialmente nascosta e mostrata dopo una ricerca -->
-    <section class="horizontal-scroll-container" id="search-results-section" hidden>
-      <h2 class="scroll-title">Risultati ricerca</h2>
-      <div class="horizontal" data-grid="search"></div>
-    </section>
-
-    <!-- Sezione per le ultime uscite, popolata da music-search.js -->
-    <section class="horizontal-scroll-container">
-      <h2 class="scroll-title">Ultime uscite</h2>
-      <div class="horizontal" data-grid="latest"></div>
-    </section>
-
-    <!-- Sezione per i brani Premium -->
-    <section class="horizontal-scroll-container premium" id="premium-section">
-      <span class="badge">SOLO PREMIUM</span>
-      <h2 class="scroll-title">Solo Premium</h2>
-      <div class="horizontal" data-grid="search-premium"></div>
-    </section>
-
-    <!-- Sezione per i suoni caricati dai creator -->
-    <section class="horizontal-scroll-container" id="suoni">
-      <h2 class="scroll-title">Suoni dei creatori</h2>
-      <div class="horizontal" data-grid="suoni"></div>
-    </section>
-
-    <!-- Sezione per i suoni caricati dai creator -->
-    <% if (user) { %>
-      <section class="horizontal-scroll-container" id="pref">
-        <h2 class="scroll-title">Preferiti</h2>
-        <div class="horizontal" data-grid="pref"></div>
+      <!-- Sezione per le ultime uscite, popolata da music-search.js -->
+      <section class="horizontal-scroll-container">
+        <h2 class="scroll-title">Ultime uscite</h2>
+        <div class="horizontal" data-grid="latest"></div>
       </section>
-      <% } %>
-  </section>
+
+      <!-- Sezione per i brani Premium -->
+      <section class="horizontal-scroll-container premium" id="premium-section">
+        <span class="badge">SOLO PREMIUM</span>
+        <h2 class="scroll-title">Solo Premium</h2>
+        <div class="horizontal" data-grid="search-premium"></div>
+      </section>
+
+      <!-- Sezione per i suoni caricati dai creator -->
+      <section class="horizontal-scroll-container" id="suoni">
+        <h2 class="scroll-title">Suoni dei creatori</h2>
+        <div class="horizontal" data-grid="suoni"></div>
+      </section>
+
+      <!-- Sezione per i suoni caricati dai creator -->
+      <% if (user) { %>
+        <section class="horizontal-scroll-container" id="pref">
+          <h2 class="scroll-title">Preferiti</h2>
+          <div class="horizontal" data-grid="pref"></div>
+        </section>
+        <% } %>
+    </section>
 
 
 
-  <!-- =================================================================
+    <!-- =================================================================
        FOOTER - Piè di pagina del sito con informazioni, link e contatti.
        ================================================================== -->
-  <footer class="site-footer">
-    <div class="footer-container">
-      <div class="footer-column">
-        <h4>Informazioni</h4>
-        <p>La nostra azienda si impegna a fornire i migliori servizi dal 2025. I nostri servizi si basano
-          sull'intratteminemto multimediale, all'interno della piattaforma sei in grado di ascoltare suoni
-          rilassanti e
-          musica mentre studi in completa tranquillità.</p>
-      </div>
-      <div class="footer-column">
-        <h4>Link Rapidi</h4>
-        <ul>
-          <li><a href="/about.html#about">Chi Siamo</a></li>
-          <li><a href="/about.html#servizi">Servizi</a></li>
-          <li><a href="/about.html#contatti">Contatti</a></li>
-        </ul>
-      </div>
-      <div class="footer-column">
-        <h4>Contatti</h4>
-        <p>Email: info@abcd.com</p>
-        <p>Tel: +39 0123 456789</p>
-        <p>Via Roma 123, Milano</p>
-      </div>
-      <div class="footer-column">
-        <h4>Seguici</h4>
-        <div class="social-icons">
-          <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-          <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+    <footer class="site-footer">
+      <div class="footer-container">
+        <div class="footer-column">
+          <h4>Informazioni</h4>
+          <p>La nostra azienda si impegna a fornire i migliori servizi dal 2025. I nostri servizi si basano
+            sull'intratteminemto multimediale, all'interno della piattaforma sei in grado di ascoltare suoni
+            rilassanti e
+            musica mentre studi in completa tranquillità.</p>
+        </div>
+        <div class="footer-column">
+          <h4>Link Rapidi</h4>
+          <ul>
+            <li><a href="/about.html#about">Chi Siamo</a></li>
+            <li><a href="/about.html#servizi">Servizi</a></li>
+            <li><a href="/about.html#contatti">Contatti</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h4>Contatti</h4>
+          <p>Email: info@abcd.com</p>
+          <p>Tel: +39 0123 456789</p>
+          <p>Via Roma 123, Milano</p>
+        </div>
+        <div class="footer-column">
+          <h4>Seguici</h4>
+          <div class="social-icons">
+            <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+            <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="footer-bottom">
-      <p>© 2025 Soundlly. Tutti i diritti riservati.</p>
-    </div>
-  </footer>
+      <div class="footer-bottom">
+        <p>© 2025 Soundlly. Tutti i diritti riservati.</p>
+      </div>
+    </footer>
+  </div> <!-- End of #standard-view -->
 
   <!-- Music Player Bar -->
   <div id="music-player-bar">
@@ -484,6 +518,7 @@
     });
   </script>
   <script src="/js/switch-handler.js"></script>
+  <script src="/js/immersive-controls.js"></script>
 
 </body>
 

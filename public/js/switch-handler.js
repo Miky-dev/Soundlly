@@ -1,64 +1,47 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const filterSwitch = document.getElementById('filter');
+    const filterSwitch = document.getElementById('filter'); // Standard
+    const filterSwitchImmersive = document.getElementById('filter-immersive'); // Immersive
     const body = document.body;
 
-    // Create transition element if it doesn't exist (for home page)
-    let transitionEl = document.querySelector('.page-transition');
-    if (!transitionEl) {
-        transitionEl = document.createElement('div');
-        transitionEl.className = 'page-transition';
-        // Basic styles for transition if not defined in CSS
-        transitionEl.style.position = 'fixed';
-        transitionEl.style.top = '0';
-        transitionEl.style.left = '0';
-        transitionEl.style.width = '100%';
-        transitionEl.style.height = '100%';
-        transitionEl.style.backgroundColor = '#000'; // Black fade
-        transitionEl.style.opacity = '0';
-        transitionEl.style.pointerEvents = 'none';
-        transitionEl.style.zIndex = '9999';
-        transitionEl.style.transition = 'opacity 0.6s ease-in-out';
-        document.body.appendChild(transitionEl);
+    // Timer Containers
+    const standardTimerContainer = document.querySelector('.box-3');
+    const immersiveTimerContainer = document.querySelector('.immersive-timer-wrapper');
+    const timerElement = document.getElementById('pane-timer');
+
+    function toggleImmersiveMode(isImmersive) {
+        if (isImmersive) {
+            body.classList.add('immersive-mode');
+            if (timerElement && immersiveTimerContainer) {
+                immersiveTimerContainer.appendChild(timerElement);
+            }
+        } else {
+            body.classList.remove('immersive-mode');
+            if (timerElement && standardTimerContainer) {
+                standardTimerContainer.appendChild(timerElement); // Appends to end, which is fine as box-3 only has timer
+            }
+        }
+
+        // Sync switches
+        if (filterSwitch) filterSwitch.checked = isImmersive;
+        if (filterSwitchImmersive) filterSwitchImmersive.checked = isImmersive;
+
+        // Persist state if needed (optional, or just rely on current session)
+        // sessionStorage.setItem('immersiveResult', isImmersive); 
     }
 
+    // Event Listeners
     if (filterSwitch) {
         filterSwitch.addEventListener('change', function () {
-            // Determine destination based on checkbox state
-            // If checked -> Go to Immersive (if not already there)
-            // If unchecked -> Go to Standard (home) (if not already there)
-
-            const isChecked = this.checked;
-            const currentPath = window.location.pathname;
-
-            // Check if we need to redirect
-            // If on /immersive and unchecked -> Go home
-            // If on / or /home and checked -> Go immersive
-
-            let targetUrl = null;
-
-            if (currentPath.includes('/immersive')) {
-                if (!isChecked) {
-                    targetUrl = '/';
-                }
-            } else {
-                if (isChecked) {
-                    targetUrl = '/immersive';
-                }
-            }
-
-            if (targetUrl) {
-                // Set flag to persist ambient sounds logic
-                sessionStorage.setItem('soundlly_navigating', 'true');
-
-                // Trigger animation
-                transitionEl.style.opacity = '1';
-                transitionEl.style.pointerEvents = 'auto';
-
-                // Wait for transition end then redirect
-                setTimeout(() => {
-                    window.location.href = targetUrl;
-                }, 600);
-            }
+            toggleImmersiveMode(this.checked);
         });
     }
+
+    if (filterSwitchImmersive) {
+        filterSwitchImmersive.addEventListener('change', function () {
+            toggleImmersiveMode(this.checked);
+        });
+    }
+
+    // Check URL or session to auto-start (Optional)
+    // if (window.location.hash === '#immersive') toggleImmersiveMode(true);
 });
