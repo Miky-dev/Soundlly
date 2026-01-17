@@ -339,12 +339,12 @@ body {
       "box-1 box-6 box-6"
       "box-1 box-6 box-6";
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 270px 270px 200px 200px;
+    grid-template-rows: 290px 290px 200px 200px;
     gap: 1rem;
   }
 }
 
-@media (max-width: 500px) {
+@media (max-width: 710px) {
   .grid-container {
     display: flex;
     flex-direction: column;
