@@ -1,87 +1,114 @@
+/* ==========================================================================
+   About Page Styles (Consistent with Home)
+   ========================================================================== */
+
+/* Font Imports */
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Michroma&display=swap');
+
 :root {
-  --bg: #070b1a;
-  --panel: #0b1229;
-  --panel-2: #0a0f24;
-  --muted: #9ca3af;
-  --text: #e7e9ee;
-  --brand: #7aa2ff;
-  --brand-2: #22d3ee;
-  --ok: #34d399;
-  --warn: #f59e0b;
-  --err: #ef4444;
+  /* Copying variables from styleHome.css */
+  --bg: #0b0f14;
+  --brand-1: #2a9d8f;
+  --brand-2: #153040;
+  --brand-2-900: #35546b;
+  --glass: rgba(26, 42, 51, 0.8);
+  /* Using the box background from styleHome */
+  --text-muted: rgb(141, 152, 161);
+  --white: #fff;
+
+  /* Mapping old vars to new system where possible */
+  --brand: var(--brand-1);
 }
 
 * {
-  box-sizing: border-box
+  box-sizing: border-box;
+  -ms-overflow-style: none;
+  /* Hide scrollbar for IE and Edge */
+  scrollbar-width: none;
+  /* Hide scrollbar for Firefox */
+}
+
+*::-webkit-scrollbar {
+  display: none;
 }
 
 html,
 body {
-  height: 100%
+  height: 100%;
 }
 
 body {
   margin: 0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji';
-  background: radial-gradient(1000px 480px at 10% -10%, rgba(98, 93, 243, .22), transparent),
-    radial-gradient(800px 420px at 90% -20%, rgba(34, 211, 238, .14), transparent),
+  font-family: 'Lexend', sans-serif;
+  color: var(--white);
+
+  /* Unified Background */
+  background:
+    linear-gradient(180deg, rgba(42, 157, 143, 0.06), rgba(21, 48, 64, 0.04)),
+    radial-gradient(800px 400px at 10% 10%, rgba(42, 157, 143, 0.10), transparent 30%),
+    radial-gradient(600px 300px at 85% 80%, rgba(21, 48, 64, 0.08), transparent 30%),
     var(--bg);
-  color: var(--text);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center center;
 }
 
 a {
-  color: var(--brand);
-  text-decoration: none
+  color: var(--brand-1);
+  text-decoration: none;
+  transition: color 0.2s;
 }
 
 a:hover {
-  text-decoration: underline
+  text-decoration: underline;
+  color: #fff;
 }
 
+/* ------------------------------ Header ------------------------------------ */
 .header {
   position: sticky;
   top: 0;
-  backdrop-filter: blur(10px);
-  background: rgba(5, 10, 20, .55);
-  border-bottom: 1px solid #1f2937;
-  z-index: 10
+  margin-bottom: 20px;
+  z-index: 1000;
+  background: transparent;
+  /* border-bottom: 1px solid rgba(255, 255, 255, 0.05); Removes border for cleaner look */
 }
 
 .container {
-  max-width: 1180px;
+  max-width: 1300px;
   margin: 0 auto;
-  padding: 0 20px
+  padding: 0 20px;
 }
 
 .nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 68px
+  height: 80px;
 }
 
 .brand {
   display: flex;
   gap: 12px;
-  align-items: center
+  align-items: center;
 }
 
 .brand-logo {
+  /* Hidden or replaced by Michroma text if desired, but keeping structural placeholder */
   width: 30px;
   height: 30px;
-  border-radius: 10px;
-  background: conic-gradient(from 180deg at 50% 50%, #6366f1, #22d3ee, #60a5fa, #6366f1)
+  border-radius: 8px;
+  display: none;
+  /* Hiding abstract logo to use text style if preferred, or keep it */
 }
 
 .brand-name {
-  font-weight: 800
-}
-
-.nav-links {
-  display: flex;
-  gap: 18px;
-  align-items: center;
-  font-size: 14px
+  font-family: 'Michroma', sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: 1px;
+  color: var(--white);
+  text-transform: lowercase;
 }
 
 .badge {
@@ -90,241 +117,359 @@ a:hover {
   align-items: center;
   padding: 4px 10px;
   border-radius: 999px;
-  background: rgba(15, 23, 42, .7);
-  border: 1px solid #1f2937;
-  color: var(--muted);
-  font-size: 12px
+  background: rgba(42, 157, 143, 0.2);
+  border: 1px solid rgba(42, 157, 143, 0.3);
+  color: var(--white);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
+.nav-links {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.nav-links a {
+  color: var(--white);
+  opacity: 0.8;
+}
+
+.nav-links a:hover {
+  color: var(--brand-1);
+  opacity: 1;
+  text-decoration: none;
+}
+
+
+/* ------------------------------- Main ------------------------------------- */
 main {
-  padding: 34px 0 64px
+  padding: 20px 0 64px;
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: 18px
+  gap: 20px;
 }
 
 .col-4 {
-  grid-column: span 4
+  grid-column: span 4;
 }
 
 .col-6 {
-  grid-column: span 6
+  grid-column: span 6;
 }
 
 .col-8 {
-  grid-column: span 8
+  grid-column: span 8;
 }
 
 .col-12 {
-  grid-column: span 12
+  grid-column: span 12;
 }
 
 .section-gap {
-  margin-top: 22px
+  margin-top: 20px;
 }
 
+/* ------------------------------- Cards ------------------------------------ */
+/* Matching .box style from styleHome.css with Apple Liquid Glass refinement */
 .card {
   position: relative;
-  background: linear-gradient(180deg, rgba(14, 22, 41, .9), rgba(7, 10, 23, .75));
-  border: 1px solid rgba(36, 48, 71, .9);
-  border-radius: 20px;
-  padding: 22px;
-  overflow: hidden
+  /* Ultra-transparent background for "Liquid" feel */
+  background: rgba(20, 30, 40, 0.4);
+
+  /* Heavy blur + Saturation boost = Apple Glass */
+  backdrop-filter: blur(25px) saturate(180%);
+  -webkit-backdrop-filter: blur(25px) saturate(180%);
+
+  border-radius: 24px;
+  /* More rounded like iOS */
+  padding: 2rem;
+
+  /* Soft, diffused shadow */
+  box-shadow:
+    0 8px 32px 0 rgba(0, 0, 0, 0.3),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  /* Inner translucent border */
+
+  border: none;
+  /* Replaced by inner shadow for cleaner glass look */
+  overflow: hidden;
+  color: var(--text-muted);
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.card:hover {
+  background: rgba(30, 45, 60, 0.5);
+  box-shadow:
+    0 12px 40px 0 rgba(0, 0, 0, 0.4),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 
 .hero {
   display: grid;
   grid-template-columns: 1.2fr .8fr;
-  gap: 26px;
-  align-items: center
+  gap: 20px;
+  align-items: center;
+  /* stretch matches box-1 logic, but center is safer for text */
 }
 
 .hero h1 {
-  font-size: 44px;
-  margin: 0 0 10px;
-  line-height: 1.05;
-  background: linear-gradient(90deg, #bcd4ff, #7aa2ff 40%, #22d3ee);
+  font-family: 'Michroma', sans-serif;
+  /* Optional: Use Michroma for main title */
+  font-size: 2.5rem;
+  margin: 0 0 16px;
+  line-height: 1.2;
+  /* Updated gradient to match Teal/Brand theme */
+  background: linear-gradient(90deg, #fff, var(--brand-1));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
 .hero p {
-  color: #c7cfdb;
-  margin: 0 0 16px
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin: 0 0 24px;
 }
 
 .cta {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   flex-wrap: wrap;
-  margin-top: 12px
+  margin-top: 24px;
 }
 
+/* ------------------------------ Buttons ----------------------------------- */
 .btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 12px;
-  border: 1px solid #243047;
-  background: linear-gradient(180deg, #0f1a36, #0a1126);
-  color: #dbe7ff;
-  font-weight: 600
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 8px;
+  /* Slightly squarer than pill */
+  border: none;
+  background: var(--brand-2);
+  /* Dark Blue */
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  background: var(--brand-2-900);
+  text-decoration: none;
+  transform: translateY(-1px);
 }
 
 .btn-ghost {
-  border: 1px dashed #2f3b56;
-  background: linear-gradient(180deg, #0b1229, #0a0f24);
-  color: #cbd5e1
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--white);
 }
 
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ------------------------------- KV --------------------------------------- */
 .kv {
   display: flex;
-  gap: 16px;
-  flex-wrap: wrap
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
 }
 
 .pill {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
+  padding: 6px 14px;
   border-radius: 999px;
-  border: 1px dashed #2f3b56;
-  background: #0b142e;
-  font-size: 12px;
-  color: #cbd5e1
+  /* border: 1px dashed rgba(42, 157, 143, 0.3); */
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 0.85rem;
+  color: var(--text-muted);
 }
 
+/* ----------------------------- Sections ----------------------------------- */
 .section h2 {
-  font-size: 24px;
-  margin: 0 0 12px
+  font-family: 'Lexend', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 16px;
+  color: var(--white);
 }
 
 .muted {
-  color: var(--muted)
+  color: var(--text-muted);
+  line-height: 1.6;
 }
 
 .mt {
-  margin-top: 14px
+  margin-top: 24px;
 }
 
+ul.muted {
+  list-style-type: none;
+  padding: 0;
+}
+
+ul.muted li {
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+ul.muted li:last-child {
+  border-bottom: none;
+}
+
+/* ------------------------------- Team ------------------------------------- */
 .team {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
-  margin-top: 10px
+  margin-top: 20px;
 }
 
 .member {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   align-items: center;
-  background: #0b1329;
-  border: 1px solid #1f2937;
-  border-radius: 14px;
-  padding: 12px
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 16px;
+  transition: background 0.2s;
+}
+
+.member:hover {
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: linear-gradient(120deg, #6366f1, #22d3ee)
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--brand-1), var(--brand-2-900));
 }
 
 .member .meta {
   display: flex;
-  flex-direction: column
+  flex-direction: column;
+}
+
+.member strong {
+  color: var(--white);
 }
 
 .role {
-  font-size: 12px;
-  color: var(--muted)
+  font-size: 0.85rem;
+  color: var(--text-muted);
 }
 
+/* ------------------------------- FAQ -------------------------------------- */
 .faq {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 10px
+  gap: 12px;
 }
 
 .faq details {
-  background: #0b1329;
-  border: 1px solid #1f2937;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 12px;
-  padding: 12px
+  padding: 16px;
 }
 
 .faq summary {
   cursor: pointer;
-  font-weight: 600
+  font-weight: 600;
+  color: var(--white);
+  list-style: none;
+  /* Hide default triangle if desired, or keep */
 }
 
+/* ----------------------------- Contact ------------------------------------ */
 .contact-grid {
   display: grid;
-  grid-template-columns: 1.2fr .8fr;
-  gap: 18px
+  grid-template-columns: 1fr 1.5fr;
+  gap: 30px;
 }
 
 .row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px
+  gap: 16px;
 }
 
 input,
 textarea,
 select {
   width: 100%;
-  background: #0b1329;
-  border: 1px solid #27314a;
-  border-radius: 12px;
-  color: #e7e9ee;
-  padding: 10px 12px
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: var(--white);
+  padding: 12px 16px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--brand-1);
 }
 
 textarea {
   min-height: 120px;
-  resize: vertical
+  resize: vertical;
 }
 
 .actions-inline {
-  margin-top: 12px;
+  margin-top: 16px;
   display: flex;
-  gap: 10px;
-  align-items: center
+  gap: 16px;
+  align-items: center;
 }
 
-.footer {
-  border-top: 1px solid #1f2937;
-  color: var(--muted);
-  padding: 22px 0;
-  margin-top: 34px
-}
-
+/* ---------------------------- Responsive ---------------------------------- */
 @media(max-width:1000px) {
   .hero {
-    grid-template-columns: 1fr
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  .cta,
+  .kv {
+    justify-content: center;
   }
 
   .contact-grid {
-    grid-template-columns: 1fr
-  }
-
-  .team {
-    grid-template-columns: 1fr
+    grid-template-columns: 1fr;
   }
 
   .col-4,
   .col-6,
   .col-8,
   .col-12 {
-    grid-column: span 12
+    grid-column: span 12;
   }
 }

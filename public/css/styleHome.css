@@ -193,8 +193,14 @@ body {
 }
 
 .box {
-  background: rgba(26, 42, 51, 0.8);
-  border-radius: 1rem;
+  /* Ultra-transparent background for "Liquid" feel */
+  background: rgba(20, 30, 40, 0.4);
+  /* Heavy blur + Saturation boost = Apple Glass */
+  backdrop-filter: blur(25px) saturate(180%);
+  -webkit-backdrop-filter: blur(25px) saturate(180%);
+
+  border-radius: 24px;
+  /* More rounded like iOS */
   min-height: 120px;
   position: relative;
   /* Added for absolute positioning of children */
@@ -203,7 +209,23 @@ body {
   justify-content: center;
   font-weight: 700;
   font-size: 1.2rem;
-  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.146);
+
+  /* Soft, diffused shadow */
+  box-shadow:
+    0 8px 32px 0 rgba(0, 0, 0, 0.3),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  /* Inner translucent border */
+
+  border: none;
+  overflow: hidden;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.box:hover {
+  background: rgba(30, 45, 60, 0.5);
+  box-shadow:
+    0 12px 40px 0 rgba(0, 0, 0, 0.4),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 
 .box img {
@@ -240,7 +262,7 @@ body {
   width: 100%;
   padding: 1.5rem;
   /* Add padding similar to flip card back */
-  background: linear-gradient(135deg, #2b46498d 60%, #3f666b7a 100%);
+  /* background: linear-gradient(135deg, #2b46498d 60%, #3f666b7a 100%); Removed for consistent Liquid Glass style */
 }
 
 .box-2 {

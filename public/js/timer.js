@@ -69,6 +69,11 @@ class FocusTimer {
     if (!restored) {
       this.setMode('pomodoro');
     } else {
+      // Restore colors for the current mode
+      const color = this.MODES[this.currentMode].color;
+      if (this.els.progress) this.els.progress.style.stroke = color;
+      if (this.els.time) this.els.time.style.color = color;
+
       this.updateUI();
       this.toggleButtons();
       if (this.isRunning) {

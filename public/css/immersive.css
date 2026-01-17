@@ -236,10 +236,11 @@ body.immersive-mode #music-player-bar {
     opacity: 0;
     pointer-events: none;
     z-index: 9999;
-    transition: opacity 0.5s ease-in-out;
+    transition: opacity 0.3s ease;
 }
 
-body.fade-out .page-transition {
+/* State: Visible opacity */
+.page-transition.visible {
     opacity: 1;
     pointer-events: auto;
 }

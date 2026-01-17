@@ -2,7 +2,6 @@
 .timer {
     background: rgba(4, 5, 8, 0);
     /* Darker glass background */
-    backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-radius: 24px;
     padding: 2.5rem 2rem;

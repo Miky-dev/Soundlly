@@ -50,11 +50,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (clockEl) {
         // Funzione per aggiornare il testo dell'orologio
         function updateClock() {
-            // Ottiene la data e l'ora attuale
+
             const now = new Date();
 
-            // Opzioni di formattazione per l'Italia (es. "Lun 15 Gen")
-            // weekday: 'short' -> Lun, day: 'numeric' -> 15, etc.
+
             const options = { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' };
 
             // Crea la stringa formattata e rimuove eventuali virgole indesiderate

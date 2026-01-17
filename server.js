@@ -184,6 +184,16 @@ app.get('/abbonamento', ensureAuthenticated, (req, res) => {
   res.render('abbonamento', { user: req.user });
 });
 
+// About Page (Converted from static HTML)
+app.get('/about', (req, res) => {
+  const token = ensureCsrfToken(req);
+  res.render('about', {
+    title: 'About • Soundlly',
+    csrfToken: token,
+    user: req.user || null
+  });
+});
+
 // Home (Public) - Served at root
 app.get('/', async (req, res) => {
   try {
