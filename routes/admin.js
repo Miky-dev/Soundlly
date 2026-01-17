@@ -124,10 +124,24 @@ router.delete('/sounds/:id', async (req, res) => {
     try {
         const sound = await get(`SELECT filename, category FROM sounds WHERE id=?`, [req.params.id]);
         if (sound && sound.filename) {
-            const folder = (sound.category === 'music') ? 'musiche' : 'ambient';
-            const filePath = path.join(__dirname, '..', 'public', 'audio', folder, sound.filename);
+            let folder = (sound.category === 'music') ? 'musiche' : 'ambient';
+            let filePath = path.join(__dirname, '..', 'public', 'audio', folder, sound.filename);
+
+            console.log(`[DELETE DEBUG] ID: ${req.params.id} | Initial Path: ${filePath} | Exists: ${fs.existsSync(filePath)}`);
+
+            if (sound.category === 'ambient' && !fs.existsSync(filePath)) {
+                folder = 'suoni';
+                filePath = path.join(__dirname, '..', 'public', 'audio', folder, sound.filename);
+                console.log(`[DELETE DEBUG] Switch to SUONI path: ${filePath} | Exists: ${fs.existsSync(filePath)}`);
+            }
+
             if (fs.existsSync(filePath)) {
-                try { fs.unlinkSync(filePath); } catch (e) { console.error(e); }
+                try {
+                    fs.unlinkSync(filePath);
+                    console.log(`[DELETE DEBUG] File deleted successfully: ${filePath}`);
+                } catch (e) { console.error('[DELETE DEBUG] Error unlink:', e); }
+            } else {
+                console.log(`[DELETE DEBUG] File NOT FOUND on disk, skipping delete.`);
             }
         }
         await run(`DELETE FROM sounds WHERE id=?`, [req.params.id]);
@@ -152,13 +166,21 @@ router.post('/api/bulk-delete', async (req, res) => {
                 let folder = (sound.category === 'music') ? 'musiche' : 'ambient';
                 let filePath = path.join(__dirname, '..', 'public', 'audio', folder, sound.filename);
 
+                console.log(`[BULK DELETE] ID: ${sound.id} | Initial: ${filePath} | Exists: ${fs.existsSync(filePath)}`);
+
                 if (sound.category === 'ambient' && !fs.existsSync(filePath)) {
                     folder = 'suoni';
                     filePath = path.join(__dirname, '..', 'public', 'audio', folder, sound.filename);
+                    console.log(`[BULK DELETE] Switch to SUONI: ${filePath} | Exists: ${fs.existsSync(filePath)}`);
                 }
 
                 if (fs.existsSync(filePath)) {
-                    try { fs.unlinkSync(filePath); } catch (e) { console.error(e); }
+                    try {
+                        fs.unlinkSync(filePath);
+                        console.log(`[BULK DELETE] Deleted: ${filePath}`);
+                    } catch (e) { console.error('[BULK DELETE] Error:', e); }
+                } else {
+                    console.log(`[BULK DELETE] File not found: ${filePath}`);
                 }
             }
         }
