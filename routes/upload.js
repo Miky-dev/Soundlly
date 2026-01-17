@@ -64,6 +64,9 @@ router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.fie
 
         if (!title) return renderWithMsg('Il titolo è obbligatorio.');
 
+        // Validation: Music requires Cover (or default)
+        // Removed blocking check. Now applying default if missing.
+
         const validCategories = ['ambient', 'music'];
         const selectedCategory = validCategories.includes(category) ? category : 'ambient';
 
@@ -78,16 +81,21 @@ router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.fie
 
         // 2. Handle Cover (only for Music usually, but we save it if provided)
         let coverPath = null;
-        if (selectedCategory === 'music' && coverFiles && coverFiles.length > 0) {
-            const coverFile = coverFiles[0];
-            const coversDir = path.join(__dirname, '..', 'public', 'uploads', 'covers');
-            if (!fs.existsSync(coversDir)) fs.mkdirSync(coversDir, { recursive: true });
+        if (selectedCategory === 'music') {
+            if (coverFiles && coverFiles.length > 0) {
+                const coverFile = coverFiles[0];
+                const coversDir = path.join(__dirname, '..', 'public', 'uploads', 'covers');
+                if (!fs.existsSync(coversDir)) fs.mkdirSync(coversDir, { recursive: true });
 
-            const coverFilename = coverFile.filename; // multer already generated unique name
-            const coverTarget = path.join(coversDir, coverFilename);
-            fs.renameSync(coverFile.path, coverTarget);
+                const coverFilename = coverFile.filename; // multer already generated unique name
+                const coverTarget = path.join(coversDir, coverFilename);
+                fs.renameSync(coverFile.path, coverTarget);
 
-            coverPath = '/uploads/covers/' + coverFilename;
+                coverPath = '/uploads/covers/' + coverFilename;
+            } else {
+                // Use DEFAULT cover
+                coverPath = '/immagini/copertinaDef.png';
+            }
         }
 
         // Extract Duration
@@ -108,7 +116,7 @@ router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.fie
         if (selectedCategory === 'ambient') {
             finalIcon = icon || null;
         } else {
-            finalIcon = coverPath || '/immagini/usericon.png'; // Fallback
+            finalIcon = coverPath || '/immagini/usericon.png'; // Fallback to usericon if logic fails, but coverPath should be set above
         }
 
         await run(

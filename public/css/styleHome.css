@@ -370,13 +370,14 @@ body {
 
   .box-4 {
     order: 2;
-    max-height: 600px;
+    max-height: 450px;
   }
 
   .box-1 {
     order: 3;
     padding: .5rem;
     border-radius: .7rem;
+    max-height: 450px;
     box-sizing: border-box;
   }
 

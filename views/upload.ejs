@@ -201,17 +201,17 @@
             function toggleIconField() {
                 if (catMusic.checked) {
                     // Show Cover, Hide Icon
-                    iconContainer.style.display = 'none';
+                    iconContainer.classList.add('d-none');
                     document.getElementById('icon').disabled = true;
 
-                    coverContainer.style.display = 'block';
+                    coverContainer.classList.remove('d-none');
                     document.getElementById('cover').disabled = false;
                 } else {
                     // Show Icon, Hide Cover
-                    iconContainer.style.display = 'block';
+                    iconContainer.classList.remove('d-none');
                     document.getElementById('icon').disabled = false;
 
-                    coverContainer.style.display = 'none';
+                    coverContainer.classList.add('d-none');
                     document.getElementById('cover').disabled = true;
                 }
             }

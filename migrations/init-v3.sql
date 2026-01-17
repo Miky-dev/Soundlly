@@ -82,10 +82,11 @@ CREATE TABLE IF NOT EXISTS sounds (
 -- Content
 title TEXT NOT NULL,
 description TEXT,
-filename TEXT NOT NULL, -- Relative path
+filename TEXT NOT NULL, -- path
 media_type TEXT NOT NULL DEFAULT 'audio',
 duration_seconds INTEGER DEFAULT 0,
 
+-- Categorization
 -- Categorization
 mood TEXT,
 genre_primary TEXT, -- Simple string tag for fast filtering
@@ -102,19 +103,24 @@ access_level TEXT NOT NULL DEFAULT 'public' CHECK (
 category TEXT DEFAULT 'ambient' CHECK (
     category IN ('ambient', 'music')
 ),
+
+-- NEW: Icon/Cover Column with Constraint for Music
+icon TEXT,
 is_restricted INTEGER NOT NULL DEFAULT 0 CHECK (is_restricted IN (0, 1)),
 
 -- Stats (Cached Counters)
 play_count INTEGER DEFAULT 0, like_count INTEGER DEFAULT 0,
 
 -- Timestamps
+created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+deleted_at DATETIME,
+FOREIGN KEY (owner_id) REFERENCES users (id) ON DELETE CASCADE,
 
-
-created_at            DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at            DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  deleted_at            DATETIME,
-  
-  FOREIGN KEY(owner_id) REFERENCES users(id) ON DELETE CASCADE
+-- CONSTRAINT: If category is music, icon MUST NOT BE NULL
+CONSTRAINT check_music_has_cover CHECK (
+     category != 'music' OR icon IS NOT NULL
+  )
 );
 
 CREATE INDEX IF NOT EXISTS idx_sounds_owner ON sounds (owner_id);
