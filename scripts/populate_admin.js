@@ -13,7 +13,7 @@ function formatDateTime(date) {
 }
 
 async function ensureSchema() {
-  const migrationsPath = path.join(__dirname, "..", "migrations", "init.sql");
+  const migrationsPath = path.join(__dirname, "..", "migrations", "init-v3.sql");
   const sql = fs.readFileSync(migrationsPath, "utf8");
   await new Promise((resolve, reject) => {
     db.exec(sql, (err) => {
@@ -25,7 +25,7 @@ async function ensureSchema() {
 
 async function ensureAdminUser() {
   await UserModel.createTableIfNotExists();
-  
+
   // Cerchiamo utente 'Admin'
   let admin = await UserModel.findByUsername("Admin");
   const birthDate = new Date();
