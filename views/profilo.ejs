@@ -74,7 +74,7 @@
                     </div>
                     <div class="meta-item">
                         <i class="fa-solid fa-calendar-alt text-brand"></i>
-                        <span>Membro dal <%= new Date(user.created_at).toLocaleDateString() %></span>
+                        <span>Membro dal <%= new Date(user.created_at).toLocaleDateString('it-IT') %></span>
                     </div>
                 </div>
 
@@ -88,7 +88,7 @@
                         <div class="profile-extra">
                             <% if (user.date_of_birth) { %>
                                 <span class="extra-tag"><i class="fa-solid fa-cake-candles"></i>
-                                    <%= new Date(user.date_of_birth).toLocaleDateString() %>
+                                    <%= new Date(user.date_of_birth).toLocaleDateString('it-IT') %>
                                 </span>
                                 <% } %>
 
@@ -232,7 +232,7 @@
                                                     <%= timeString %> ascoltati
                                             </p>
                                             <p class="text-white-50 small">
-                                                <%= new Date(sound.created_at).toLocaleDateString() %>
+                                                <%= new Date(sound.created_at).toLocaleDateString('it-IT') %>
                                             </p>
                                         </div>
                                         <% }); %>

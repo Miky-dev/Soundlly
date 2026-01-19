@@ -299,7 +299,7 @@
                                                 <%= (sound.total_seconds / 60).toFixed(1) %>
                                             </td>
                                             <td>
-                                                <%= new Date(sound.last_listened_at).toLocaleDateString() %>
+                                                <%= new Date(sound.last_listened_at).toLocaleDateString('it-IT') %>
                                             </td>
                                         </tr>
                                         <% }); %>
@@ -322,7 +322,6 @@
                                 <thead>
                                     <tr>
                                         <th>Data</th>
-                                        <th>Tipo</th>
                                         <th>Durata</th>
                                         <th>Stato</th>
                                     </tr>
@@ -331,10 +330,7 @@
                                     <% recentSessions.forEach(session=> { %>
                                         <tr>
                                             <td>
-                                                <%= new Date(session.started_at).toLocaleDateString() %>
-                                            </td>
-                                            <td>
-                                                <%= session.session_type %>
+                                                <%= new Date(session.started_at).toLocaleDateString('it-IT') %>
                                             </td>
                                             <td>
                                                 <%= session.completed_minutes %> min
