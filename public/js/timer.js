@@ -126,7 +126,8 @@ class FocusTimer {
     if (this.els.btnSettings) {
       this.els.btnSettings.addEventListener('click', () => {
         // Toggle visibilità pannello overlay
-        const isHidden = this.els.panelSettings.classList.contains('hidden') || this.els.panelSettings.style.display === 'none';
+        const style = window.getComputedStyle(this.els.panelSettings);
+        const isHidden = style.display === 'none';
 
         if (isHidden) {
           this.els.panelSettings.style.display = 'block';
