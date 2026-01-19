@@ -114,7 +114,7 @@ router.post('/stop', ensureAuthenticated, async (req, res) => {
 
         // Calcola statistiche aggiornate per il widget in tempo reale
         const now = new Date();
-        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString().replace('T', ' ').split('.')[0];
 
         const statsRow = await get(
             `SELECT 

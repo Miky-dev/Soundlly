@@ -12,7 +12,12 @@
 body {
     /* Assicura che il background del body principale sia visibile se non coperto */
     color: var(--text-main);
+    overflow-x: hidden;
+    /* Prevent horizontal scroll causing mixed vertical issues */
+    width: 100vw;
 }
+
+/* Navbar inherits from styleHome.css */
 
 .plans-container {
     display: flex;
@@ -22,8 +27,6 @@ body {
     /* Center if they fit */
     gap: 1.5rem;
     padding-top: 1rem;
-    margin-top: 3rem;
-    padding-bottom: 3rem;
     overflow-x: auto;
     /* Allow scrolling if screen is too small */
     padding-left: 1rem;
@@ -50,7 +53,6 @@ body {
     justify-content: center;
     text-align: center;
     width: 100%;
-    padding-top: 2rem;
     /* Visual balance */
 }
 
