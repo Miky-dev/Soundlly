@@ -11,71 +11,88 @@
 </head>
 
 <body data-user-id="<%= typeof user !== 'undefined' && user ? user.id : 'guest' %>">
-    <!-- Standard Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent fixed-top">
+    <!-- Simple Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transaparent">
         <div class="container-fluid">
-
+            <a href="/home" class="text-decoration-none">
+                <span class="app-logo">soundlly</span>
+            </a>
             <a href="/home" class="btn btn-outline-light btn-sm"><i class="fa-solid fa-arrow-left"></i> Torna alla
                 Home</a>
         </div>
     </nav>
 
     <div class="container">
-        <div class="text-center">
-            <h1 class="mt-3">Scegli il Piano Perfetto per Te</h1>
-            <p class="lead">Passa a Premium per sbloccare funzionalità esclusive.</p>
+        <div class="subscription-header">
+            <h1>Il Piano Perfetto per Te</h1>
         </div>
 
-        <div class="ntx-plans">
-            <div class="ntx-plan <%= (user.plan === 'standard') ? 'active' : '' %>">
-                <h3>Standard</h3>
-                <p class="ntx-price">€11.99</p>
+        <div class="plans-container">
+            <!-- Free Plan -->
+            <div class="plan-card <%= (!user.plan || user.plan === 'free') ? 'active' : '' %>">
+                <h3>Base</h3>
+                <p class="plan-price">Gratis</p>
                 <ul>
-                    <li>Pubblicazione di contenuti</li>
-                    <li>2 dispositivi</li>
-                    <li>Creazione playlist pubbliche</li>
+                    <li>Accesso catalogo base</li>
+                    <li>Ascolto con pubblicità</li>
+                </ul>
+                <% if (!user.plan || user.plan==='free' ) { %>
+                    <button class="plan-btn" disabled>Piano Attuale</button>
+                    <% } else { %>
+                        <button class="plan-btn btn-outline" disabled>Incluso</button>
+                        <% } %>
+            </div>
+
+            <div class="plan-card <%= (user.plan === 'standard') ? 'active' : '' %>">
+                <h3>Standard</h3>
+                <p class="plan-price"><span style="font-family: sans-serif;">€</span>6.99</p>
+                <ul>
+                    <li>Privilegi dei precedenti</li>
+                    <li>Immersive mode</li>
+                    <li>Ascolto senza pubblicità</li>
                 </ul>
                 <% if (user.plan==='standard' ) { %>
-                    <button class="ntx-btn" disabled>Piano Attuale</button>
+                    <button class="plan-btn" disabled>Piano Attuale</button>
                     <% } else { %>
-                        <a href="/pagamento/standard" class="ntx-btn">Abbonati</a>
-                        <button class="ntx-btn" data-action="select-plan" data-plan="standard">Seleziona
+                        <a href="/pagamento/standard" class="plan-btn">Abbonati</a>
+                        <button class="plan-btn" data-action="select-plan" data-plan="standard">Seleziona
                             Standard</button>
                         <% } %>
             </div>
 
-            <div class="ntx-plan <%= (user.plan === 'premium') ? 'active' : '' %>">
+            <div class="plan-card <%= (user.plan === 'premium') ? 'active' : '' %>">
                 <h3>Premium</h3>
-                <p class="ntx-price">€15.99</p>
+                <p class="plan-price"><span style="font-family: sans-serif;">€</span>15.99</p>
                 <ul>
+                    <li>Privilegi dei precedenti</li>
                     <li>Audio DOLBY ATMOS</li>
-                    <li>3 dispositivi</li>
+                    <li>Creazione playlist pubbliche</li>
                     <li>Accesso a suoni premium</li>
                 </ul>
                 <% if (user.plan==='premium' ) { %>
-                    <button class="ntx-btn" disabled>Piano Attuale</button>
+                    <button class="plan-btn" disabled>Piano Attuale</button>
                     <% } else { %>
-                        <button class="ntx-btn" data-action="subscribe" data-plan="premium">Abbonati</button>
-                        <button class="ntx-btn btn-outline" data-action="fast-track" data-plan="premium">Passa
+                        <button class="plan-btn" data-action="subscribe" data-plan="premium">Abbonati</button>
+                        <button class="plan-btn btn-outline" data-action="fast-track" data-plan="premium">Passa
                             Velocemente
                             (Sim)</button>
                         <% } %>
             </div>
 
             <!-- Creator Plan -->
-            <div class="ntx-plan <%= (user.role === 'creator') ? 'active' : '' %>">
+            <div class="plan-card <%= (user.role === 'creator') ? 'active' : '' %>">
                 <h3>Creator</h3>
-                <p class="ntx-price">€40.00</p>
+                <p class="plan-price"><span style="font-family: sans-serif;">€</span>40.00</p>
                 <ul>
                     <li>Carica i tuoi suoni</li>
                     <li>Guadagna dagli ascolti</li>
                     <li>Badge Creator</li>
                 </ul>
                 <% if (user.role==='creator' ) { %>
-                    <button class="ntx-btn" disabled>Già Creator</button>
+                    <button class="plan-btn" disabled>Già Creator</button>
                     <% } else { %>
-                        <button class="ntx-btn" data-action="subscribe" data-plan="creator">Diventa Creator</button>
-                        <button class="ntx-btn btn-outline" data-action="fast-track" data-plan="creator">Passa
+                        <button class="plan-btn" data-action="subscribe" data-plan="creator">Diventa Creator</button>
+                        <button class="plan-btn btn-outline" data-action="fast-track" data-plan="creator">Passa
                             Velocemente
                             (Sim)</button>
                         <% } %>
@@ -103,7 +120,7 @@
                         <input type="text" class="form-control" placeholder="CVC">
                     </div>
                 </div>
-                <button class="ntx-btn" data-action="pay">Paga Ora</button>
+                <button class="plan-btn" data-action="pay">Paga Ora</button>
             </div>
         </div>
 
