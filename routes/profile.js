@@ -106,7 +106,7 @@ router.post('/update', ensureAuthenticated, upload.single('avatar'), async (req,
     if (!checkCsrf(req, res)) return res.status(403).send('CSRF token mancante o non valido');
 
     try {
-        const { display_name, bio, birth_place, location_city, location_country, date_of_birth, mood_theme } = req.body;
+        const { display_name, bio, born_city, location_country, date_of_birth, mood_theme } = req.body;
         let avatar_url = req.body.avatar_url; // Usa URL esistente se non cambia file
 
         if (req.file) {
@@ -114,10 +114,10 @@ router.post('/update', ensureAuthenticated, upload.single('avatar'), async (req,
             avatar_url = '/uploads/avatars/' + req.file.filename;
         }
 
-        // update DB
+        // update DB - Mappiamo born_city direttamente
         await run(
-            `UPDATE users SET display_name=?, bio=?, avatar_url=?, birth_place=?, location_city=?, location_country=?, date_of_birth=?, mood_theme=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`,
-            [display_name, bio, avatar_url, birth_place, location_city, location_country, date_of_birth, mood_theme, req.user.id]
+            `UPDATE users SET display_name=?, bio=?, avatar_url=?, born_city=?, location_country=?, date_of_birth=?, mood_theme=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`,
+            [display_name, bio, avatar_url, born_city, location_country, date_of_birth, mood_theme, req.user.id]
         );
         res.redirect('/profilo?success=updated');
     } catch (err) {
