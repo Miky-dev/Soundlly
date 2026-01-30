@@ -50,7 +50,7 @@ async function ensureAdminUser() {
   // Imposta i dettagli per il primo admin
   await run(
     `UPDATE users
-       SET password = ?,
+       SET password_hash = ?,
            role = 'admin',
            plan = 'admin',  -- Assicurati che il piano sia 'admin'
            status = 'active',
@@ -78,7 +78,7 @@ async function ensureAdminUser() {
   // Imposta i dettagli per il secondo admin
   await run(
     `UPDATE users
-       SET password = ?,
+       SET password_hash = ?,
            role = 'admin',
            plan = 'admin',  -- Assicurati che il piano sia 'admin'
            status = 'active',
