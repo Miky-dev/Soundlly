@@ -197,14 +197,13 @@ router.post('/ambient/stats', ensureAuthenticated, async (req, res) => {
 router.get('/ambient-list', async (req, res) => {
     try {
         const sounds = await all(`
-            SELECT s.id, s.title as label, s.icon, s.filename as file 
+            SELECT s.id, s.title as label, s.icon, s.filename as file, s.category, 'ambient' as folder
             FROM sounds s 
             LEFT JOIN users u ON s.owner_id = u.id 
-            WHERE s.category = 'ambient' AND (u.role = 'admin' OR s.owner_id IS NULL)
+            WHERE s.category = 'ambient' AND u.username = 'System'
         `);
         // folder default is 'ambient' logic handled later if needed, but here simple response is usually expected by loadSounds.js
-        // loadSounds.js I modified earlier to use .folder property. I should add folder: 'ambient' here explicitly to match new loadSounds logic.
-        const mapped = sounds.map(s => ({ ...s, folder: 'ambient' }));
+        const mapped = sounds.map(s => ({ ...s, folder: s.folder || 'ambient' }));
         res.json(mapped);
     } catch (err) {
         console.error('Ambient List Error:', err);

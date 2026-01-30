@@ -213,7 +213,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             const folder = soundObj ? soundObj.folder : 'ambient';
 
             // Crea oggetto Audio se non esiste (Singleton pattern per ID)
-            const audio = new Audio(`/audio/${folder}/${filename}`);
+            // UPDATE: Usa endpoint streaming invece di file statico
+            const audio = new Audio(`/api/stream/track/${id}`);
             audio.loop = true; // Loop infinito per suoni ambientali
             audioPlayers[id] = audio;
         }

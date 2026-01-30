@@ -104,20 +104,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const bgUrl = (item.icon && item.icon.includes('/')) ? item.icon : '/immagini/usericon.png';
             if (this.coverImg) this.coverImg.src = bgUrl;
 
-            // Risolve il percorso del file audio
-            let src = item.filename;
-            if (!src.startsWith('http') && !src.startsWith('/')) {
-                // Se non è un path assoluto, costruiscilo in base alla categoria
-                if (item.category === 'ambient') {
-                    // Se l'owner è admin, usa 'ambient', altrimenti 'suoni'
-                    // Se owner_role non è definito, assume 'suoni' se stiamo suonando da creators list
-                    const folder = (item.owner_role === 'admin') ? 'ambient' : 'suoni';
-                    src = '/audio/' + folder + '/' + src;
-                } else {
-                    // Default per musica
-                    src = '/audio/musiche/' + src;
-                }
-            }
+            // Risolve il percorso del file audio tramite API Streaming Sicura
+            // Non usiamo più percorsi statici /audio/..., ma l'endpoint /api/stream/track/:id
+            let src = `/api/stream/track/${item.id}`;
 
             // Gestione Play
             if (this.audio.src.includes(src)) {

@@ -168,6 +168,9 @@ app.use('/api/search', require('./routes/search'));
 // Music Route
 app.use('/api/music', require('./routes/music'));
 
+// Stream Route (Secure Audio)
+app.use('/api/stream', require('./routes/stream'));
+
 
 //session INFO
 

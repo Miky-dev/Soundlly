@@ -79,7 +79,8 @@ router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.fie
         // Determina cartella target in base alla categoria
         // User/Creator uploads: Music -> musiche, Ambient -> suoni
         const targetDirName = selectedCategory === 'music' ? 'musiche' : 'suoni';
-        const targetDir = path.join(__dirname, '..', 'public', 'audio', targetDirName);
+        // NEW: Secure Storage Path
+        const targetDir = path.join(__dirname, '..', 'storage', targetDirName);
         if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
 
         const targetFilename = audioFile.filename;

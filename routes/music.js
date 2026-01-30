@@ -28,11 +28,11 @@ router.get('/latest', async (req, res) => {
         const userId = getUserId(req);
         const sql = `
             ${MUSIC_QUERY}
-            WHERE s.category = 'music' AND s.access_level = 'public'
+            WHERE s.category = 'music' AND (s.access_level = 'public' OR (s.access_level = 'registered' AND ? IS NOT NULL))
             ORDER BY s.created_at DESC
             LIMIT 10
     `;
-        const results = await all(sql, [userId]);
+        const results = await all(sql, [userId, userId]);
         res.json(results);
     } catch (err) {
         console.error('Errore Latest Music:', err);
@@ -64,11 +64,11 @@ router.get('/creators', async (req, res) => {
         const userId = getUserId(req);
         const sql = `
             ${MUSIC_QUERY}
-            WHERE s.category = 'ambient' AND s.access_level = 'public' AND u.role != 'admin'
+            WHERE s.category = 'ambient' AND (s.access_level = 'public' OR (s.access_level = 'registered' AND ? IS NOT NULL)) AND u.username != 'System'
             ORDER BY s.created_at DESC
             LIMIT 10
     `;
-        const results = await all(sql, [userId]);
+        const results = await all(sql, [userId, userId]);
         res.json(results);
     } catch (err) {
         console.error('Errore Creators Music:', err);
