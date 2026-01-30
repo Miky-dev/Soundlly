@@ -32,12 +32,7 @@ router.get('/track/:id', async (req, res) => {
 
         // 2. Controllo Accesso (Privacy & Ruoli)
 
-        // Caso A: Access Level "Private" -> Solo Owner o Admin
-        if (sound.access_level === 'private') {
-            if (userRole !== 'admin' && sound.owner_id !== userId) {
-                return res.status(403).send('Accesso negato: contenuto privato');
-            }
-        }
+
 
         // Caso B: Access Level "Premium" -> Solo Premium o Admin
         if (sound.access_level === 'premium') {

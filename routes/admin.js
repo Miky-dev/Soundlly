@@ -16,7 +16,7 @@ const { run, all, get } = require('../db/sqlite');
 // --- Configurazione Multer ---
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const dir = path.join(__dirname, '..', 'public', 'audio', 'ambient');
+        const dir = path.join(__dirname, '..', 'storage', 'ambient');
         if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
         cb(null, dir);
     },
@@ -125,13 +125,13 @@ router.delete('/sounds/:id', async (req, res) => {
         const sound = await get(`SELECT filename, category FROM sounds WHERE id=?`, [req.params.id]);
         if (sound && sound.filename) {
             let folder = (sound.category === 'music') ? 'musiche' : 'ambient';
-            let filePath = path.join(__dirname, '..', 'public', 'audio', folder, sound.filename);
+            let filePath = path.join(__dirname, '..', 'storage', folder, sound.filename);
 
             console.log(`[DELETE DEBUG] ID: ${req.params.id} | Initial Path: ${filePath} | Exists: ${fs.existsSync(filePath)}`);
 
             if (sound.category === 'ambient' && !fs.existsSync(filePath)) {
                 folder = 'suoni';
-                filePath = path.join(__dirname, '..', 'public', 'audio', folder, sound.filename);
+                filePath = path.join(__dirname, '..', 'storage', folder, sound.filename);
                 console.log(`[DELETE DEBUG] Switch to SUONI path: ${filePath} | Exists: ${fs.existsSync(filePath)}`);
             }
 
@@ -164,13 +164,13 @@ router.post('/api/bulk-delete', async (req, res) => {
         for (const sound of sounds) {
             if (sound.filename) {
                 let folder = (sound.category === 'music') ? 'musiche' : 'ambient';
-                let filePath = path.join(__dirname, '..', 'public', 'audio', folder, sound.filename);
+                let filePath = path.join(__dirname, '..', 'storage', folder, sound.filename);
 
                 console.log(`[BULK DELETE] ID: ${sound.id} | Initial: ${filePath} | Exists: ${fs.existsSync(filePath)}`);
 
                 if (sound.category === 'ambient' && !fs.existsSync(filePath)) {
                     folder = 'suoni';
-                    filePath = path.join(__dirname, '..', 'public', 'audio', folder, sound.filename);
+                    filePath = path.join(__dirname, '..', 'storage', folder, sound.filename);
                     console.log(`[BULK DELETE] Switch to SUONI: ${filePath} | Exists: ${fs.existsSync(filePath)}`);
                 }
 
