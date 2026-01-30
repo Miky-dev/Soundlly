@@ -200,7 +200,7 @@ router.get('/ambient-list', async (req, res) => {
             SELECT s.id, s.title as label, s.icon, s.filename as file, s.category, 'ambient' as folder
             FROM sounds s 
             LEFT JOIN users u ON s.owner_id = u.id 
-            WHERE s.category = 'ambient' AND u.username = 'System'
+            WHERE s.category = 'ambient'
         `);
         // folder default is 'ambient' logic handled later if needed, but here simple response is usually expected by loadSounds.js
         const mapped = sounds.map(s => ({ ...s, folder: s.folder || 'ambient' }));

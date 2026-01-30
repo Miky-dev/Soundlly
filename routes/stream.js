@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const fs = require('fs');
-const { get } = require('../db/sqlite');
+const { get, run } = require('../db/sqlite');
 
 // Helper per ottenere ID utente sicuro
 const getUserId = (req) => req.user ? req.user.id : null;
@@ -58,25 +58,12 @@ router.get('/track/:id', async (req, res) => {
 
         if (sound.category === 'music') {
             folder = 'musiche';
+        } else if (sound.category === 'sound') {
+            // New user effects category -> 'suoni' folder
+            folder = 'suoni';
         } else if (sound.category === 'ambient') {
-            // Per ambient, abbiamo diviso in 'suoni' (user uploads) e 'ambient' (system/admin uploads)
-            // La logica precedente usava questa distinzione basata su directory fisiche.
-            // Possiamo dedurlo: se owner è admin -> 'ambient', altrimenti 'suoni'?
-            // O meglio, cerchiamo il file in entrambe o seguiamo la logica di upload.js precedente.
-            // Upload.js salvava in: 
-            // Music -> musiche
-            // Ambient -> suoni (tutti gli ambient user side) o ambient (quelli di sistema pre-esistenti)
-
-            // Verifichiamo dove esiste il file
-            const storageRoot = path.join(__dirname, '..', 'storage');
-            const pathInSuoni = path.join(storageRoot, 'suoni', sound.filename);
-            const pathInAmbient = path.join(storageRoot, 'ambient', sound.filename);
-
-            if (fs.existsSync(pathInAmbient)) {
-                folder = 'ambient';
-            } else {
-                folder = 'suoni';
-            }
+            // System ambient sounds -> 'ambient' folder
+            folder = 'ambient';
         }
 
         const filePath = path.join(__dirname, '..', 'storage', folder, sound.filename);
@@ -117,6 +104,32 @@ router.get('/track/:id', async (req, res) => {
     } catch (err) {
         console.error('Stream Error:', err);
         res.status(500).send('Errore interno del server');
+    }
+});
+
+/**
+ * POST /api/stream/heartbeat
+ * Aggiorna il contatore di riproduzione per un suono (incrementale).
+ * Chiamato dal client in background ogni N secondi.
+ */
+router.post('/heartbeat', async (req, res) => {
+    try {
+        const { soundId, seconds } = req.body;
+        // Validazione base
+        if (!soundId || !seconds || seconds <= 0) {
+            return res.status(400).send('Dati non validi');
+        }
+
+        // Incrementa total_play_seconds
+        await run(
+            `UPDATE sounds SET total_play_seconds = total_play_seconds + ? WHERE id = ?`,
+            [seconds, soundId]
+        );
+
+        res.sendStatus(200);
+    } catch (err) {
+        console.error("Heartbeat Error:", err);
+        res.sendStatus(500);
     }
 });
 

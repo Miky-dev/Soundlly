@@ -101,7 +101,7 @@ access_level TEXT NOT NULL DEFAULT 'public' CHECK (
     )
 ),
 category TEXT DEFAULT 'ambient' CHECK (
-    category IN ('ambient', 'music')
+    category IN ('ambient', 'music', 'sound')
 ),
 
 -- NEW: Icon/Cover Column with Constraint for Music

@@ -28,7 +28,7 @@ router.get('/latest', async (req, res) => {
         const userId = getUserId(req);
         const sql = `
             ${MUSIC_QUERY}
-            WHERE s.category = 'music' AND (s.access_level = 'public' OR (s.access_level = 'registered' AND ? IS NOT NULL))
+            WHERE (s.category = 'music' OR s.category = 'sound') AND (s.access_level = 'public' OR (s.access_level = 'registered' AND ? IS NOT NULL))
             ORDER BY s.created_at DESC
             LIMIT 10
     `;
@@ -64,7 +64,7 @@ router.get('/creators', async (req, res) => {
         const userId = getUserId(req);
         const sql = `
             ${MUSIC_QUERY}
-            WHERE s.category = 'ambient' AND (s.access_level = 'public' OR (s.access_level = 'registered' AND ? IS NOT NULL)) AND u.username != 'System'
+            WHERE s.category = 'sound' AND (s.access_level = 'public' OR (s.access_level = 'registered' AND ? IS NOT NULL))
             ORDER BY s.created_at DESC
             LIMIT 10
     `;

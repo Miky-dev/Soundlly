@@ -77,8 +77,25 @@ router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.fie
 
         // 1. Gestione File Audio
         // Determina cartella target in base alla categoria
-        // User/Creator uploads: Music -> musiche, Ambient -> suoni
-        const targetDirName = selectedCategory === 'music' ? 'musiche' : 'suoni';
+        // Determines Category and Folder
+        // User/Creator uploads: 
+        // - Music -> category='music', folder='musiche'
+        // - Ambient -> category='effect', folder='suoni' (Separation from System Ambient)
+
+        let finalCategory = selectedCategory;
+        let targetDirName = '';
+
+        if (selectedCategory === 'music') {
+            targetDirName = 'musiche';
+        } else {
+            // It was 'ambient' in the form
+            // If user is Admin, they might want to upload real 'ambient', but this form is generic.
+            // For now, let's assume 'upload.js' is the Creator/User interface.
+            // Admins use 'admin.js' for system sounds.
+            // So IF an admin uses this form, it's treated as a user upload (sound).
+            finalCategory = 'sound';
+            targetDirName = 'suoni';
+        }
         // NEW: Secure Storage Path
         const targetDir = path.join(__dirname, '..', 'storage', targetDirName);
         if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
@@ -141,7 +158,7 @@ router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.fie
                 description || '',
                 targetFilename,
                 access_level || 'public',
-                selectedCategory,
+                finalCategory,
                 mood || null,
                 genre || null,
                 finalIcon,

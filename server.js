@@ -250,8 +250,7 @@ app.get('/', async (req, res) => {
 
     res.render('home', {
       user: req.user || null,
-      summary: { uploads: 0, favorites: 0, playlists: 0 },
-      playlists: [],
+      summary: { uploads: 0, favorites: 0 },
       favorites: [],
       dailyGoal,
       todayMinutes,
@@ -262,8 +261,7 @@ app.get('/', async (req, res) => {
     console.error("Home Route Error:", err);
     res.render('home', {
       user: req.user || null,
-      summary: { uploads: 0, favorites: 0, playlists: 0 },
-      playlists: [],
+      summary: { uploads: 0, favorites: 0 },
       favorites: [],
       dailyGoal: 60,
       todayMinutes: 0,

@@ -35,21 +35,25 @@ router.use(ensureAuthenticated, ensureAdmin);
 // GET /admin
 router.get('/', async (req, res) => {
     try {
-        // 1. Suoni di Sistema (Admin)
-        // Usa LEFT JOIN per includere anche suoni senza owner (legacy) considerandoli di sistema
-        const systemSounds = await all(`
+        // Base query for sounds with owner information
+        const baseSoundQuery = `
             SELECT s.*, u.username as owner_name 
             FROM sounds s 
-            LEFT JOIN users u ON s.owner_id = u.id 
+            LEFT JOIN users u ON s.owner_id = u.id
+        `;
+
+        // 1. Suoni di Sistema (Admin)
+        // Usa LEFT JOIN per includere anche suoni senza owner (legacy) considerandoli di sistema
+        const systemSounds = await all(`${baseSoundQuery}
             WHERE s.category = 'ambient' AND (u.role = 'admin' OR s.owner_id IS NULL)
         `);
 
-        // 2. Suoni Utenti (Non Admin)
+        // 2. Suoni Utenti (Non Admin) -> Ora 'sound'
         const userAmbientSounds = await all(`
             SELECT s.*, u.username as owner_name 
             FROM sounds s 
             JOIN users u ON s.owner_id = u.id 
-            WHERE s.category = 'ambient' AND u.role != 'admin'
+            WHERE s.category = 'sound'
         `);
 
         // 3. Canzoni Utenti
@@ -124,16 +128,13 @@ router.delete('/sounds/:id', async (req, res) => {
     try {
         const sound = await get(`SELECT filename, category FROM sounds WHERE id=?`, [req.params.id]);
         if (sound && sound.filename) {
-            let folder = (sound.category === 'music') ? 'musiche' : 'ambient';
+            let folder = 'ambient';
+            if (sound.category === 'music') folder = 'musiche';
+            if (sound.category === 'sound') folder = 'suoni';
+
             let filePath = path.join(__dirname, '..', 'storage', folder, sound.filename);
 
-            console.log(`[DELETE DEBUG] ID: ${req.params.id} | Initial Path: ${filePath} | Exists: ${fs.existsSync(filePath)}`);
-
-            if (sound.category === 'ambient' && !fs.existsSync(filePath)) {
-                folder = 'suoni';
-                filePath = path.join(__dirname, '..', 'storage', folder, sound.filename);
-                console.log(`[DELETE DEBUG] Switch to SUONI path: ${filePath} | Exists: ${fs.existsSync(filePath)}`);
-            }
+            console.log(`[DELETE DEBUG] ID: ${req.params.id} | Cat: ${sound.category} | Path: ${filePath}`);
 
             if (fs.existsSync(filePath)) {
                 try {
@@ -163,16 +164,13 @@ router.post('/api/bulk-delete', async (req, res) => {
 
         for (const sound of sounds) {
             if (sound.filename) {
-                let folder = (sound.category === 'music') ? 'musiche' : 'ambient';
+                let folder = 'ambient';
+                if (sound.category === 'music') folder = 'musiche';
+                if (sound.category === 'sound') folder = 'suoni';
+
                 let filePath = path.join(__dirname, '..', 'storage', folder, sound.filename);
 
-                console.log(`[BULK DELETE] ID: ${sound.id} | Initial: ${filePath} | Exists: ${fs.existsSync(filePath)}`);
-
-                if (sound.category === 'ambient' && !fs.existsSync(filePath)) {
-                    folder = 'suoni';
-                    filePath = path.join(__dirname, '..', 'storage', folder, sound.filename);
-                    console.log(`[BULK DELETE] Switch to SUONI: ${filePath} | Exists: ${fs.existsSync(filePath)}`);
-                }
+                console.log(`[BULK DELETE] ID: ${sound.id} | Cat: ${sound.category} | Path: ${filePath}`);
 
                 if (fs.existsSync(filePath)) {
                     try {
