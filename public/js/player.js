@@ -28,6 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Controlli
             this.playBtn = document.getElementById('player-play-btn');
             this.playIcon = this.playBtn ? this.playBtn.querySelector('i') : null;
+            this.prevBtn = document.getElementById('player-prev-btn');
+            this.nextBtn = document.getElementById('player-next-btn');
             this.closeBtn = document.getElementById('player-close-btn');
             this.volumeSlider = document.getElementById('player-volume-slider');
             this.volumeIcon = document.getElementById('volume-icon');
@@ -66,6 +68,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.playBtn.addEventListener('click', () => this.togglePlay());
             }
 
+            // Next / Prev
+            if (this.prevBtn) {
+                this.prevBtn.addEventListener('click', () => this.playPrev());
+            }
+            if (this.nextBtn) {
+                this.nextBtn.addEventListener('click', () => this.playNext());
+            }
+
+            this.queue = [];
+            this.currentIndex = -1;
+
             // Eventi nativi dell'oggetto Audio
             this.audio.addEventListener('timeupdate', () => this.updateProgress()); // Aggiorna barra mentre suona
             this.audio.addEventListener('loadedmetadata', () => {
@@ -73,10 +86,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (this.totalTimeEl) this.totalTimeEl.textContent = this.formatTime(this.audio.duration);
             });
             this.audio.addEventListener('ended', () => {
-                // A fine brano, resetta lo stato a pausa
-                this.isPlaying = false;
-
-                this.updatePlayBtnState();
+                // A fine brano, passa al successivo se esiste
+                if (this.currentIndex < this.queue.length - 1) {
+                    this.playQueue(this.queue, this.currentIndex + 1);
+                } else {
+                    this.isPlaying = false;
+                    this.updatePlayBtnState();
+                }
             });
 
             // Click sulla barra di avanzamento (Seek)
@@ -90,10 +106,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         /**
+         * Riproduce una lista di tracce partendo da un indice specifico
+         * @param {Array} list - Lista di oggetti brano
+         * @param {Number} startIndex - Indice da cui partire
+         */
+        playQueue(list, startIndex = 0) {
+            this.queue = list;
+            this.currentIndex = startIndex;
+            const item = this.queue[this.currentIndex];
+            this.playTrack(item);
+        }
+
+        /**
          * Riproduce una traccia specifica
          * @param {Object} item - Oggetto contenente i metadati del brano (title, author, icon, filename, category)
          */
         playTrack(item) {
+            // Se la coda è vuota o l'item non corrisponde all'attuale (chiamata diretta legacy), resetta coda
+            if (this.queue.length === 0 || (this.queue[this.currentIndex] && this.queue[this.currentIndex].id !== item.id)) {
+                this.queue = [item];
+                this.currentIndex = 0;
+            }
+
             // Mostra il player se era nascosto
             if (this.playerBar) this.playerBar.classList.add('active');
 
@@ -115,7 +149,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (this.audio.paused) {
                     this.audio.play();
                     this.isPlaying = true;
-
                 }
             } else {
                 // Nuovo brano: carica e riproduci
@@ -126,11 +159,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 }).catch(e => {
                     console.error("Errore riproduzione audio:", e);
-                    alert("Impossibile riprodurre questo brano.");
+                    // alert("Impossibile riprodurre questo brano."); // Silent fail preferibile per auto-play
                 });
             }
 
             this.updatePlayBtnState();
+        }
+
+        playNext() {
+            if (this.queue.length > 0 && this.currentIndex < this.queue.length - 1) {
+                this.playQueue(this.queue, this.currentIndex + 1);
+            }
+        }
+
+        playPrev() {
+            // Se siamo oltre i 3 secondi, ricomincia da capo lo stesso brano (come Spotify)
+            if (this.audio.currentTime > 3) {
+                this.audio.currentTime = 0;
+                return;
+            }
+
+            if (this.queue.length > 0 && this.currentIndex > 0) {
+                this.playQueue(this.queue, this.currentIndex - 1);
+            }
         }
 
         togglePlay() {

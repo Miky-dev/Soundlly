@@ -76,8 +76,8 @@ class MusicManager {
                 return;
             }
 
-            items.forEach(item => {
-                const card = this.createCard(item);
+            items.forEach((item, index) => {
+                const card = this.createCard(item, index, items);
                 container.appendChild(card);
             });
         } catch (err) {
@@ -123,14 +123,14 @@ class MusicManager {
             return;
         }
 
-        items.forEach(item => {
-            const card = this.createCard(item);
+        items.forEach((item, index) => {
+            const card = this.createCard(item, index, items);
             this.els.resultsContainer.appendChild(card);
         });
     }
 
     // --- UI GENERATOR (Card) ---
-    createCard(item) {
+    createCard(item, index, allItems) {
         const card = document.createElement('div');
         card.className = 'card';
         card.dataset.soundId = item.id; // Utile per trovare duplicati nel DOM
@@ -171,19 +171,20 @@ class MusicManager {
         `;
 
         // Eventi
-        this.attachCardEvents(card, item);
+        this.attachCardEvents(card, item, index, allItems);
 
         return card;
     }
 
-    attachCardEvents(card, item) {
+    attachCardEvents(card, item, index, allItems) {
         // Play Click
         const playBtn = card.querySelector('.btn-play-overlay');
         if (playBtn) {
             playBtn.onclick = (e) => {
                 e.stopPropagation();
                 if (window.Soundlly && window.Soundlly.player) {
-                    window.Soundlly.player.playTrack(item);
+                    // window.Soundlly.player.playTrack(item);
+                    window.Soundlly.player.playQueue(allItems, index);
                 }
             };
         }

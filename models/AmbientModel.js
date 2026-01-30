@@ -48,12 +48,10 @@ class AmbientModel {
             );
 
             // 2. Increment global stats for the sound (for owner profile)
-            const globalStatsPromise = run(
-                `UPDATE sounds SET total_play_seconds = total_play_seconds + ?, play_count = play_count + 1 WHERE id = ?`,
-                [seconds, soundId]
-            );
+            // 2. Increment global stats for the sound (for owner profile)
+            // REMOVED: total_play_seconds column no longer exists.
 
-            return Promise.all([userStatsPromise, globalStatsPromise]);
+            return userStatsPromise;
         });
         return Promise.all(promises);
     }

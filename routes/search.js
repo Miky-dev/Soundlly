@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
             FROM sounds s
             LEFT JOIN users u ON s.owner_id = u.id
             WHERE (s.title LIKE ? OR s.description LIKE ? OR u.username LIKE ?)
-            AND s.access_level = 'public'
+            AND (s.access_level = 'public' OR s.access_level = 'premium')
             ORDER BY s.created_at DESC
             LIMIT 20
         `;
