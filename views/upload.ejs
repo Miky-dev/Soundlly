@@ -211,12 +211,12 @@
                     coverContainer.classList.remove('d-none');
                     document.getElementById('cover').disabled = false;
                 } else {
-                    // Show Icon, Hide Cover
+                    // Show Icon AND Cover for Ambient (Sounds)
                     iconContainer.classList.remove('d-none');
                     document.getElementById('icon').disabled = false;
 
-                    coverContainer.classList.add('d-none');
-                    document.getElementById('cover').disabled = true;
+                    coverContainer.classList.remove('d-none');
+                    document.getElementById('cover').disabled = false;
                 }
             }
 

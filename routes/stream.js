@@ -107,30 +107,6 @@ router.get('/track/:id', async (req, res) => {
     }
 });
 
-/**
- * POST /api/stream/heartbeat
- * Aggiorna il contatore di riproduzione per un suono (incrementale).
- * Chiamato dal client in background ogni N secondi.
- */
-router.post('/heartbeat', async (req, res) => {
-    try {
-        const { soundId, seconds } = req.body;
-        // Validazione base
-        if (!soundId || !seconds || seconds <= 0) {
-            return res.status(400).send('Dati non validi');
-        }
 
-        // Incrementa total_play_seconds
-        await run(
-            `UPDATE sounds SET total_play_seconds = total_play_seconds + ? WHERE id = ?`,
-            [seconds, soundId]
-        );
-
-        res.sendStatus(200);
-    } catch (err) {
-        console.error("Heartbeat Error:", err);
-        res.sendStatus(500);
-    }
-});
 
 module.exports = router;

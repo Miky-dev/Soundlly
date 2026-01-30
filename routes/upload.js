@@ -106,23 +106,21 @@ router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.fie
         // Sposta file da temp a target
         fs.renameSync(audioFile.path, targetPath);
 
-        // 2. Gestione Copertina (Opzionale per Ambient, necessaria o default per Music)
+        // 2. Gestione Copertina (Universale per Musica e Suoni)
         let coverPath = null;
-        if (selectedCategory === 'music') {
-            if (coverFiles && coverFiles.length > 0) {
-                const coverFile = coverFiles[0];
-                const coversDir = path.join(__dirname, '..', 'public', 'uploads', 'covers');
-                if (!fs.existsSync(coversDir)) fs.mkdirSync(coversDir, { recursive: true });
+        if (coverFiles && coverFiles.length > 0) {
+            const coverFile = coverFiles[0];
+            const coversDir = path.join(__dirname, '..', 'public', 'uploads', 'covers');
+            if (!fs.existsSync(coversDir)) fs.mkdirSync(coversDir, { recursive: true });
 
-                const coverFilename = coverFile.filename; // nome generato da multer
-                const coverTarget = path.join(coversDir, coverFilename);
-                fs.renameSync(coverFile.path, coverTarget);
+            const coverFilename = coverFile.filename; // nome generato da multer
+            const coverTarget = path.join(coversDir, coverFilename);
+            fs.renameSync(coverFile.path, coverTarget);
 
-                coverPath = '/uploads/covers/' + coverFilename;
-            } else {
-                // Copertina di default
-                coverPath = '/immagini/copertinaDef.png';
-            }
+            coverPath = '/uploads/covers/' + coverFilename;
+        } else if (selectedCategory === 'music') {
+            // Default solo per musica se manca cover
+            coverPath = '/immagini/copertinaDef.png';
         }
 
         // 3. Estrazione Metadati (Durata)
@@ -136,17 +134,21 @@ router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.fie
             console.error('Errore estrazione metadati:', e);
         }
 
-        // 4. Determina Icona
-        // - Ambient: classe FontAwesome (es. "fa-cloud")
-        // - Music: path immagine copertina
+        // 4. Determina Icona/Cover
+        // Priorità: Cover Caricata > Icona Manuale (solo ambient) > Default
         let finalIcon = null;
-        if (selectedCategory === 'ambient') {
-            finalIcon = icon || null;
+
+        if (coverPath) {
+            finalIcon = coverPath;
+        } else if (selectedCategory === 'ambient' && icon) {
+            finalIcon = icon;
         } else {
-            finalIcon = coverPath || '/immagini/usericon.png';
+            finalIcon = '/immagini/usericon.png';
         }
 
         // 5. Salvataggio su DB
+        console.log('Upload Debug:', { title, category: selectedCategory, coverFiles: coverFiles ? coverFiles.length : 0, coverPath, finalIcon });
+
         await run(
             `INSERT INTO sounds (
                 owner_id, title, description, filename, media_type, 

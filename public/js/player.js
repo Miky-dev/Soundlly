@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
             this.audio.addEventListener('ended', () => {
                 // A fine brano, resetta lo stato a pausa
                 this.isPlaying = false;
-                this.stopHeartbeat();
+
                 this.updatePlayBtnState();
             });
 
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (this.audio.paused) {
                     this.audio.play();
                     this.isPlaying = true;
-                    this.startHeartbeat(item.id);
+
                 }
             } else {
                 // Nuovo brano: carica e riproduci
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.audio.play().then(() => {
                     this.isPlaying = true;
                     this.updatePlayBtnState();
-                    this.startHeartbeat(item.id);
+
                 }).catch(e => {
                     console.error("Errore riproduzione audio:", e);
                     alert("Impossibile riprodurre questo brano.");
@@ -138,11 +138,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.audio.play();
                 this.isPlaying = true;
                 // Riparte heartbeat se abbiamo l'ID corrente (salvato in this.currentSoundId)
-                if (this.currentSoundId) this.startHeartbeat(this.currentSoundId);
+
             } else {
                 this.audio.pause();
                 this.isPlaying = false;
-                this.stopHeartbeat();
+
             }
             this.updatePlayBtnState();
         }
@@ -150,43 +150,12 @@ document.addEventListener('DOMContentLoaded', () => {
         closePlayer() {
             this.audio.pause();
             this.isPlaying = false;
-            this.stopHeartbeat();
+
             this.updatePlayBtnState();
             if (this.playerBar) this.playerBar.classList.remove('active'); // Nascondi UI
         }
 
-        startHeartbeat(soundId) {
-            this.stopHeartbeat(); // Clear previous if any
-            this.currentSoundId = soundId;
 
-            // Invia heartbeat ogni 10 secondi
-            this.heartbeatInterval = setInterval(() => {
-                if (this.isPlaying && this.currentSoundId) {
-                    fetch('/api/stream/heartbeat', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            // Includi CSRF token se presente globalmente, altrimenti potremmo aver bisogno di recuperarlo
-                            // Per semplicità qui assumiamo che csrf sia gestito via cookie o ignorato per questa rotta API pubblica,
-                            // ma dato che richiede autenticazione o sessione, meglio controllare.
-                            // Tuttavia, nel router stream.js non c'è checkCsrf esplicito sulla rotta heartbeat appena aggiunta.
-                            // Se necessario, aggiungere header 'x-csrf-token': document.querySelector('meta[name="csrf-token"]')?.content
-                        },
-                        body: JSON.stringify({
-                            soundId: this.currentSoundId,
-                            seconds: 10
-                        })
-                    }).catch(err => console.error("Heartbeat failed", err));
-                }
-            }, 10000);
-        }
-
-        stopHeartbeat() {
-            if (this.heartbeatInterval) {
-                clearInterval(this.heartbeatInterval);
-                this.heartbeatInterval = null;
-            }
-        }
 
         // Cambia l'icona Play/Pause
         updatePlayBtnState() {
