@@ -284,7 +284,7 @@ async function main() {
       },
       {
         name: "Focus Giornaliero",
-        visibility: "premium",
+        visibility: "public",
         description: "Sessioni per concentrarsi durante il lavoro.",
         items: [soundIds["Deep Focus Drone"]],
       }
