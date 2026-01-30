@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="/css/immersive.css" />
   <link rel="stylesheet" href="/css/music-overlay.css" />
   <link rel="stylesheet" href="/css/player.css" />
+  <link rel="stylesheet" href="/css/playlist.css" />
 
 
   <!-- Favicon: l'icona che appare nella linguetta del browser -->
@@ -392,51 +393,60 @@
         <section class="horizontal-scroll-container" id="pref">
           <h2 class="scroll-title">Preferiti</h2>
           <div class="horizontal" data-grid="pref"></div>
+          <% } %>
+
+            <!-- Sezione per le playlist dell'utente -->
+            <% if (user) { %>
+              <section class="horizontal-scroll-container" id="my-playlists-section">
+                <h2 class="scroll-title">Le tue Playlist</h2>
+                <div class="horizontal" data-grid="my-playlists"></div>
+              </section>
+              <% } %>
         </section>
-        <% } %>
-    </section>
 
 
 
-    <!-- =================================================================
+        <!-- =================================================================
        FOOTER - Piè di pagina del sito con informazioni, link e contatti.
        ================================================================== -->
-    <footer class="site-footer">
-      <div class="footer-container">
-        <div class="footer-column">
-          <h4>Informazioni</h4>
-          <p>La nostra azienda si impegna a fornire i migliori servizi dal 2025. I nostri servizi si basano
-            sull'intratteminemto multimediale, all'interno della piattaforma sei in grado di ascoltare suoni
-            rilassanti e
-            musica mentre studi in completa tranquillità.</p>
-        </div>
-        <div class="footer-column">
-          <h4>Link Rapidi</h4>
-          <ul>
-            <li><a href="/about#about">Chi Siamo</a></li>
-            <li><a href="/about#servizi">Servizi</a></li>
-            <li><a href="/about#contatti">Contatti</a></li>
-          </ul>
-        </div>
-        <div class="footer-column">
-          <h4>Contatti</h4>
-          <p>Email: info@abcd.com</p>
-          <p>Tel: +39 0123 456789</p>
-          <p>Via Roma 123, Milano</p>
-        </div>
-        <div class="footer-column">
-          <h4>Seguici</h4>
-          <div class="social-icons">
-            <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-            <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <footer class="site-footer">
+          <div class="footer-container">
+            <div class="footer-column">
+              <h4>Informazioni</h4>
+              <p>La nostra azienda si impegna a fornire i migliori servizi dal 2025. I nostri servizi si basano
+                sull'intratteminemto multimediale, all'interno della piattaforma sei in grado di ascoltare suoni
+                rilassanti e
+                musica mentre studi in completa tranquillità.</p>
+            </div>
+            <div class="footer-column">
+              <h4>Link Rapidi</h4>
+              <ul>
+                <li><a href="/about#about">Chi Siamo</a></li>
+                <li><a href="/about#servizi">Servizi</a></li>
+                <li><a href="/about#contatti">Contatti</a></li>
+              </ul>
+            </div>
+            <div class="footer-column">
+              <h4>Contatti</h4>
+              <p>Email: info@abcd.com</p>
+              <p>Tel: +39 0123 456789</p>
+              <p>Via Roma 123, Milano</p>
+            </div>
+            <div class="footer-column">
+              <h4>Seguici</h4>
+              <div class="social-icons">
+                <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>© 2025 Soundlly. Tutti i diritti riservati.</p>
-      </div>
-    </footer>
+          <div class="footer-bottom">
+            <p>© 2025 Soundlly. Tutti i diritti riservati.</p>
+          </div>
+        </footer>
+
+
   </div> <!-- End of #standard-view -->
 
   <!-- Music Player Bar -->
@@ -474,6 +484,48 @@
     </div>
   </div>
 
+  <!-- Playlist Creation Modal (Moved to root for better positioning) -->
+  <div class="modal fade" id="createPlaylistModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content glass-modal">
+        <div class="modal-header border-0">
+          <h5 class="modal-title">Crea Nuova Playlist</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="createPlaylistForm">
+            <div class="row">
+              <!-- Left Column: Details -->
+              <div class="col-md-5 border-end border-secondary pe-4">
+                <div class="mb-4">
+                  <label for="playlistName"
+                    class="form-label text-uppercase small text-muted font-weight-bold">Dettagli</label>
+                  <input type="text" class="form-control glass-input mb-3" id="playlistName" placeholder="Nome Playlist"
+                    required>
+                  <textarea class="form-control glass-input" id="playlistDesc" rows="4"
+                    placeholder="Descrizione (opzionale)"></textarea>
+                </div>
+              </div>
+
+              <!-- Right Column: Tracks -->
+              <div class="col-md-7 ps-4">
+                <label class="form-label text-uppercase small text-muted font-weight-bold mb-2">Seleziona Brani</label>
+                <div id="playlistTracksList" class="track-selection-list glass-list"
+                  style="height: 300px; max-height: 300px;">
+                  <div class="text-center text-muted pt-5">Caricamento brani...</div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+          <button type="button" class="btn btn-primary" id="confirmCreatePlaylist">Crea Playlist</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- =================================================================
        SCRIPT - Caricamento degli script JavaScript che gestiscono le funzionalità della pagina.
        L'attributo 'defer' assicura che vengano eseguiti dopo il parsing dell'HTML.
@@ -489,6 +541,8 @@
   <script src="/js/todo.js"></script>
 
   <script src="/js/player.js"></script>
+  <script src="/js/playlist-manager.js"></script>
+  <script src="/js/loadPlaylists.js"></script>
   <script src="/js/music-search.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
