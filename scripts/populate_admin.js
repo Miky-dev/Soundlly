@@ -24,7 +24,7 @@ async function ensureSchema() {
 }
 
 async function ensureAdminUser() {
-  await UserModel.createTableIfNotExists();
+
 
   // Cerchiamo utente 'Admin'
   let admin = await UserModel.findByUsername("Admin");
