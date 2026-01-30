@@ -86,7 +86,11 @@ router.post('/favorites/:id/toggle', async (req, res) => {
     }
 
     const userId = req.user.id;
-    const soundId = req.params.id;
+    const soundId = parseInt(req.params.id, 10); // Check type safety
+
+    if (isNaN(soundId)) {
+        return res.status(400).json({ error: 'ID non valido' });
+    }
 
     try {
         // Controlla se il like esiste già
@@ -103,7 +107,8 @@ router.post('/favorites/:id/toggle', async (req, res) => {
         }
     } catch (err) {
         console.error('Errore Toggle Favorite:', err);
-        res.status(500).json({ error: 'Operazione fallita' });
+        // Expose detailed error for easier debugging
+        res.status(500).json({ error: 'Operazione fallita', details: err.message });
     }
 });
 
