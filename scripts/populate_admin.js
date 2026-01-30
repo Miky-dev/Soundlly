@@ -106,12 +106,12 @@ async function ensureSound(adminId, sound) {
   );
   if (!row) {
     const res = await run(
-      `INSERT INTO sounds (title, description, filename, owner_id, media_type, access_level, is_restricted, duration_seconds, mood, category, genre_primary)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)` ,
+      `INSERT INTO sounds (title, description, filename, owner_id, media_type, access_level, is_restricted, duration_seconds, mood, category, genre_primary, icon)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)` ,
       [
         sound.title,
         sound.description || null,
-        sound.filename || 'placeholder.mp3', // Placeholder if null
+        sound.filename || 'placeholder.mp3',
         adminId,
         sound.media_type || "audio",
         sound.access_level || "public",
@@ -119,7 +119,8 @@ async function ensureSound(adminId, sound) {
         sound.duration_seconds || 0,
         sound.mood || null,
         sound.category || 'ambient',
-        sound.genre_primary || null
+        sound.genre_primary || null,
+        sound.icon || null // Icona opzionale, ma necessaria per 'music'
       ]
     );
     row = { id: res.lastID };
@@ -133,7 +134,8 @@ async function ensureSound(adminId, sound) {
               duration_seconds = ?,
               mood = ?,
               category = ?,
-              genre_primary = ?
+              genre_primary = ?,
+              icon = ?
         WHERE id = ?`,
       [
         sound.description || null,
@@ -143,6 +145,7 @@ async function ensureSound(adminId, sound) {
         sound.mood || null,
         sound.category || 'ambient',
         sound.genre_primary || null,
+        sound.icon || null,
         row.id,
       ]
     );
@@ -252,6 +255,7 @@ async function main() {
         restricted: false,
         duration_seconds: 1200,
         mood: "focus",
+        icon: "/immagini/logo.png" // Placeholder icon per soddisfare il vincolo DB
       },
       {
         title: "Ocean Waves Slow",
