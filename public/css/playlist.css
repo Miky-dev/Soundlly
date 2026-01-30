@@ -1,0 +1,51 @@
+/* -------------------------- Playlist Modal Styles ------------------------- */
+.glass-modal {
+    background: rgba(21, 32, 43, 0.95);
+    backdrop-filter: blur(10px);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.glass-input {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+}
+
+.glass-input:focus {
+    background: rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.3) !important;
+    border-color: var(--brand-1) !important;
+}
+
+.glass-list {
+    max-height: 300px;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Custom Scrollbar for the list */
+.glass-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.glass-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+.glass-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Responsive tweaks */
+@media (max-width: 576px) {
+    .glass-list {
+        max-height: 250px;
+        /* Slightly shorter on mobile */
+    }
+}
