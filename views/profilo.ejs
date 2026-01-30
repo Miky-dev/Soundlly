@@ -223,16 +223,7 @@
                                             <h5 class="text-white text-truncate">
                                                 <%= sound.title %>
                                             </h5>
-                                            <p class="text-white-50 small">
-                                                <% let seconds=sound.total_play_seconds || 0; let timeString="" ; if
-                                                    (seconds < 60) { timeString=seconds + " sec" ; } else if (seconds <
-                                                    3600) { timeString=Math.floor(seconds / 60) + " min" ; } else if
-                                                    (seconds < 86400) { timeString=(seconds / 3600).toFixed(1) + " ore"
-                                                    ; } else { timeString=(seconds / 86400).toFixed(1) + " giorni" ; }
-                                                    %>
-                                                    <i class="fa-solid fa-headphones"></i>
-                                                    <%= timeString %> ascoltati
-                                            </p>
+
                                             <p class="text-white-50 small">
                                                 <%= new Date(sound.created_at).toLocaleDateString('it-IT') %>
                                             </p>
