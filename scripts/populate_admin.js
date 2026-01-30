@@ -52,16 +52,13 @@ async function ensureAdminUser() {
     `UPDATE users
        SET password_hash = ?,
            role = 'admin',
-           plan = 'admin',  -- Assicurati che il piano sia 'admin'
+           plan = 'admin',
            status = 'active',
            display_name = ?,
-           
            date_of_birth = ?,
-           location_city = ?,
+           born_city = ?,
            location_country = ?,
-           allows_restricted = 1,
-           adult_verified_at = ?,
-           premium_until = ?
+           subscription_expiry = ?
      WHERE id = ?`,
     [
       await bcrypt.hash("admin123", 10),
@@ -69,8 +66,7 @@ async function ensureAdminUser() {
       formatDateOnly(birthDate),
       "Milano",
       "Italia",
-      formatDateTime(now),
-      null, // Se non hai bisogno di impostare questa data
+      null, // subscription_expiry
       admin.id,
     ]
   );
@@ -80,15 +76,13 @@ async function ensureAdminUser() {
     `UPDATE users
        SET password_hash = ?,
            role = 'admin',
-           plan = 'admin',  -- Assicurati che il piano sia 'admin'
+           plan = 'admin',
            status = 'active',
            display_name = ?,
            date_of_birth = ?,
-           location_city = ?,
+           born_city = ?,
            location_country = ?,
-           allows_restricted = 1,
-           adult_verified_at = ?,
-           premium_until = ?
+           subscription_expiry = ?
      WHERE id = ?`,
     [
       await bcrypt.hash("password123", 10),
@@ -96,8 +90,7 @@ async function ensureAdminUser() {
       formatDateOnly(birthDate),
       "Milano",
       "Italia",
-      formatDateTime(now),
-      null, // Se non hai bisogno di impostare questa data
+      null, // subscription_expiry
       secondAdmin.id,
     ]
   );
