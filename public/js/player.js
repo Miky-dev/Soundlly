@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         playPrev() {
-            // Se siamo oltre i 3 secondi, ricomincia da capo lo stesso brano (come Spotify)
+            // Se siamo oltre i 3 secondi, ricomincia da capo lo stesso brano 
             if (this.audio.currentTime > 3) {
                 this.audio.currentTime = 0;
                 return;

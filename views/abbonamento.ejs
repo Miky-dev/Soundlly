@@ -30,33 +30,19 @@
         </div>
 
         <div class="plans-container">
-            <!-- Free Plan -->
-            <div class="plan-card <%= (!user.plan || user.plan === 'free') ? 'active' : '' %>">
-                <h3>Base</h3>
-                <p class="plan-price">Gratis</p>
+            <div class="plan-card <%= (user.plan === 'standard') ? 'active' : '' %>">
+                <h3>Standard</h3>
+                <p class="plan-price"><span style="font-family: sans-serif;">€</span>Gratis</p>
                 <ul>
                     <li>Accesso catalogo base</li>
                     <li>Ascolto con pubblicità</li>
-                </ul>
-                <% if (!user.plan || user.plan==='free' ) { %>
-                    <button class="plan-btn" disabled>Piano Attuale</button>
-                    <% } else { %>
-                        <button class="plan-btn btn-outline" disabled>Incluso</button>
-                        <% } %>
-            </div>
-
-            <div class="plan-card <%= (user.plan === 'standard') ? 'active' : '' %>">
-                <h3>Standard</h3>
-                <p class="plan-price"><span style="font-family: sans-serif;">€</span>6.99</p>
-                <ul>
-                    <li>Privilegi dei precedenti</li>
                     <li>Immersive mode</li>
                     <li>Ascolto senza pubblicità</li>
                 </ul>
                 <% if (user.plan==='standard' ) { %>
                     <button class="plan-btn" disabled>Piano Attuale</button>
                     <% } else { %>
-                        <a href="/pagamento/standard" class="plan-btn">Abbonati</a>
+                        <button class="plan-btn" data-action="subscribe" data-plan="premium">Abbonati</button>
                         <button class="plan-btn" data-action="select-plan" data-plan="standard">Seleziona
                             Standard</button>
                         <% } %>
@@ -64,7 +50,7 @@
 
             <div class="plan-card <%= (user.plan === 'premium') ? 'active' : '' %>">
                 <h3>Premium</h3>
-                <p class="plan-price"><span style="font-family: sans-serif;">€</span>15.99</p>
+                <p class="plan-price"><span style="font-family: sans-serif;">€</span>5.99</p>
                 <ul>
                     <li>Privilegi dei precedenti</li>
                     <li>Audio DOLBY ATMOS</li>
@@ -75,9 +61,8 @@
                     <button class="plan-btn" disabled>Piano Attuale</button>
                     <% } else { %>
                         <button class="plan-btn" data-action="subscribe" data-plan="premium">Abbonati</button>
-                        <button class="plan-btn btn-outline" data-action="fast-track" data-plan="premium">Passa
-                            Velocemente
-                            (Sim)</button>
+                        <button class="plan-btn btn-outline" data-action="fast-track" data-plan="premium">Seleziona
+                            Premium</button>
                         <% } %>
             </div>
 

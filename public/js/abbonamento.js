@@ -17,7 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (action === 'close-modal') {
             closePaymentModal();
         } else if (action === 'pay') {
-            processPayment();
+            // Funzionalità disabilitata su richiesta
+            // processPayment(); 
         } else if (action === 'select-plan') {
             // Logic for just selecting (maybe highlighting) or handled by link
             console.log('Selected plan:', plan);
@@ -58,33 +59,5 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
-    function processPayment() {
-        // Simulate CC processing visual delay
-        const payBtn = modal.querySelector('button[data-action="pay"]');
-        const originalText = payBtn.textContent;
-
-        payBtn.textContent = 'Elaborazione...';
-        payBtn.disabled = true;
-
-        fetch('/api/abbonamento/upgrade', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                plan: selectedPlan,
-                method: 'cc',
-                paymentDetails: { cardNumber: '1234' } // Mock data
-            })
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Pagamento Riuscito! Benvenuto in ' + selectedPlan);
-                    location.reload();
-                } else {
-                    alert('Errore Pagamento: ' + data.message);
-                    payBtn.textContent = originalText;
-                    payBtn.disabled = false;
-                }
-            });
-    }
+    // function processPayment() { ... removed ... }
 });
