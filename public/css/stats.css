@@ -27,14 +27,11 @@ body {
 /* Page Title */
 .stats-container h1 {
     font-family: 'Michroma', sans-serif;
-    /* Matching Logo/Home headings */
     font-size: 2rem;
-    color: #fff;
     text-transform: uppercase;
-    letter-spacing: 1px;
     margin-bottom: 2rem !important;
     text-align: center;
-    background: linear-gradient(90deg, #fff, #aeb9c6);
+    background: linear-gradient(90deg, #fff, var(--brand-1));
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;

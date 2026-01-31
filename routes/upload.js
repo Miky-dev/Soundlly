@@ -118,9 +118,6 @@ router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.fie
             fs.renameSync(coverFile.path, coverTarget);
 
             coverPath = '/uploads/covers/' + coverFilename;
-        } else if (selectedCategory === 'music') {
-            // Default solo per musica se manca cover
-            coverPath = '/immagini/copertinaDef.png';
         }
 
         // 3. Estrazione Metadati (Durata)
@@ -135,7 +132,7 @@ router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.fie
         }
 
         // 4. Determina Icona/Cover
-        // Priorità: Cover Caricata > Icona Manuale (solo ambient) > Default
+        // Priorità: Cover Caricata > Icona Manuale (solo ambient) > Default (fa-music)
         let finalIcon = null;
 
         if (coverPath) {
@@ -143,7 +140,7 @@ router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.fie
         } else if (selectedCategory === 'ambient' && icon) {
             finalIcon = icon;
         } else {
-            finalIcon = '/immagini/usericon.png';
+            finalIcon = 'fa-music';
         }
 
         // 5. Salvataggio su DB

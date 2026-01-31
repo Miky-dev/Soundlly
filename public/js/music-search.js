@@ -136,7 +136,7 @@ class MusicManager {
         card.dataset.soundId = item.id; // Utile per trovare duplicati nel DOM
 
         // Background
-        const bgUrl = (item.icon && item.icon.includes('/')) ? item.icon : '/immagini/usericon.png';
+        const bgUrl = (item.icon && item.icon.includes('/')) ? item.icon : '/immagini/copertinaDef.png';
         card.style.background = `linear-gradient(to bottom, transparent, rgba(0,0,0,0.2)), url('${bgUrl}') center/cover no-repeat`;
 
         const isLoggedIn = !!this.currentUser;

@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (this.artistEl) this.artistEl.textContent = item.author || 'Sconosciuto';
 
             // Imposta Immagine di Copertina (o default)
-            const bgUrl = (item.icon && item.icon.includes('/')) ? item.icon : '/immagini/usericon.png';
+            const bgUrl = (item.icon && item.icon.includes('/')) ? item.icon : '/immagini/copertinaDef.png';
             if (this.coverImg) this.coverImg.src = bgUrl;
 
             // Risolve il percorso del file audio tramite API Streaming Sicura

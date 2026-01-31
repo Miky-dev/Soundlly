@@ -149,6 +149,16 @@ La homepage è una SPA (Single Page Application) ibrida che integra navigazione 
 - Caricamento dinamico da API REST `/api/sounds`.
 - Filtraggio per categorie (Premium, Ultime Uscite, Community).
 
+#### 4. **Sezione "Ultime Uscite"**
+Requisiti per l'inclusione dei brani nella home:
+- **Categoria**: Deve essere `music` o `sound`.
+- **Visibilità**:
+    - `public`: Visibile a tutti.
+    - `registered`: Visibile solo se l'utente è loggato.
+    - I contenuti `premium` sono **esclusi** da questa lista.
+- **Ordinamento**: Decrescente per data di creazione (i più recenti in alto).
+- **Limite**: Mostra solo gli ultimi 10 brani.
+
 ---
 
 ## Tecnologie

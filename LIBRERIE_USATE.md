@@ -24,3 +24,15 @@ Queste librerie sono utili solo durante la fase di scrittura del codice e non so
 | Libreria | Descrizione |
 | :--- | :--- |
 | **nodemon** | Uno strumento che monitora i file del progetto. Ogni volta che viene salvata una modifica al codice (`Ctrl+S`), nodemon riavvia automaticamente il server, velocizzando notevolmente il ciclo di sviluppo ed evitando di dover fermare e riavviare il processo manualmente. |
+
+## Librerie Frontend (CDN)
+| Libreria | Descrizione |
+| :--- | :--- |
+| **Bootstrap** | Framework CSS per il layout responsivo e componenti UI (es. navbar, cards). |
+| **Font Awesome** | Libreria di icone vettoriali utilizzata per le icone dell'interfaccia (es. `fa-cloud`, `fa-heart`). |
+| **Page.js** | Router lato client per gestire la navigazione senza ricaricare la pagina (SPA feel). |
+
+## Risorse Esterne
+| Risorsa | Descrizione |
+| :--- | :--- |
+| **UIverse.io** | Fonte di ispirazione e codice per alcuni elementi UI/CSS avanzati (bottoni, card, loader, animazione modalità responsive). |
