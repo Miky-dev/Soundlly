@@ -1,7 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    let selectedPlan = '';
-    const modal = document.getElementById('payment-modal');
-
     // Event Delegation for Buttons
     document.body.addEventListener('click', (e) => {
         const target = e.target;
@@ -10,39 +7,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!action) return; // Not an action button
 
-        if (action === 'subscribe') {
-            openPaymentModal(plan);
-        } else if (action === 'fast-track') {
-            fastTrack(plan);
-        } else if (action === 'close-modal') {
-            closePaymentModal();
-        } else if (action === 'pay') {
-            // Funzionalità disabilitata su richiesta
-            // processPayment(); 
-        } else if (action === 'select-plan') {
-            // Logic for just selecting (maybe highlighting) or handled by link
-            console.log('Selected plan:', plan);
+        // Unify actions: both 'subscribe', 'fast-track', and 'select-plan' now just do the simulated upgrade
+        if (action === 'subscribe' || action === 'fast-track' || action === 'select-plan') {
             fastTrack(plan);
         }
     });
-
-    // Close modal if clicked outside
-    window.addEventListener('click', (event) => {
-        if (event.target == modal) {
-            closePaymentModal();
-        }
-    });
-
-    function openPaymentModal(plan) {
-        selectedPlan = plan;
-        modal.style.display = 'flex';
-    }
-
-    function closePaymentModal() {
-        modal.style.display = 'none';
-    }
 
     function fastTrack(plan) {
+        if (!plan) return;
+
+        // Visual feedback
+        const feedback = document.getElementById('feedback-message');
+        if (feedback) feedback.textContent = 'Elaborazione in corso...';
+
         fetch('/api/abbonamento/upgrade', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -55,9 +32,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     location.reload();
                 } else {
                     alert('Errore: ' + data.message);
+                    if (feedback) feedback.textContent = '';
                 }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Errore di connessione');
+                if (feedback) feedback.textContent = '';
             });
     }
-
-    // function processPayment() { ... removed ... }
 });
