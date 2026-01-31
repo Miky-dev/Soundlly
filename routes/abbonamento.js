@@ -4,11 +4,11 @@ const { run } = require('../db/sqlite');
 const { ensureAuthenticated } = require('../middleware/auth');
 
 /*
- * POST /api/subscription/upgrade
+ * POST /api/abbonamento/upgrade
  * Gestisce l'upgrade del piano utente (premium, creator, ecc.).
  * Simula un processo di pagamento.
  */
-router.post('/api/subscription/upgrade', ensureAuthenticated, async (req, res) => {
+router.post('/api/abbonamento/upgrade', ensureAuthenticated, async (req, res) => {
     try {
         const { plan, method, paymentDetails } = req.body;
 

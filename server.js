@@ -64,7 +64,7 @@ function checkCsrf(req, res) {
 }
 
 // Routes
-app.use(require('./routes/subscription'));
+app.use(require('./routes/abbonamento'));
 
 // Pre-generate CSRF token for static pages
 app.get(['/login.html', '/register.html'], (req, res, next) => {
