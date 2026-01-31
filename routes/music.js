@@ -119,12 +119,12 @@ router.get('/favorites', async (req, res) => {
 
         // Join con la tabella sound_likes per ottenere solo i brani "piaciuti"
         const sql = `
-            SELECT s.id, s.title, s.description, s.filename, s.icon, s.category, u.username as author
+            SELECT s.id, s.title, s.description, s.filename, s.icon, s.category, u.username as author, 1 as is_liked
             FROM sounds s
             JOIN sound_likes sl ON s.id = sl.sound_id
             LEFT JOIN users u ON s.owner_id = u.id
             WHERE sl.user_id = ?
-    ORDER BY sl.created_at DESC
+            ORDER BY sl.created_at DESC
             LIMIT 20
     `;
         const results = await all(sql, [req.user.id]);

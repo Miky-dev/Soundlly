@@ -221,15 +221,19 @@ class MusicManager {
                 }
             });
 
-            // Se siamo nella sezione "Preferiti" e ho rimosso il like, rimuovi la card
-            const myCard = btn.closest('.card');
-            const parentSection = myCard.closest('.horizontal');
-            if (parentSection && parentSection.dataset.grid === 'pref' && !data.liked) {
-                myCard.remove();
-                if (parentSection.children.length === 0) {
-                    parentSection.innerHTML = '<p style="color:white; padding:1rem;">Nessun preferito.</p>';
+            // Se abbiamo rimosso il like, rimuoviamo la card dalla sezione Preferiti (ovunque sia stato cliccato il cuore)
+            if (!data.liked) {
+                const favoritesContainer = document.querySelector('.horizontal[data-grid="pref"]');
+                if (favoritesContainer) {
+                    const cardToRemove = favoritesContainer.querySelector(`.card[data-sound-id="${item.id}"]`);
+                    if (cardToRemove) {
+                        cardToRemove.remove();
+                        if (favoritesContainer.children.length === 0) {
+                            favoritesContainer.innerHTML = '<p style="color:white; padding:1rem;">Nessun preferito.</p>';
+                        }
+                    }
                 }
-            } else if (data.liked) {
+            } else {
                 // Se ho aggiunto un like, ricarica la lista preferiti per mostrarlo
                 this.loadSection('/api/music/favorites', '.horizontal[data-grid="pref"]', 'Nessun preferito.');
             }
