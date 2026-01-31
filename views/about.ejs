@@ -140,32 +140,7 @@
                         <p><strong>Ufficio</strong>: Vercelli, IT</p>
                     </div>
 
-                    <form id="contact-form" method="post" action="/api/contact" novalidate>
-                        <input type="hidden" name="_csrf" id="contact-csrf"
-                            value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-                        <div class="row">
-                            <div>
-                                <label for="name">Nome</label>
-                                <input id="name" name="name" autocomplete="name" required>
-                            </div>
-                            <div>
-                                <label for="email">Email</label>
-                                <input id="email" name="email" type="email" autocomplete="email" required>
-                            </div>
-                        </div>
-                        <div class="mt">
-                            <label for="subject">Oggetto</label>
-                            <input id="subject" name="subject" required>
-                        </div>
-                        <div class="mt">
-                            <label for="message">Messaggio</label>
-                            <textarea id="message" name="message" required></textarea>
-                        </div>
-                        <div class="actions-inline">
-                            <button class="btn" type="submit">Invia</button>
-                            <span id="contact-status" class="muted"></span>
-                        </div>
-                    </form>
+
                 </div>
             </div>
         </section>
