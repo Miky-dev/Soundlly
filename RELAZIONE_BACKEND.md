@@ -26,6 +26,17 @@ Il progetto segue un'architettura **MVC (Model-View-Controller)** adattata, sepa
 *   **`/migrations`**: Script SQL per la definizione e il versionamento dello schema del database (es. `init-v3.sql`).
 *   **`/auth`**: Configurazione della strategia di autenticazione con Passport.
 
+### 2.1 Scelte Progettuali: Pattern DAO Ibrido
+Per l'accesso ai dati, il progetto adotta un approccio **ibrido e pragmatico** invece del classico pattern DAO (Data Access Object) puro.
+
+*   **Modelli per Core Logic**: Per entità critiche e riutilizzabili (come `User`), è stato utilizzato un approccio simil-DAO (vedi `UserModel.js`). Questo incapsula query ripetitive (es. `findByUsername`, `create`) e logica di sicurezza (hashing password) in una classe dedicata.
+*   **Direct SQL per Flessibilità**: Per operazioni specifiche e non ricorrenti (es. aggiornamento piano abbonamento in `routes/abbonamento.js` o gestione file in `routes/admin.js`), le query SQL sono scritte direttamente nei controller.
+
+**Motivazioni (KISS Principle):**
+1.  **Semplicità**: Evita la creazione di decine di file DAO con singole funzioni wrapper che aumenterebbero solo la complessità senza aggiungere valore reale per le dimensioni attuali del progetto.
+2.  **Chiarezza**: Avere la query SQL vicina alla logica di business (nella rotta) rende più immediata la comprensione di cosa sta accadendo, senza dover saltare tra file diversi.
+3.  **Performance**: Si evita l'overhead di astrazioni ORM pesanti, mantenendo il pieno controllo sull'SQL eseguito.
+
 ---
 
 ## 3. Database (SQLite)

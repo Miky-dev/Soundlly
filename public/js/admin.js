@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // --- SEARCH FUNCTIONALITY ---
+  // Filtro ricerca live
   const searchInput = document.getElementById('adminSearch');
   if (searchInput) {
     searchInput.addEventListener('keyup', function () {
@@ -10,15 +10,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const rows = activeTab.querySelectorAll('tbody tr');
       rows.forEach(row => {
         const text = row.innerText.toLowerCase();
-        if (text.includes(searchText)) {
-          row.style.display = '';
-        } else {
-          row.style.display = 'none';
-        }
+        // Mostra/nascondi in base al testo
+        row.style.display = text.includes(searchText) ? '' : 'none';
       });
     });
 
-    // Re-apply search when switching tabs
+    // Se cambio tab, riapplico il filtro corrente
     document.querySelectorAll('button[data-bs-toggle="pill"]').forEach(tab => {
       tab.addEventListener('shown.bs.tab', () => {
         searchInput.dispatchEvent(new Event('keyup'));
@@ -26,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- ADD SOUND ---
+  // Form aggiunta nuovo suono
   const addSoundForm = document.getElementById('addSoundForm');
   if (addSoundForm) {
     addSoundForm.addEventListener('submit', async (e) => {
@@ -49,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- CUSTOM DELETE MODAL LOGIC ---
+  // Gestione modale eliminazione
   let deleteTargetId = null;
   let isBulkDelete = false;
 
@@ -62,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const selectedCountSpan = document.getElementById('selectedCount');
   const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
 
-  // --- BULK SELECTION LOGIC ---
+  // Aggiorna UI selezione multipla
   const updateBulkUI = () => {
     const checked = document.querySelectorAll('.select-item:checked');
     const count = checked.length;
@@ -77,16 +74,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // Individual checkboxes
+  // Listener checkbox singoli
   document.addEventListener('change', (e) => {
     if (e.target.classList.contains('select-item')) {
       updateBulkUI();
     }
   });
 
-  // --- MODAL & DELETE LOGIC ---
-
-  // Open Modal for Single Delete
+  // Apertura modale per eliminazione singola
   document.querySelectorAll('.btn-delete').forEach(btn => {
     btn.addEventListener('click', () => {
       deleteTargetId = btn.dataset.id;
@@ -96,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Open Modal for Bulk Delete
+  // Apertura modale per eliminazione di gruppo
   if (bulkDeleteBtn) {
     bulkDeleteBtn.addEventListener('click', () => {
       const count = document.querySelectorAll('.select-item:checked').length;
@@ -109,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Close Modal
+  // Chiudo la modale
   if (cancelBtn) {
     cancelBtn.addEventListener('click', () => {
       deleteTargetId = null;
@@ -118,12 +113,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Confirm Delete (Handles both Single and Bulk)
+  // Conferma eliminazione (gestisce sia singola che multipla)
   if (confirmBtn) {
     confirmBtn.addEventListener('click', async () => {
       try {
         if (isBulkDelete) {
-          // BULK DELETE
+          // Eliminazione di massa
           const checkboxes = document.querySelectorAll('.select-item:checked');
           const ids = Array.from(checkboxes).map(cb => cb.value);
 
@@ -137,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
           else alert('Errore Bulk: ' + data.error);
 
         } else {
-          // SINGLE DELETE
+          // Eliminazione singola
           if (!deleteTargetId) return;
           const res = await fetch(`/admin/sounds/${deleteTargetId}`, { method: 'DELETE' });
           const data = await res.json();
@@ -151,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Close on outside click
+  // Chiudo se clicco fuori
   if (deleteModal) {
     deleteModal.addEventListener('click', (e) => {
       if (e.target === deleteModal) {
@@ -161,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 
-  // --- EDIT ---
+  // Gestione modifica inline
   document.querySelectorAll('.btn-edit').forEach(btn => {
     btn.addEventListener('click', () => {
       const row = btn.closest('tr');
