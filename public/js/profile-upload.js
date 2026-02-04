@@ -1,6 +1,4 @@
 /**
- * profile-upload.js
- * 
  * Gestisce il caricamento dell'immagine profilo (avatar) tramite drag & drop o selezione file.
  * 
  * Funzionalità principali:

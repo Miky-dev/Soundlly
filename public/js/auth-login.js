@@ -1,6 +1,4 @@
 /**
- * auth-login.js
- * 
  * Qui gestisco tutto quello che succede nella pagina di login e registrazione.
  * Mi occupo di switchare tra i due form, validare i dati inseriti dall'utente
  * (come età, password, ecc.) e mostrare eventuali errori se qualcosa non va.

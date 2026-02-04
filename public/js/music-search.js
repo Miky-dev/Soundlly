@@ -1,6 +1,4 @@
 /**
- * music-search.js
- * 
  * Si occupa di caricare tutte le sezioni musicali (Novità, Premium, Community, ...),
  * gestire la barra di ricerca in tempo reale e generare le "card" dei brani
  * con i relativi pulsanti di play e 'mi piace'.

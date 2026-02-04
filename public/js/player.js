@@ -1,31 +1,28 @@
 // public/js/player.js
 
 /**
- * Gestione Player Musicale
- * Questo script controlla la barra di riproduzione fissa in basso nella pagina.
+ * player.js
  * 
- * Funzionalità:
- * 1. Gestione riproduzione audio (Play, Pausa, Volume, Seek).
- * 2. Aggiornamento interfaccia (Titolo, Autore, Cover, Barra progressi).
- * 3. Supporto per diverse sorgenti audio (Musica vs Ambient).
+ * Gestisce tutto l'audio (play, pausa, volume, avanzamento) e aggiorna l'interfaccia
+ * con il titolo del brano, l'autore e la copertina.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Assicura che esista il namespace globale Soundlly
+    // Mi assicuro che la "scatola" globale Soundlly esista, per poterci mettere dentro il player dopo
     window.Soundlly = window.Soundlly || {};
 
     class MusicPlayer {
         constructor() {
-            // Elemento audio HTML5 nativo (invisibile)
+            // Creo l'elemento audio invisibile che farà tutto il lavoro sporco
             this.audio = new Audio();
 
-            // Elementi UI del Player
+            // Mi salvo tutti i riferimenti ai tasti e alle scritte del player
             this.playerBar = document.getElementById('music-player-bar');
             this.coverImg = document.getElementById('player-cover-img');
             this.titleEl = document.getElementById('player-title');
             this.artistEl = document.getElementById('player-artist');
 
-            // Controlli
+            // I bottoni di controllo
             this.playBtn = document.getElementById('player-play-btn');
             this.playIcon = this.playBtn ? this.playBtn.querySelector('i') : null;
             this.prevBtn = document.getElementById('player-prev-btn');
@@ -34,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
             this.volumeSlider = document.getElementById('player-volume-slider');
             this.volumeIcon = document.getElementById('volume-icon');
 
-            // Barra di Progresso
+            // La barra che mostra a che punto siamo del brano
             this.progressFill = document.getElementById('player-progress-fill');
             this.currentTimeEl = document.getElementById('player-current-time');
             this.totalTimeEl = document.getElementById('player-total-time');
@@ -42,12 +39,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             this.isPlaying = false;
 
-            // Inizializza gli eventi se il player esiste nella pagina
+            // Se il player c'è nella pagina (potrebbe non esserci in alcune viste), attivo tutto
             if (this.playBtn) this.initEvents();
         }
 
         initEvents() {
-            // Pulsante Chiudi Player
+            // Tasto "X" per chiudere il player
             if (this.closeBtn) {
                 this.closeBtn.onclick = (e) => {
                     e.stopPropagation();
@@ -55,20 +52,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
             }
 
-            // Slider Volume
+            // Slider del Volume
             if (this.volumeSlider) {
                 this.volumeSlider.addEventListener('input', (e) => {
                     this.audio.volume = e.target.value;
-                    this.updateVolumeIcon();
+                    this.updateVolumeIcon(); // Cambio l'icona se metti mute o volume basso
                 });
             }
 
-            // Toggle Play/Pausa
+            // Play / Pausa
             if (this.playBtn) {
                 this.playBtn.addEventListener('click', () => this.togglePlay());
             }
 
-            // Next / Prev
+            // Avanti / Indietro
             if (this.prevBtn) {
                 this.prevBtn.addEventListener('click', () => this.playPrev());
             }
@@ -76,17 +73,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.nextBtn.addEventListener('click', () => this.playNext());
             }
 
+            // La coda di riproduzione: qui ci metto i brani che l'utente vuole ascoltare
             this.queue = [];
             this.currentIndex = -1;
 
-            // Eventi nativi dell'oggetto Audio
-            this.audio.addEventListener('timeupdate', () => this.updateProgress()); // Aggiorna barra mentre suona
+            // Ascolto cosa fa l'elemento audio vero e proprio
+            this.audio.addEventListener('timeupdate', () => this.updateProgress()); // Ogni secondo aggiorno la barra
             this.audio.addEventListener('loadedmetadata', () => {
-                // Appena caricato il brano, mostra la durata totale
+                // Appena il brano è pronto, scrivo quanto dura
                 if (this.totalTimeEl) this.totalTimeEl.textContent = this.formatTime(this.audio.duration);
             });
             this.audio.addEventListener('ended', () => {
-                // A fine brano, passa al successivo se esiste
+                // Finito un brano, passo al prossimo (se c'è), altrimenti mi fermo
                 if (this.currentIndex < this.queue.length - 1) {
                     this.playQueue(this.queue, this.currentIndex + 1);
                 } else {
@@ -95,20 +93,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // Click sulla barra di avanzamento (Seek)
+            // Se clicco sulla barra di progresso, salto a quel punto del brano
             if (this.progressBar) {
                 this.progressBar.addEventListener('click', (e) => {
                     const rect = this.progressBar.getBoundingClientRect();
                     const percent = (e.clientX - rect.left) / rect.width;
-                    this.audio.currentTime = percent * this.audio.duration; // Salta al punto cliccato
+                    this.audio.currentTime = percent * this.audio.duration;
                 });
             }
         }
 
         /**
-         * Riproduce una lista di tracce partendo da un indice specifico
-         * @param {Array} list - Lista di oggetti brano
-         * @param {Number} startIndex - Indice da cui partire
+         * Fa partire una lista di canzoni
+         * @param {Array} list - L'elenco dei brani
+         * @param {Number} startIndex - Da quale numero iniziare (default: il primo)
          */
         playQueue(list, startIndex = 0) {
             this.queue = list;
@@ -118,48 +116,46 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         /**
-         * Riproduce una traccia specifica
-         * @param {Object} item - Oggetto contenente i metadati del brano (title, author, icon, filename, category)
+         * Suona una traccia specifica
+         * @param {Object} item - I dati del brano (titolo, autore, file, ecc.)
          */
         playTrack(item) {
-            // Se la coda è vuota o l'item non corrisponde all'attuale (chiamata diretta legacy), resetta coda
+            // Se mi arriva un brano singolo e diverso da quello attuale, resetto la coda
             if (this.queue.length === 0 || (this.queue[this.currentIndex] && this.queue[this.currentIndex].id !== item.id)) {
                 this.queue = [item];
                 this.currentIndex = 0;
             }
 
-            // Mostra il player se era nascosto
+            // Tiro su il sipario: mostro il player
             if (this.playerBar) this.playerBar.classList.add('active');
 
-            // Aggiorna testi
+            // Aggiorna le scritte
             if (this.titleEl) this.titleEl.textContent = item.title;
             if (this.artistEl) this.artistEl.textContent = item.author || 'Sconosciuto';
 
-            // Imposta Immagine di Copertina (o default)
+            // Metto la copertina giusta (o quella di default se manca)
             const bgUrl = (item.icon && item.icon.includes('/')) ? item.icon : '/immagini/copertinaDef.png';
             if (this.coverImg) this.coverImg.src = bgUrl;
 
-            // Risolve il percorso del file audio tramite API Streaming Sicura
-            // Non usiamo più percorsi statici /audio/..., ma l'endpoint /api/stream/track/:id
+            // Uso l'API di streaming per recuperare l'audio, così è più sicuro e veloce
             let src = `/api/stream/track/${item.id}`;
 
-            // Gestione Play
+            // Se sto già suonando questo brano, faccio solo un resume
             if (this.audio.src.includes(src)) {
-                // Se è lo stesso brano, riprendi se in pausa
                 if (this.audio.paused) {
                     this.audio.play();
                     this.isPlaying = true;
                 }
             } else {
-                // Nuovo brano: carica e riproduci
+                // Altrimenti carico il nuovo file audio
                 this.audio.src = src;
                 this.audio.play().then(() => {
                     this.isPlaying = true;
                     this.updatePlayBtnState();
 
                 }).catch(e => {
-                    console.error("Errore riproduzione audio:", e);
-                    // alert("Impossibile riprodurre questo brano."); // Silent fail preferibile per auto-play
+                    console.error("Non riesco a suonare:", e);
+                    // Non mostro alert per non disturbare l'utente, magari è solo un glitch momentaneo
                 });
             }
 
@@ -173,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         playPrev() {
-            // Se siamo oltre i 3 secondi, ricomincia da capo lo stesso brano 
+            // Se sono passati più di 3 secondi, torno all'inizio della canzone invece che a quella prima
             if (this.audio.currentTime > 3) {
                 this.audio.currentTime = 0;
                 return;
@@ -188,12 +184,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (this.audio.paused) {
                 this.audio.play();
                 this.isPlaying = true;
-                // Riparte heartbeat se abbiamo l'ID corrente (salvato in this.currentSoundId)
-
             } else {
                 this.audio.pause();
                 this.isPlaying = false;
-
             }
             this.updatePlayBtnState();
         }
@@ -201,14 +194,13 @@ document.addEventListener('DOMContentLoaded', () => {
         closePlayer() {
             this.audio.pause();
             this.isPlaying = false;
-
             this.updatePlayBtnState();
-            if (this.playerBar) this.playerBar.classList.remove('active'); // Nascondi UI
+
+            // Nascondo tutto
+            if (this.playerBar) this.playerBar.classList.remove('active');
         }
 
-
-
-        // Cambia l'icona Play/Pause
+        // Cambio l'icona da Play a Pausa e viceversa
         updatePlayBtnState() {
             if (!this.playIcon) return;
             if (this.isPlaying) {
@@ -220,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Aggiorna la barra di progresso e il tempo corrente
+        // Muovo la barra blu mentre la canzone va avanti
         updateProgress() {
             if (!this.audio.duration) return;
 
@@ -230,18 +222,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (this.currentTimeEl) this.currentTimeEl.textContent = this.formatTime(this.audio.currentTime);
         }
 
-        // Utility: millisecondi -> MM:SS
+        // Trasformo i secondi in "minuti:secondi" (es. 125s -> 02:05)
         formatTime(seconds) {
             const min = Math.floor(seconds / 60);
             const sec = Math.floor(seconds % 60);
             return `${min}:${sec < 10 ? '0' + sec : sec}`;
         }
 
-        // Aggiorna l'icona del volume (mute, basso, alto)
+        // Aggiorno l'icona dell'altoparlante in base al volume
         updateVolumeIcon() {
             if (!this.volumeIcon) return;
             const vol = this.audio.volume;
-            this.volumeIcon.className = ''; // Reset classi
+            this.volumeIcon.className = ''; // Pulisco le classi vecchie
 
             if (vol === 0) {
                 this.volumeIcon.className = 'fa-solid fa-volume-xmark';
@@ -253,6 +245,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Istanzia il player e lo rende globale per essere chiamato da altri script (es. playTrack)
+    // Rendo il player accessibile ovunque scrivendo "window.Soundlly.player"
     window.Soundlly.player = new MusicPlayer();
 });

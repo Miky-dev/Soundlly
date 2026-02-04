@@ -1,6 +1,4 @@
 /**
- * immersive-controls.js
- * 
  * Qui controllo le funzionalità della "Immersive Mode", quella schermata pensata
  * per il focus totale. Gestisco l'orologio in alto e il pulsante per 
  * entrare/uscire dallo schermo intero.

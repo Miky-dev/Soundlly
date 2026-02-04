@@ -1,6 +1,4 @@
 /**
- * loadSounds.js
- * 
  * Questo script gestisce tutta la sezione dei "Suoni Ambientali".
  * Si occupa di scaricare la lista dei suoni dal server, costruire le card
  * nell'interfaccia, gestire la riproduzione audio, il volume e salvare
