@@ -3,25 +3,24 @@ const router = express.Router();
 const { all } = require('../db/sqlite');
 
 /**
- * ROUTES/SEARCH.JS
- * 
- * Gestione API di ricerca globale nel sito.
+ * Gestione delle ricerche
+ * API per la ricerca globale di brani, suoni ambientali e creators all'interno della piattaforma.
  */
 
-// GET /api/search?q=query
+// Esegue una ricerca testuale (titolo, descrizione, autore, ecc.)
 router.get('/', async (req, res) => {
     try {
         const query = req.query.q || '';
-        // Evita ricerche vuote
+        // Se la query è vuota, restituiamo un array vuoto per evitare carico inutile
         if (!query.trim()) {
             return res.json([]);
         }
 
-        // Preparazione pattern per ricerca SQL LIKE parziale
+        // Prepariamo il pattern per la ricerca parziale (wildcard)
         const searchTerm = `%${query}%`;
 
-        // Cerca suoni che corrispondono per Titolo, Descrizione o Nome Autore
-        // Solo contenuti pubblici
+        // Eseguiamo la query cercando corrispondenze in titolo, descrizione, mood o nome autore
+        // Mostriamo solo contenuti pubblici o premium (se l'utente ha accesso)
         const sql = `
             SELECT s.id, s.title, s.description, s.filename, s.icon, s.category, u.username as author
             FROM sounds s
@@ -35,8 +34,8 @@ router.get('/', async (req, res) => {
         const results = await all(sql, [searchTerm, searchTerm, searchTerm, searchTerm, searchTerm]);
         res.json(results);
     } catch (err) {
-        console.error('Errore ricerca:', err);
-        res.status(500).json({ error: 'Ricerca fallita' });
+        console.error('Errore durante la ricerca:', err);
+        res.status(500).json({ error: 'Si è verificato un errore durante la ricerca' });
     }
 });
 

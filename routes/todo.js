@@ -2,21 +2,18 @@ const express = require('express');
 const router = express.Router();
 const { run, all, get } = require('../db/sqlite');
 
-// Middleware di autenticazione locale per questo router
+// Middleware di autenticazione specifico per le API (restituisce JSON 401 invece di redirect)
 function ensureAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
         return next();
     }
-    res.status(401).json({ error: 'Unauthorized' });
+    res.status(401).json({ error: 'Non autorizzato' });
 }
 
 // Applica il middleware a tutte le route di questo file
 router.use(ensureAuthenticated);
 
-/**
- * GET /api/todos
- * Restituisce tutte le attività dell'utente corrente, ordinate per creazione.
- */
+// Recupera la lista delle attività (To-Do) dell'utente, ordinate per data di creazione
 router.get('/', async (req, res) => {
     try {
         const tasks = await all('SELECT * FROM todos WHERE user_id = ? ORDER BY created_at ASC', [req.user.id]);
@@ -31,10 +28,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-/**
- * POST /api/todos
- * Aggiunge una nuova attività per l'utente.
- */
+// Aggiunge una nuova attività alla lista
 router.post('/', async (req, res) => {
     try {
         const { text } = req.body;
@@ -56,10 +50,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-/**
- * PUT /api/todos/:id
- * Aggiorna lo stato di completamento di un'attività.
- */
+// Aggiorna lo stato di completamento di un'attività (spuntata/non spuntata)
 router.put('/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -78,10 +69,7 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-/**
- * DELETE /api/todos/completed
- * Elimina tutte le attività completate dell'utente (Bulk Delete).
- */
+// Elimina tutte le attività completate (pulizia liste)
 router.delete('/completed', async (req, res) => {
     try {
         await run('DELETE FROM todos WHERE user_id = ? AND is_done = 1', [req.user.id]);
@@ -92,10 +80,7 @@ router.delete('/completed', async (req, res) => {
     }
 });
 
-/**
- * DELETE /api/todos/:id
- * Elimina una singola attività specificata dall'ID.
- */
+// Elimina una singola attività tramite il suo ID
 router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;

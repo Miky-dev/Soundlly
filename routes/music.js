@@ -3,17 +3,15 @@ const router = express.Router();
 const { all, run, get } = require('../db/sqlite');
 
 /**
- * ROUTES/MUSIC.JS
- * 
- * Gestione delle tracce musicali.
- * Fornisce API per recuperare diverse categorie di musica e gestire i "Mi piace".
+ * Gestione delle tracce musicali
+ * Fornisce le API per recuperare le diverse categorie di musica e gestire i preferiti.
  */
 
-// Helper per ottenere ID utente sicuro (null se non loggato)
+// Utility per ottenere l'ID utente (restituisce null se non autenticato)
 const getUserId = (req) => req.user ? req.user.id : null;
 
-// Query Base:
-// Seleziona i dettagli della canzone e aggiunge un flag 'is_liked' se l'utente corrente ha messo like.
+// Query Base per il recupero delle informazioni sui brani
+// Include i dettagli della traccia e un flag 'is_liked' per l'utente corrente
 const MUSIC_QUERY = `
     SELECT s.id, s.title, s.description, s.filename, s.icon, s.category, u.username as author, s.owner_id, u.role as owner_role,
     CASE WHEN sl.user_id IS NOT NULL THEN 1 ELSE 0 END as is_liked
@@ -22,7 +20,7 @@ const MUSIC_QUERY = `
     LEFT JOIN sound_likes sl ON s.id = sl.sound_id AND sl.user_id = ?
     `;
 
-// GET /api/music/latest - Ultime uscite musicali (Pubbliche)
+// Recupera le ultime uscite musicali (accesso pubblico o registrato)
 router.get('/latest', async (req, res) => {
     try {
         const userId = getUserId(req);
@@ -40,7 +38,7 @@ router.get('/latest', async (req, res) => {
     }
 });
 
-// GET /api/music/premium - Musica Riservata (Premium)
+// Recupera la musica riservata agli utenti Premium
 router.get('/premium', async (req, res) => {
     try {
         const userId = getUserId(req);
@@ -58,7 +56,7 @@ router.get('/premium', async (req, res) => {
     }
 });
 
-// GET /api/music/creators - Suoni Ambientali creati dagli utenti (Community)
+// Recupera i suoni ambientali creati dalla community (Creators)
 router.get('/creators', async (req, res) => {
     try {
         const userId = getUserId(req);
@@ -77,16 +75,16 @@ router.get('/creators', async (req, res) => {
 });
 
 
-// --- GESTIONE PREFERITI (LIKES) ---
+// Gestione dei "Mi piace" (Aggiunta/Rimozione preferiti)
 
-// POST /api/music/favorites/:id/toggle - Aggiunge/Rimuove dai preferiti
+// Toggle like su un brano specifico
 router.post('/favorites/:id/toggle', async (req, res) => {
     if (!req.isAuthenticated()) {
         return res.status(401).json({ error: 'Devi essere loggato' });
     }
 
     const userId = req.user.id;
-    const soundId = parseInt(req.params.id, 10); // Check type safety
+    const soundId = parseInt(req.params.id, 10);
 
     if (isNaN(soundId)) {
         return res.status(400).json({ error: 'ID non valido' });
@@ -107,12 +105,11 @@ router.post('/favorites/:id/toggle', async (req, res) => {
         }
     } catch (err) {
         console.error('Errore Toggle Favorite:', err);
-        // Expose detailed error for easier debugging
         res.status(500).json({ error: 'Operazione fallita', details: err.message });
     }
 });
 
-// GET /api/music/favorites - Lista dei brani preferiti dall'utente
+// Recupera la lista dei brani preferiti dall'utente
 router.get('/favorites', async (req, res) => {
     try {
         if (!req.isAuthenticated()) return res.json([]);

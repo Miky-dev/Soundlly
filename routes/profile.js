@@ -7,21 +7,15 @@ const { run, all, get } = require('../db/sqlite');
 const { ensureAuthenticated } = require('../middleware/auth');
 
 /**
- * ROUTES/PROFILE.JS
- * 
- * Gestione del profilo utente pubblico e privato.
- * 
- * Funzionalità:
- * 1. Upload Avatar: Configurazione Multer per caricamento immagini profilo.
- * 2. CSRF Protection: Token di sicurezza per prevenire attacchi sui form.
- * 3. Visualizzazione: Rendering pagina profilo con dati utente e statistiche.
- * 4. Aggiornamento: Modifica dati anagrafici e preferenze.
+ * Gestione del profilo utente
+ * Gestisce la visualizzazione, la modifica dei dati personali e l'upload dell'avatar.
+ * Include anche la sicurezza CSRF per i form sensibili.
  */
 
-// --- CONFIGURAZIONE UPLOAD (Multer) ---
+// Configurazione di Multer per la gestione degli upload (avatar)
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        // Cartella destinazione avatar
+        // I file vengono salvati nella cartella pubblica dedicata
         cb(null, 'public/uploads/avatars/');
     },
     filename: function (req, file, cb) {
@@ -31,11 +25,11 @@ const storage = multer.diskStorage({
     }
 });
 
-// Filtri e limiti upload
+// Configura i filtri (solo immagini) e i limiti di dimensione (5MB)
 const upload = multer({
     storage: storage,
     fileFilter: (req, file, cb) => {
-        // Accetta solo immagini
+        // Accettiamo solo formati immagine standard
         const filetypes = /jpeg|jpg|png/;
         const mimetype = filetypes.test(file.mimetype);
         const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
@@ -47,9 +41,9 @@ const upload = multer({
     limits: { fileSize: 5 * 1024 * 1024 } // Limite 5MB
 });
 
-// --- HELPER SICUREZZA CSRF ---
+// Gestione della sicurezza CSRF (Cross-Site Request Forgery)
 
-// Genera un token CSRF se non esiste nella sessione
+// Genera o recupera il token CSRF dalla sessione
 function ensureCsrfToken(req) {
     if (!req.session) return null;
     if (!req.session.csrfToken) {
@@ -73,10 +67,10 @@ function checkCsrf(req, res) {
 
 // --- ROTTE ---
 
-// GET /profilo - Visualizza pagina profilo
+// Visualizza la pagina del profilo personale
 router.get('/', ensureAuthenticated, async (req, res) => {
     try {
-        // Recupera dati freschi dal DB (per avere aggiornamenti immediati post-modifica)
+        // Recuperiamo i dati utente freschi dal DB per riflettere eventuali modifiche recenti
         const user = await get('SELECT * FROM users WHERE id = ?', [req.user.id]);
 
         if (!user) {
@@ -94,34 +88,33 @@ router.get('/', ensureAuthenticated, async (req, res) => {
             success: req.query.success
         });
     } catch (err) {
-        console.error("Errore Caricamento Profilo:", err);
+        console.error("Errore nel caricamento del profilo:", err);
         res.redirect('/home?error=profile_load');
     }
 });
 
-// POST /profilo/update - Aggiorna dati utente
-// Gestisce sia campi testo che file upload ('avatar')
+// Aggiorna le informazioni del profilo e l'avatar
 router.post('/update', ensureAuthenticated, upload.single('avatar'), async (req, res) => {
-    // Controllo CSRF (Nota: Multer parsa il body prima di questo check, rendendo req.body disponibile)
+    // Verifica CSRF (il body è disponibile grazie a multer che lo ha già parsato)
     if (!checkCsrf(req, res)) return res.status(403).send('CSRF token mancante o non valido');
 
     try {
         const { display_name, bio, born_city, location_country, date_of_birth } = req.body;
-        let avatar_url = req.body.avatar_url; // Usa URL esistente se non cambia file
+        let avatar_url = req.body.avatar_url; // Mantiene l'avatar corrente se non ne viene caricato uno nuovo
 
         if (req.file) {
-            // Se c'è un nuovo file, aggiorna il percorso
+            // Aggiorna il percorso se è stato caricato un nuovo file
             avatar_url = '/uploads/avatars/' + req.file.filename;
         }
 
-        // update DB - Mappiamo born_city direttamente
+        // Eseguiamo l'update nel database mapping i campi corrispettivi
         await run(
             `UPDATE users SET display_name=?, bio=?, avatar_url=?, born_city=?, location_country=?, date_of_birth=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`,
             [display_name, bio, avatar_url, born_city, location_country, date_of_birth, req.user.id]
         );
         res.redirect('/profilo?success=updated');
     } catch (err) {
-        console.error("Errore Aggiornamento Profilo:", err);
+        console.error("Errore durante l'aggiornamento del profilo:", err);
         res.redirect('/profilo?error=update_failed&message=' + encodeURIComponent(err.message));
     }
 });

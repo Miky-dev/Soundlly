@@ -10,8 +10,8 @@ const getUserRole = (req) => req.user ? req.user.role : null;
 const getUserPlan = (req) => req.user ? req.user.plan : 'standard';
 
 /**
- * GET /api/stream/track/:id
- * Endpoint unico per lo streaming sicuro di musica e suoni ambientali.
+ * Gestione dello streaming audio
+ * Endpoint sicuro per la riproduzione di musica e suoni ambientali con supporto Range headers.
  */
 router.get('/track/:id', async (req, res) => {
     try {
@@ -20,7 +20,7 @@ router.get('/track/:id', async (req, res) => {
         const userRole = getUserRole(req);
         const userPlan = getUserPlan(req);
 
-        // 1. Recupera metadati del suono dal DB
+        // Recuperiamo i metadati del suono dal database
         const sound = await get(
             `SELECT * FROM sounds WHERE id = ?`,
             [soundId]
@@ -30,11 +30,9 @@ router.get('/track/:id', async (req, res) => {
             return res.status(404).send('File non trovato');
         }
 
-        // 2. Controllo Accesso (Privacy & Ruoli)
+        // Controllo Accesso (Privacy & Ruoli)
 
-
-
-        // Caso B: Access Level "Premium" -> Solo Premium o Admin
+        // Accesso riservato ai contenuti Premium (o Admin)
         if (sound.access_level === 'premium') {
             const isPremium = userPlan === 'premium' || userPlan === 'admin' || userRole === 'admin';
             if (!isPremium) {
@@ -42,33 +40,32 @@ router.get('/track/:id', async (req, res) => {
             }
         }
 
-        // Caso C: Access Level "Registered" -> Solo Utenti Loggati
+        // Accesso riservato agli utenti registrati
         if (sound.access_level === 'registered') {
             if (!userId) {
                 return res.status(401).send('Accesso negato: effettuare il login');
             }
         }
 
-        // Caso D: Access Level "Public" -> Tutti (nessun check)
+        // Accesso Pubblico: nessun controllo necessario (fallback)
 
-
-        // 3. Determinazione Percorso File
+        // Determinazione del percorso file in base alla categoria
         // Mappatura Category -> Directory in 'storage'
         let folder = 'ambient'; // default fallback
 
         if (sound.category === 'music') {
             folder = 'musiche';
         } else if (sound.category === 'sound') {
-            // New user effects category -> 'suoni' folder
+            // Categoria effetti sonori utente -> cartella 'suoni'
             folder = 'suoni';
         } else if (sound.category === 'ambient') {
-            // System ambient sounds -> 'ambient' folder
+            // Suoni ambientali di sistema -> cartella 'ambient'
             folder = 'ambient';
         }
 
         const filePath = path.join(__dirname, '..', 'storage', folder, sound.filename);
 
-        // 4. Streaming del File
+        // Streaming del file con supporto per il resume (Range requests)
         if (!fs.existsSync(filePath)) {
             console.error(`File fisico mancante: ${filePath}`);
             return res.status(404).send('File audio non trovato sul server');

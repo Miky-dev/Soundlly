@@ -4,9 +4,9 @@ const { get, all, run } = require('../db/sqlite');
 const { ensureAuthenticated } = require('../middleware/auth');
 
 /**
- * Funzione Helper: getStartDates
- * Calcola l'inizio del giorno, della settimana (lunedì) e del mese corrente.
- * Restituisce le date in formato compatibile con SQLite (YYYY-MM-DD HH:MM:SS)
+ * Helper per il calcolo delle date
+ * Determina l'inizio del giorno, della settimana (lunedì) e del mese corrente.
+ * Restituisce le date formattate per SQLite (YYYY-MM-DD HH:MM:SS)
  */
 const getStartDates = () => {
     const now = new Date();
@@ -30,24 +30,20 @@ const getStartDates = () => {
     return { startOfDay, startOfWeek, startOfMonth };
 };
 
-/*
- * GET /stats
- * Renderizza la pagina delle statistiche utente.
- * Recupera obiettivi, sessioni completate, task e grafici settimanali.
- */
+// Recupera le statistiche utente: obiettivi, sessioni completate, task e grafici
 router.get('/', ensureAuthenticated, async (req, res) => {
     try {
         const userId = req.user.id;
         const { startOfDay, startOfWeek, startOfMonth } = getStartDates();
 
-        // 0. Assicura che l'utente abbia degli obiettivi impostati
+        // Verifica e inizializza gli obiettivi dell'utente se non esistono
         let userGoals = await get(`SELECT * FROM user_goals WHERE user_id = ?`, [userId]);
         if (!userGoals) {
             await run(`INSERT INTO user_goals (user_id) VALUES (?)`, [userId]);
             userGoals = { daily_focus_goal: 60, weekly_focus_goal: 300, monthly_focus_goal: 1200 };
         }
 
-        // 1. Statistiche Sessioni Focus Totali
+        // Calcolo delle statistiche totali delle sessioni di focus
         const focusStats = await get(
             `SELECT 
              SUM(completed_minutes) as totalMinutes, 
@@ -57,7 +53,7 @@ router.get('/', ensureAuthenticated, async (req, res) => {
             [userId]
         );
 
-        // 1b. Progresso (Oggi, Settimana, Mese)
+        // Calcolo del progresso temporale (Oggi, Settimana, Mese)
         const progressStats = await get(
             `SELECT 
                 SUM(CASE WHEN started_at >= ? THEN completed_minutes ELSE 0 END) as todayMinutes,
@@ -68,11 +64,11 @@ router.get('/', ensureAuthenticated, async (req, res) => {
             [startOfDay, startOfWeek, startOfMonth, userId]
         );
 
-        // 2. Statistiche To-Do
+        // Statistiche dei Task (To-Do) completati e in sospeso
         const todoCompleted = await get(`SELECT COUNT(*) as count FROM todos WHERE user_id = ? AND is_done = 1`, [userId]);
         const todoPending = await get(`SELECT COUNT(*) as count FROM todos WHERE user_id = ? AND is_done = 0`, [userId]);
 
-        // 3. Suoni Ambientali più ascoltati (Top 5)
+        // Recupera la top 5 dei suoni ambientali più ascoltati
         const topSounds = await all(
             `SELECT s.title, a.sound_id, a.total_seconds, a.last_listened_at 
                  FROM ambient_listening_stats a
@@ -83,7 +79,7 @@ router.get('/', ensureAuthenticated, async (req, res) => {
             [userId]
         );
 
-        // 4. Sessioni Recenti (Ultime 5)
+        // Recupera le ultime 5 sessioni di focus svolte
         const recentSessions = await all(
             `SELECT started_at, session_type, completed_minutes, status 
                  FROM focus_sessions 
@@ -93,7 +89,7 @@ router.get('/', ensureAuthenticated, async (req, res) => {
             [userId]
         );
 
-        // 5. Dati Grafico Settimanale (Ultimi 7 Giorni)
+        // Preparazione dati per il grafico dell'attività settimanale (ultimi 7 giorni)
         const chartLabels = [];
         const today = new Date();
 
@@ -156,10 +152,7 @@ router.get('/', ensureAuthenticated, async (req, res) => {
     }
 });
 
-/*
- * POST /stats/goals
- * Aggiorna gli obiettivi di tempo (giornaliero, settimanale, mensile) dell'utente.
- */
+// Aggiorna gli obiettivi di tempo dell'utente (giornaliero, settimanale, mensile)
 router.post('/goals', ensureAuthenticated, async (req, res) => {
     try {
         const userId = req.user.id;

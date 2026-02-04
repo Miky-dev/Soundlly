@@ -1,4 +1,3 @@
-// ROUTES/ADMIN.JS
 
 const express = require('express');
 const router = express.Router();
@@ -9,11 +8,11 @@ const { ensureAuthenticated, ensureAdmin } = require('../middleware/auth');
 const { run, all, get } = require('../db/sqlite');
 
 /**
- * ROUTES/ADMIN.JS
- * Gestione pannello di amministrazione.
+ * Gestione del pannello di amministrazione
+ * Permette agli admin di gestire suoni, utenti e configurazioni.
  */
 
-// --- Configurazione Multer ---
+// Configurazione di Multer per l'upload dei file audio nella cartella 'ambient'
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const dir = path.join(__dirname, '..', 'storage', 'ambient');
@@ -35,20 +34,19 @@ router.use(ensureAuthenticated, ensureAdmin);
 // GET /admin
 router.get('/', async (req, res) => {
     try {
-        // Base query for sounds with owner information
+        // Query base per recuperare i suoni includendo il nome del proprietario
         const baseSoundQuery = `
             SELECT s.*, u.username as owner_name 
             FROM sounds s 
             LEFT JOIN users u ON s.owner_id = u.id
         `;
 
-        // 1. Suoni di Sistema (Admin)
-        // Usa LEFT JOIN per includere anche suoni senza owner (legacy) considerandoli di sistema
+        // 1. Suoni di Sistema: caricati dagli admin o file legacy senza proprietario
         const systemSounds = await all(`${baseSoundQuery}
             WHERE s.category = 'ambient' AND (u.role = 'admin' OR s.owner_id IS NULL)
         `);
 
-        // 2. Suoni Utenti (Non Admin) -> Ora 'sound'
+        // 2. Suoni degli Utenti: suoni ambientali caricati dalla community
         const userAmbientSounds = await all(`
             SELECT s.*, u.username as owner_name 
             FROM sounds s 
@@ -56,7 +54,7 @@ router.get('/', async (req, res) => {
             WHERE s.category = 'sound'
         `);
 
-        // 3. Canzoni Utenti
+        // 3. Brani Musicali: canzoni caricate dagli artisti
         const userSongs = await all(`
             SELECT s.*, u.username as owner_name 
             FROM sounds s 
@@ -134,15 +132,12 @@ router.delete('/sounds/:id', async (req, res) => {
 
             let filePath = path.join(__dirname, '..', 'storage', folder, sound.filename);
 
-            console.log(`[DELETE DEBUG] ID: ${req.params.id} | Cat: ${sound.category} | Path: ${filePath}`);
-
             if (fs.existsSync(filePath)) {
                 try {
                     fs.unlinkSync(filePath);
-                    console.log(`[DELETE DEBUG] File deleted successfully: ${filePath}`);
-                } catch (e) { console.error('[DELETE DEBUG] Error unlink:', e); }
-            } else {
-                console.log(`[DELETE DEBUG] File NOT FOUND on disk, skipping delete.`);
+                } catch (e) {
+                    console.error(`Errore durante l'eliminazione del file ${filePath}:`, e);
+                }
             }
         }
         await run(`DELETE FROM sounds WHERE id=?`, [req.params.id]);
@@ -170,15 +165,12 @@ router.post('/api/bulk-delete', async (req, res) => {
 
                 let filePath = path.join(__dirname, '..', 'storage', folder, sound.filename);
 
-                console.log(`[BULK DELETE] ID: ${sound.id} | Cat: ${sound.category} | Path: ${filePath}`);
-
                 if (fs.existsSync(filePath)) {
                     try {
                         fs.unlinkSync(filePath);
-                        console.log(`[BULK DELETE] Deleted: ${filePath}`);
-                    } catch (e) { console.error('[BULK DELETE] Error:', e); }
-                } else {
-                    console.log(`[BULK DELETE] File not found: ${filePath}`);
+                    } catch (e) {
+                        console.error(`Errore durante l'eliminazione del file ${filePath}:`, e);
+                    }
                 }
             }
         }

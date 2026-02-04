@@ -4,22 +4,21 @@ const { run, get, all } = require('../db/sqlite');
 const { ensureAuthenticated } = require('../middleware/auth');
 
 /**
- * ROUTES/FOCUS.JS
+ * Gestione della sezione "Focus"
+ * Include le API per il Timer (Pomodoro) e i Suoni Ambientali.
  * 
- * API per la gestione della sezione "Focus" (Timer e Suoni).
- * 
- * Funzionalità:
- * 1. Impostazioni Timer: Lettura e salvataggio preferenze utente (tempo Pomodoro/Pausa).
- * 2. Sessioni di Studio: Tracciamento inizio/fine sessioni per le statistiche.
- * 3. Suoni Ambientali: Gestione preferenze audio (volume, on/off) e statistiche di ascolto.
+ * Funzionalità principali:
+ * - Salvataggio preferenze timer (durata sessioni e pause).
+ * - Tracciamento delle sessioni di studio per le statistiche.
+ * - Gestione dei suoni ambientali (volume, attivazione e statistiche).
  */
 
 // --- GESTIONE IMPOSTAZIONI TIMER ---
 
-// GET /api/focus/settings - Recupera configurazione timer
+// Restituisce la configurazione del timer (default o personalizzata)
 router.get('/settings', async (req, res) => {
     try {
-        // Valori di default per utenti non loggati (Guest)
+        // Valori di default
         const MODES = {
             pomodoro: { minutes: 25 },
             shortBreak: { minutes: 5 }
@@ -32,7 +31,7 @@ router.get('/settings', async (req, res) => {
             });
         }
 
-        // Recupera impostazioni personalizzate dal DB per utenti loggati
+        // Recupera le impostazioni salvate dell'utente
         const userId = req.user.id;
         const row = await get(`SELECT focus_minutes, short_break_minutes FROM users WHERE id=?`, [userId]);
 
@@ -41,7 +40,7 @@ router.get('/settings', async (req, res) => {
             shortBreak: row?.short_break_minutes || MODES.shortBreak.minutes
         });
     } catch (err) {
-        console.error('Errore recupero settings', err);
+        console.error('Errore nel recupero delle impostazioni focus:', err);
         res.status(500).json({ error: 'failed' });
     }
 });
@@ -67,19 +66,19 @@ router.post('/settings', ensureAuthenticated, async (req, res) => {
 
 // --- GESTIONE SESSIONI (TRACKING) ---
 
-// POST /api/focus/start - Inizia una nuova sessione
+// Avvia una nuova sessione di focus
 router.post('/start', ensureAuthenticated, async (req, res) => {
     try {
         const userId = req.user.id;
         const { session_type = 'pomodoro', planned_minutes = 25 } = req.body || {};
 
-        // Crea record sessione con stato 'in_progress'
+        // Creiamo una nuova sessione con stato 'in_progress'
         const result = await run(
             `INSERT INTO focus_sessions (user_id, session_type, planned_minutes, status)
              VALUES (?, ?, ?, 'in_progress')`,
             [userId, session_type, Math.max(1, +planned_minutes || 25)]
         );
-        // Restituisce ID sessione al frontend
+
         return res.json({ ok: true, session_id: result.lastID });
     } catch (err) {
         console.error('Errore avvio sessione:', err);
@@ -87,7 +86,7 @@ router.post('/start', ensureAuthenticated, async (req, res) => {
     }
 });
 
-// POST /api/focus/stop - Termina sessione
+// Termina una sessione (completata o interrotta)
 router.post('/stop', ensureAuthenticated, async (req, res) => {
     try {
         const userId = req.user.id;
@@ -95,13 +94,13 @@ router.post('/stop', ensureAuthenticated, async (req, res) => {
 
         if (!session_id) return res.status(400).json({ error: 'session_id_required' });
 
-        // Verifica che la sessione appartenga all'utente
+        // Verifica proprietà della sessione
         const row = await get(`SELECT id FROM focus_sessions WHERE id=? AND user_id=?`, [session_id, userId]);
         if (!row) {
             return res.status(404).json({ error: 'session_not_found' });
         }
 
-        // Aggiorna lo stato finale (completed, interrupted, abandoned)
+        // Determina lo stato finale
         const validStatuses = ['in_progress', 'completed', 'interrupted', 'abandoned'];
         const finalStatus = validStatuses.includes(status) ? status : 'completed';
 
@@ -112,7 +111,7 @@ router.post('/stop', ensureAuthenticated, async (req, res) => {
             [completed_minutes, finalStatus, session_id]
         );
 
-        // Calcola statistiche aggiornate per il widget in tempo reale
+        // Calcola statistiche giornaliere aggiornate
         const now = new Date();
         const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString().replace('T', ' ').split('.')[0];
 
@@ -193,7 +192,7 @@ router.post('/ambient/stats', ensureAuthenticated, async (req, res) => {
 });
 
 
-// GET /api/focus/ambient-list - Lista suoni disponibili (creati dagli Admin)
+// Recupera la lista dei suoni ambientali disponibili
 router.get('/ambient-list', async (req, res) => {
     try {
         const sounds = await all(`
@@ -202,11 +201,12 @@ router.get('/ambient-list', async (req, res) => {
             LEFT JOIN users u ON s.owner_id = u.id 
             WHERE s.category = 'ambient'
         `);
-        // folder default is 'ambient' logic handled later if needed, but here simple response is usually expected by loadSounds.js
+
+        // Assegna la cartella di default se non presente
         const mapped = sounds.map(s => ({ ...s, folder: s.folder || 'ambient' }));
         res.json(mapped);
     } catch (err) {
-        console.error('Ambient List Error:', err);
+        console.error('Errore nel recupero lista suoni ambientali:', err);
         res.status(500).json({ error: 'Errore recupero lista suoni' });
     }
 });

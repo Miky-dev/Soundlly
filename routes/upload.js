@@ -8,7 +8,7 @@ const fs = require('fs');
 const { ensureAuthenticated } = require('../middleware/auth');
 const { run } = require('../db/sqlite');
 
-// --- Configurazione Multer (Upload File) ---
+// Configurazione Multer per la gestione temporanea dei file upload
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         // Cartella temporanea iniziale
@@ -32,10 +32,7 @@ const ensureCreatorOrAdmin = (req, res, next) => {
     res.redirect('/abbonamento');
 };
 
-/**
- * GET /upload
- * Mostra il form di caricamento file.
- */
+// Mostra il form di caricamento file (solo per Creator e Admin)
 router.get('/', ensureAuthenticated, ensureCreatorOrAdmin, (req, res) => {
     res.render('upload', {
         user: req.user,
@@ -45,11 +42,8 @@ router.get('/', ensureAuthenticated, ensureCreatorOrAdmin, (req, res) => {
     });
 });
 
-/**
- * POST /api/upload
- * Gestisce l'upload effettivo del file audio e della copertina.
- * Sposta i file nelle cartelle definitive, estrae i metadati e salva nel DB.
- */
+// Gestisce l'upload effettivo del file audio e della copertina.
+// Sposta i file nelle cartelle definitive, estrae i metadati e salva nel DB.
 router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.fields([{ name: 'audio', maxCount: 1 }, { name: 'cover', maxCount: 1 }]), async (req, res) => {
     const renderWithMsg = (msg, type = 'danger') => {
         res.render('upload', {
@@ -75,12 +69,8 @@ router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.fie
         const validCategories = ['ambient', 'music'];
         const selectedCategory = validCategories.includes(category) ? category : 'ambient';
 
-        // 1. Gestione File Audio
-        // Determina cartella target in base alla categoria
-        // Determines Category and Folder
-        // User/Creator uploads: 
-        // - Music -> category='music', folder='musiche'
-        // - Ambient -> category='effect', folder='suoni' (Separation from System Ambient)
+        // Gestione del file audio e determinazione della cartella di destinazione
+        // Le musiche vanno in 'musiche', gli effetti sonori in 'suoni'
 
         let finalCategory = selectedCategory;
         let targetDirName = '';
@@ -88,15 +78,12 @@ router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.fie
         if (selectedCategory === 'music') {
             targetDirName = 'musiche';
         } else {
-            // It was 'ambient' in the form
-            // If user is Admin, they might want to upload real 'ambient', but this form is generic.
-            // For now, let's assume 'upload.js' is the Creator/User interface.
-            // Admins use 'admin.js' for system sounds.
-            // So IF an admin uses this form, it's treated as a user upload (sound).
+            // Se non è musica, lo trattiamo come suono/effetto sonoro
+            // (Anche se è un admin a caricare, usiamo la cartella 'suoni' per coerenza in questo form)
             finalCategory = 'sound';
             targetDirName = 'suoni';
         }
-        // NEW: Secure Storage Path
+        // Assicuriamoci che la cartella di destinazione esista
         const targetDir = path.join(__dirname, '..', 'storage', targetDirName);
         if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
 
@@ -106,7 +93,7 @@ router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.fie
         // Sposta file da temp a target
         fs.renameSync(audioFile.path, targetPath);
 
-        // 2. Gestione Copertina (Universale per Musica e Suoni)
+        // Gestione della copertina (opzionale)
         let coverPath = null;
         if (coverFiles && coverFiles.length > 0) {
             const coverFile = coverFiles[0];
@@ -120,7 +107,7 @@ router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.fie
             coverPath = '/uploads/covers/' + coverFilename;
         }
 
-        // 3. Estrazione Metadati (Durata)
+        // Estrazione metadati (Durata) dal file audio
         let duration = 0;
         try {
             const metadata = await mm.parseFile(targetPath);
@@ -131,8 +118,8 @@ router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.fie
             console.error('Errore estrazione metadati:', e);
         }
 
-        // 4. Determina Icona/Cover
-        // Priorità: Cover Caricata > Icona Manuale (solo ambient) > Default (fa-music)
+        // Determinazione dell'icona o copertina da visualizzare
+        // Priorità: Copertina caricata > Icona preselezionata (ambient) > Icona default
         let finalIcon = null;
 
         if (coverPath) {
@@ -143,8 +130,7 @@ router.post('/api/upload', ensureAuthenticated, ensureCreatorOrAdmin, upload.fie
             finalIcon = 'fa-music';
         }
 
-        // 5. Salvataggio su DB
-        console.log('Upload Debug:', { title, category: selectedCategory, coverFiles: coverFiles ? coverFiles.length : 0, coverPath, finalIcon });
+        // Salvataggio dei dati nel database
 
         await run(
             `INSERT INTO sounds (

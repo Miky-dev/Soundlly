@@ -3,44 +3,38 @@ const router = express.Router();
 const { run } = require('../db/sqlite');
 const { ensureAuthenticated } = require('../middleware/auth');
 
-/*
- * POST /api/abbonamento/upgrade
- * Gestisce l'upgrade del piano utente (premium, creator, ecc.).
- * Simula un processo di pagamento.
- */
+// Gestione upgrade del piano utente (premium, creator, ecc.)
 router.post('/api/abbonamento/upgrade', ensureAuthenticated, async (req, res) => {
     try {
         const { plan, method, paymentDetails } = req.body;
 
-        // Validazione Piano
+        // Verifica che il piano richiesto sia valido
         if (!['premium', 'creator', 'standard'].includes(plan)) {
             return res.status(400).json({ success: false, message: 'Piano non valido.' });
         }
 
-        // Simulazione Processo Pagamento
+        // Gestione metodo di pagamento (attualmente simulato per carte di credito)
         if (method === 'cc') {
-            // Qui andrebbe integrato un gateway reale (Stripe, PayPal)
             if (!paymentDetails || !paymentDetails.cardNumber) {
                 return res.status(400).json({ success: false, message: 'Dati di pagamento mancanti.' });
             }
-            // Delay finto per simulare rete
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            // In un sistema reale qui avverrebbe la chiamata a Stripe/PayPal
         }
 
-        // Aggiornamento Utente nel Database
+        // Aggiorniamo i permessi dell'utente nel DB
         if (plan === 'creator') {
-            // Il piano creator potrebbe essere gestito come un Ruolo
+            // "Creator" è gestito come un ruolo specifico nell'architettura attuale
             await run(`UPDATE users SET role = 'creator' WHERE id = ?`, [req.user.id]);
         } else {
-            // Aggiorna il campo piano
+            // Gli altri livelli (es. Premium) sono gestiti tramite il campo 'plan'
             await run(`UPDATE users SET plan = ? WHERE id = ?`, [plan, req.user.id]);
         }
 
         return res.json({ success: true, message: `Upgrade a ${plan} completato!` });
 
     } catch (error) {
-        console.error('Subscription Error:', error);
-        return res.status(500).json({ success: false, message: 'Errore durante l\'aggiornamento del piano.' });
+        console.error('Errore durante l\'upgrade dell\'abbonamento:', error);
+        return res.status(500).json({ success: false, message: 'Si è verificato un errore durante l\'aggiornamento.' });
     }
 });
 
