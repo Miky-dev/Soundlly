@@ -1,34 +1,32 @@
 /**
  * loadSounds.js
- * Gestisce la sezione "Suoni Ambientali" (Box 4).
  * 
- * Funzionalità principali:
- * 1. Caricamento Dati: Recupera la lista dei suoni e le preferenze utente dal server.
- * 2. Creazione Interfaccia: Genera dinamicamente la griglia di card con icone e slider del volume.
- * 3. Gestione Audio: Riproduzione in loop dei suoni, gestione del volume indipendente per ogni traccia.
- * 4. Persistenza: Salva su database quali suoni sono attivi e il loro volume (Debounce).
- * 5. Statistiche: Traccia per quanti secondi ogni suono viene ascoltato e invia i dati al server.
+ * Questo script gestisce tutta la sezione dei "Suoni Ambientali".
+ * Si occupa di scaricare la lista dei suoni dal server, costruire le card
+ * nell'interfaccia, gestire la riproduzione audio, il volume e salvare
+ * le preferenze dell'utente (quali suoni sono attivi e a che volume).
+ * Inoltre, tiene traccia di quanto tempo ogni suono viene ascoltato.
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
     const container = document.getElementById('sounds-container');
 
-    // Stato globale dell'applicazione
-    let sounds = [];             // Lista dei suoni disponibili
-    const audioPlayers = {};     // Mappa degli oggetti Audio HTML5: { soundId: AudioObject }
-    const sessionStats = {};     // Accumulatore locale per le statistiche: { soundId: seconds }
+    // Qui tengo traccia di tutto quello che succede
+    let sounds = [];             // La lista completa dei suoni
+    const audioPlayers = {};     // I player audio veri e propri (uno per suono)
+    const sessionStats = {};     // Conta i secondi di ascolto per le statistiche
 
-    // Configurazioni intervalli
-    const STATS_INTERVAL_MS = 10000; // Invia statistiche al server ogni 10 secondi
-    const COUNT_INTERVAL_MS = 1000;  // Aggiorna il contatore locale ogni secondo
+    // Ogni quanto inviare i dati al server
+    const STATS_INTERVAL_MS = 10000; // Invio le statistiche ogni 10 secondi
+    const COUNT_INTERVAL_MS = 1000;  // Aggiorno il conteggio locale ogni secondo
 
-    // Modalità "Headless": utile se siamo in una vista dove non c'è il contenitore grafico (es. Immersive Mode)
-    // ma vogliamo comunque mantenere l'audio attivo.
+    // Se non trovo il contenitore (es. sono nell'immersive mode), 
+    // l'interfaccia è "invisibile" ma l'audio deve funzionare lo stesso.
     const isHeadless = !container;
 
     try {
-        // --- 1. RECUPERO DATI ---
-        // Eseguiamo due chiamate parallele: lista suoni totali e preferenze salvate dell'utente
+        // --- RECUPERO DATI ---
+        // Scarico contemporaneamente la lista dei suoni e le preferenze salvate dell'utente
         const [soundsRes, prefsRes] = await Promise.all([
             fetch('/api/focus/ambient-list'),
             fetch('/api/focus/ambient')
@@ -37,9 +35,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!soundsRes.ok) throw new Error('Impossibile caricare la lista dei suoni');
 
         sounds = await soundsRes.json();
-        const prefs = await prefsRes.json(); // Array di oggetti { sound_id, volume, is_active }
+        const prefs = await prefsRes.json();
 
-        // Convertiamo le preferenze in una mappa per accesso rapido
+        // Mi creo una mappa veloce per trovare le preferenze di ogni suono senza dover cercare nell'array ogni volta
         const prefsMap = {};
         if (Array.isArray(prefs)) {
             prefs.forEach(p => {
@@ -47,29 +45,31 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
-        // Controllo se stiamo navigando internamente nel sito per mantenere lo stato audio
+        // Controllo se l'utente sta navigando tra le pagine del sito.
+        // Se sì, mantengo l'audio attivo tra una pagina e l'altra.
         const isNavigating = sessionStorage.getItem('soundlly_navigating') === 'true';
         if (isNavigating) {
-            sessionStorage.removeItem('soundlly_navigating'); // Pulizia flag
+            sessionStorage.removeItem('soundlly_navigating'); // Pulisco il flag, l'ho usato
         }
 
-        // BUG FIX: Sincronizzazione "Partenza Silenziosa"
-        // Se l'utente ricarica la pagina (F5), vogliamo che i suoni partano spenti per non disturbare.
-        // Dobbiamo resettare lo stato attivo nel database per coerenza con l'interfaccia.
+        // FIX: Se ricarico la pagina (F5), voglio silenzio.
+        // Se non sto navigando ma ci sono suoni che risultano "attivi" nel database,
+        // li resetto per evitare incoerenze (audio spento ma tasto "acceso").
         if (!isNavigating && Array.isArray(prefs) && prefs.some(p => p.is_active)) {
             fetch('/api/focus/ambient/reset-active', { method: 'POST' })
-                .catch(e => console.error('Errore sincronizzazione silenziosa:', e));
+                .catch(e => console.error('Errore reset suoni:', e));
         }
 
-        // Renderizzazione o Inizializzazione Audio
+        // --- AVVIO ---
         if (!isHeadless) {
+            // Se c'è l'interfaccia, disegno la griglia
             renderGrid(prefsMap, isNavigating);
         } else {
-            // Se non c'è interfaccia (es. modalità immersive), inizializziamo solo l'audio
+            // Se non c'è interfaccia (es. modalità focus), faccio partire solo l'audio
             initHeadlessAudio(sounds, prefsMap, isNavigating);
         }
 
-        // Avvio del tracciamento statistiche di ascolto
+        // Faccio partire il sistema che conta i minuti di ascolto
         startStatsTracking();
 
     } catch (err) {
@@ -80,12 +80,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- FUNZIONI DI INIZIALIZZAZIONE ---
 
+    // Gestione audio senza interfaccia grafica
     function initHeadlessAudio(soundsList, prefsMap, isNavigating) {
-        if (!isNavigating) return; // Non riprodurre nulla se non è una navigazione interna
+        if (!isNavigating) return; // Se non stavo navigando, non devo far partire nulla da solo
 
         soundsList.forEach(sound => {
             const pref = prefsMap[sound.id];
-            // Riproduci solo se l'utente lo aveva lasciato attivo e stiamo navigando
+            // Riproduco solo se il suono era attivo prima del cambio pagina
             if (pref && pref.is_active) {
                 const savedVolume = pref.volume !== undefined ? pref.volume : 50;
                 playAudio(sound.id, sound.file, savedVolume);
@@ -93,8 +94,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // Disegno le card per ogni suono
     function renderGrid(prefsMap, isNavigating) {
-        // Creazione del contenitore griglia
         const grid = document.createElement('div');
         grid.className = 'vertical-grid sound-grid-2col';
 
@@ -104,35 +105,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         sounds.forEach(sound => {
-            // Recupera preferenze o usa default (volume 50, spento)
+            // Se non ho preferenze salvate, uso valori di default (metà volume, spento)
             const pref = prefsMap[sound.id] || { volume: 50, is_active: 0 };
 
-            // Logica persistenza:
-            // Se stiamo navigando -> mantieni stato attivo dal DB.
-            // Se è un nuovo caricamento -> parti spento (false).
+            // Se stavo navigando, rispetto lo stato salvato. Se è un refresh, parto spento.
             const isActive = isNavigating ? (pref && !!pref.is_active) : false;
             const savedVolume = pref.volume !== undefined ? pref.volume : 50;
 
-            // Creazione Card Elemento
+            // Creo l'elemento Card
             const card = document.createElement('div');
             card.className = 'sound-card-item';
             card.dataset.id = sound.id;
             if (isActive) card.classList.add('active');
 
-            // Area Cliccabile (Icona + Testo)
+            // Creo l'area che si può cliccare per attivare/disattivare
             const clickArea = document.createElement('div');
             clickArea.className = 'sound-click-area';
 
-            // Icona
+            // Icona del suono
             const icon = document.createElement('i');
             icon.className = '';
             icon.classList.add('fa-solid', 'sound-icon');
-            // Gestione nome icona (aggiunge prefisso fa- se mancante)
+            // Aggiungo il prefisso 'fa-' se manca nel database
             const iconName = sound.icon || 'fa-music';
             const iconClass = iconName.startsWith('fa-') ? iconName : `fa-${iconName}`;
             icon.classList.add(iconClass);
 
-            // Etichetta Nome Suono
+            // Nome del suono
             const span = document.createElement('span');
             span.textContent = sound.label;
             span.className = 'sound-label';
@@ -140,11 +139,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             clickArea.appendChild(icon);
             clickArea.appendChild(span);
 
-            // Container Slider Volume
+            // Slider del volume
             const sliderContainer = document.createElement('div');
             sliderContainer.className = 'sound-volume-container';
 
-            // Input Range per il Volume
             const slider = document.createElement('input');
             slider.type = 'range';
             slider.min = 0;
@@ -152,47 +150,47 @@ document.addEventListener('DOMContentLoaded', async () => {
             slider.value = savedVolume;
             slider.className = 'sound-slider';
 
-            // Prevenzione conflitti di eventi (clic e touch)
+            // Evito che trascinare lo slider attivi anche il click sulla card o lo scroll
             slider.addEventListener('click', (e) => e.stopPropagation());
             slider.addEventListener('mousedown', (e) => e.stopPropagation());
             slider.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: false });
             slider.addEventListener('touchend', (e) => e.stopPropagation());
 
-            // Gestione cambio volume
+            // Quando muovo lo slider
             slider.addEventListener('input', (e) => {
                 const vol = parseInt(e.target.value, 10);
-                updateVolume(sound.id, vol); // Aggiorna audio in tempo reale
+                updateVolume(sound.id, vol); // Cambio volume subito
                 const currentActive = card.classList.contains('active');
-                savePreferenceDebounced(sound.id, vol, currentActive); // Salva su DB
+                savePreferenceDebounced(sound.id, vol, currentActive); // Salvo nel DB (con calma)
             });
 
             sliderContainer.appendChild(slider);
             card.appendChild(clickArea);
             card.appendChild(sliderContainer);
 
-            // Handler Click Principale (Attiva/Disattiva suono)
+            // Click principale sulla card
             clickArea.addEventListener('click', () => {
                 toggleSound(sound, card, slider.value);
             });
 
             grid.appendChild(card);
 
-            // Auto-play se lo stato iniziale è attivo
+            // Se doveva essere attivo, lo faccio partire subito
             if (isActive) {
                 playAudio(sound.id, sound.file, savedVolume);
             }
         });
 
-        // Sostituisce il contenuto del container con la nuova griglia
+        // Metto tutto nella pagina
         container.innerHTML = '';
         container.appendChild(grid);
     }
 
 
-    // --- LOGICA AUDIO ---
+    // --- GESTIONE AUDIO ---
 
     function toggleSound(sound, cardEl, currentVolumeLevel) {
-        // Inverte lo stato attivo visuale
+        // Accendo o spengo visivamente la card
         const isActive = cardEl.classList.toggle('active');
         const volume = parseInt(currentVolumeLevel, 10);
 
@@ -202,30 +200,28 @@ document.addEventListener('DOMContentLoaded', async () => {
             pauseAudio(sound.id);
         }
 
-        // Salva la nuova preferenza
+        // Salvo la scelta
         savePreference(sound.id, volume, isActive);
     }
 
     function playAudio(id, filename, volumePct) {
         if (!audioPlayers[id]) {
-            // Recupera l'oggetto sound dalla lista caricata
+            // Se non ho ancora creato il player audio per questo suono, lo faccio ora
             const soundObj = sounds.find(s => s.id == id);
-            const folder = soundObj ? soundObj.folder : 'ambient';
 
-            // Crea oggetto Audio se non esiste (Singleton pattern per ID)
-            // UPDATE: Usa endpoint streaming invece di file statico
+            // Uso lo stream audio dell'API
             const audio = new Audio(`/api/stream/track/${id}`);
-            audio.loop = true; // Loop infinito per suoni ambientali
+            audio.loop = true; // È un ambient, deve girare all'infinito
             audioPlayers[id] = audio;
         }
         const audio = audioPlayers[id];
-        audio.volume = volumePct / 100; // HTML Audio usa range 0.0 - 1.0
+        audio.volume = volumePct / 100;
 
-        // Gestione Promise play() per evitare errori se il browser blocca l'autoplay
+        // Faccio play gestendo eventuali blocchi del browser (autoplay policy)
         const playPromise = audio.play();
         if (playPromise !== undefined) {
             playPromise.catch(error => {
-                console.warn(`Riproduzione bloccata per ${id}:`, error);
+                console.warn(`Non riesco a riprodurre il suono ${id}:`, error);
             });
         }
     }
@@ -243,15 +239,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
-    // --- PERSISTENZA E API ---
+    // --- SALVATAGGIO PREFERENZE ---
 
-    // Oggetto per gestire i timer di debounce (evita troppe chiamate al server)
+    // Evito di bombardare il server se l'utente gioca con lo slider
     const debounceTimers = {};
 
     function savePreferenceDebounced(soundId, volume, isActive) {
         if (debounceTimers[soundId]) clearTimeout(debounceTimers[soundId]);
 
-        // Attende 500ms di inattività prima di inviare la richiesta
+        // Aspetto mezzo secondo che l'utente si fermi prima di salvare
         debounceTimers[soundId] = setTimeout(() => {
             savePreference(soundId, volume, isActive);
         }, 500);
@@ -266,51 +262,52 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
-    // --- LOGICA STATISTICHE ---
+    // --- STATISTICHE DI ASCOLTO ---
 
     function startStatsTracking() {
-        // 1. Ogni secondo: Incrementa contatori locali in memoria
+        // 1. Ogni secondo controllo chi sta suonando
         setInterval(() => {
             for (const id in audioPlayers) {
                 const audio = audioPlayers[id];
-                // Conta solo se sta suonando e non è muto
+                // Se suona e non è muto, conto un secondo in più
                 if (!audio.paused && !audio.muted && audio.currentTime > 0) {
                     sessionStats[id] = (sessionStats[id] || 0) + 1;
                 }
             }
         }, COUNT_INTERVAL_MS);
 
-        // 2. Ogni 10 secondi: Invia (flush) i dati accumulati al server
+        // 2. Ogni tot secondi invio il pacchetto dati al server
         setInterval(flushStatsToServer, STATS_INTERVAL_MS);
 
-        // 3. Alla chiusura pagina: Invia gli ultimi dati rimasti
+        // 3. Se l'utente chiude la pagina, provo a mandare l'ultimo aggiornamento
         window.addEventListener('beforeunload', flushStatsToServer);
     }
 
     function flushStatsToServer() {
         const payload = [];
-        // Prepara il pacchetto dati
+
+        // Raccolgo tutti i contatori > 0
         for (const id in sessionStats) {
             if (sessionStats[id] > 0) {
                 payload.push({ soundId: id, seconds: sessionStats[id] });
-                sessionStats[id] = 0; // Resetta contatore locale dopo invio
+                sessionStats[id] = 0; // Resetta contatore locale
             }
         }
 
         if (payload.length > 0) {
             const data = JSON.stringify({ stats: payload });
 
-            // Usa Beacon API se disponibile (più affidabile in chiusura pagina)
+            // SendBeacon è meglio quando la pagina si sta chiudendo perché non viene interrotto
             if (navigator.sendBeacon) {
                 const blob = new Blob([data], { type: 'application/json' });
                 navigator.sendBeacon('/api/focus/ambient/stats', blob);
             } else {
-                // Fallback su fetch standard
+                // Altrimenti uso la classica fetch
                 fetch('/api/focus/ambient/stats', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: data,
-                    keepalive: true // Importante per richieste during unload
+                    keepalive: true
                 }).catch(e => console.error('Errore sync statistiche', e));
             }
         }
