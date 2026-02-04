@@ -1,44 +1,52 @@
 /**
- * router.js
- * 
- * Gestione Routing Lato Client tramite page.js (Requisito Tecnico).
- * 
- * Questo script intercetta la navigazione e permette di caricare contenuti dinamicamente
- * senza ricaricare l'intera pagina (SPA behavior) per sezioni specifiche.
+ * Questo file gestisce la navigazione "lato client" (SPA - Single Page Application).
+ * In pratica, usa la libreria 'page.js' per intercettare i click sui link e cambiare
+ * il contenuto della pagina senza doverla ricaricare da zero ogni volta.
+ * È un requisito tecnico del progetto per rendere la navigazione fluida.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // Definiamo dove renderizzare i contenuti dinamici (assicurati che esista in home.ejs)
+  // Questo è il contenitore principale dove andrò a iniettare le nuove schermate
+  // (Mi assicuro che esista nel file home.ejs)
   const contentDiv = document.getElementById('main-content');
 
-  // Configura page.js
-  page.base(''); // Base path (root)
+  // Configuro page.js dicendogli che siamo nella root del sito
+  page.base('');
 
-  // ROUTE: / (Home Defaults)
-  // In questo caso, lasciamo che sia il server a servire la home inizialmente,
-  // ma page.js può intercettare click successivi se configurato.
+  // --- DEFINIZIONE ROTTE ---
+
+  // Rotta Home ('/')
+  // Qui non faccio nulla di particolare perché la home viene già servita completa dal server.
+  // Lascio comunque il log per debug.
   page('/', () => {
-    console.log('[Router] Home route active');
+    console.log('[Router] Sono in Home');
   });
 
-  // ROUTE: /app/creators (Esempio di SPA Route)
-  // Carica dinamicamente la lista dei suoni "Creators" tramite fetch API
+  // Rotta Creators ('/app/creators')
+  // Quando l'utente va su questa pagina, invece di chiedere al server una nuova pagina HTML,
+  // scarico solo i dati JSON e costruisco l'interfaccia al volo qui nel browser.
   page('/app/creators', showCreators);
 
-  // Avvia il router
+  // Faccio partire il router
   page();
+
+
+  // --- FUNZIONI DI RENDER ---
 
   function showCreators() {
     if (!contentDiv) return;
 
-    console.log('[Router] Loading Creators View via Fetch...');
+    console.log('[Router] Carico la vista Creators...');
+
+    // Mostro un loader intanto che aspetto i dati
     contentDiv.innerHTML = '<div class="text-white p-5">Caricamento contenuti community... <i class="fa-solid fa-spinner fa-spin"></i></div>';
 
-    // Fetch dati reali dall'API che abbiamo documentato (routes/music.js)
+    // Chiedo i dati all'API del server
     fetch('/api/music/creators')
       .then(res => res.json())
       .then(sounds => {
+        // Costruisco l'HTML della pagina pezzo per pezzo
         let html = `
                     <div class="box full-width" style="grid-column: span 12;">
                         <h2 class="text-white mb-4"><i class="fa-solid fa-users"></i> Community Creations</h2>
@@ -48,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sounds.length === 0) {
           html += `<p class="text-white-50">Nessun contenuto trovato.</p>`;
         } else {
+          // Creo una card per ogni suono ricevuto
           sounds.forEach(sound => {
             html += `
                             <div class="col-md-3">
@@ -65,17 +74,19 @@ document.addEventListener('DOMContentLoaded', () => {
                         `;
           });
         }
+        // Chiudo i div aperti e aggiungo il tasto per tornare indietro
         html += `</div>
                          <div class="mt-4">
                             <a href="/" class="btn btn-outline-light">Torna alla Dashboard</a>
                          </div>
                          </div>`;
 
+        // Inietto tutto l'HTML generato nella pagina
         contentDiv.innerHTML = html;
       })
       .catch(err => {
-        console.error('[Router] Error:', err);
-        contentDiv.innerHTML = '<div class="text-danger p-5">Errore caricamento dati.</div>';
+        console.error('[Router] Errore:', err);
+        contentDiv.innerHTML = '<div class="text-danger p-5">Impossibile caricare i dati. Riprova più tardi.</div>';
       });
   }
 });

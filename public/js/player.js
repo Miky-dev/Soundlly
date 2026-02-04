@@ -1,8 +1,4 @@
-// public/js/player.js
-
 /**
- * player.js
- * 
  * Gestisce tutto l'audio (play, pausa, volume, avanzamento) e aggiorna l'interfaccia
  * con il titolo del brano, l'autore e la copertina.
  */

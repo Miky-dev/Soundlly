@@ -1,60 +1,55 @@
 /**
- * Gestisce il caricamento dell'immagine profilo (avatar) tramite drag & drop o selezione file.
- * 
- * Funzionalità principali:
- * 1. Drag & Drop: Evidenzia l'area quando si trascina un file sopra.
- * 2. Anteprima: Mostra immediatamente l'immagine selezionata prima del salvataggio.
- * 3. Validazione: Accetta solo immagini JPG/PNG.
- * 4. Sincronizzazione: Aggiorna l'input file nascosto quando viene droppato un file.
+ * Questo script gestisce il caricamento della foto profilo.
+ * Permette all'utente di trascinare un'immagine nel box (Drag & Drop) 
+ * oppure di cliccare per selezionarla dal computer.
+ * Mostra anche un'anteprima immediata prima che il form venga salvato.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Riferimenti agli elementi del DOM
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('avatar-input');
     const avatarPreview = document.getElementById('avatar-preview');
     const dropZoneContent = dropZone.querySelector('.drop-zone-content');
 
-    // -------------------------------------------------------------------------
-    // 1. Gestione Eventi Drag & Drop
-    // -------------------------------------------------------------------------
+    // Se non trovo gli elementi (magari sono su un'altra pagina), non faccio nulla
+    if (!dropZone || !fileInput) return;
 
-    // Previene il comportamento default del browser (che aprirebbe il file in una nuova tab)
+    // --- GESTIONE DRAG & DROP ---
+
+    // Disabilito il comportamento standard del browser che aprirebbe il file in una nuova scheda
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
         dropZone.addEventListener(eventName, preventDefaults, false);
         document.body.addEventListener(eventName, preventDefaults, false);
     });
 
-    // Evidenzia la zona di drop quando l'utente trascina un file sopra
+    // Quando l'utente trascina un file sopra l'area, la illumino per fargli capire che può rilasciare
     ['dragenter', 'dragover'].forEach(eventName => {
         dropZone.addEventListener(eventName, highlight, false);
     });
 
-    // Rimuove l'evidenziazione quando il file esce dall'area o viene rilasciato
+    // Tolgo l'effetto visivo se l'utente esce dall'area o lascia il file
     ['dragleave', 'drop'].forEach(eventName => {
         dropZone.addEventListener(eventName, unhighlight, false);
     });
 
-    // Gestisce il rilascio effettivo del file
+    // Gestisco il rilascio vero e proprio del file
     dropZone.addEventListener('drop', handleDrop, false);
 
-    // -------------------------------------------------------------------------
-    // 2. Gestione Selezione Manuale (Click)
-    // -------------------------------------------------------------------------
 
-    // Cliccando sulla zona tratteggiata, si apre il selettore file di sistema
+    // --- GESTIONE CLICK E SELEZIONE ---
+
+    // Se clicco nell'area tratteggiata, apro il classico selettore file di Windows/Mac
     dropZone.addEventListener('click', () => {
         fileInput.click();
     });
 
-    // Quando l'utente seleziona un file dal dialogo di sistema
+    // Quando l'utente sceglie un file dal dialogo di sistema
     fileInput.addEventListener('change', function () {
         handleFiles(this.files);
     });
 
-    // -------------------------------------------------------------------------
-    // Funzioni di Supporto
-    // -------------------------------------------------------------------------
+
+    // --- FUNZIONI DI SUPPORTO ---
 
     function preventDefaults(e) {
         e.preventDefault();
@@ -62,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function highlight(e) {
-        dropZone.classList.add('highlight'); // Aggiunge bordo colorato/sfondo
+        dropZone.classList.add('highlight'); // Aggiungo classe CSS per bordo colorato
     }
 
     function unhighlight(e) {
@@ -80,22 +75,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const file = files[0];
             if (validateFile(file)) {
 
-                // Se il file arriva da Drag&Drop, l'input file HTML non è aggiornato automaticamente.
-                // Dobbiamo sincronizzarlo manualmemte per permettere l'invio del form.
+                // Problema: l'input type="file" è di sola lettura per motivi di sicurezza.
+                // Se il file arriva dal Drag & Drop, devo usare questo trucco con DataTransfer
+                // per "spostare" il file dentro l'input del form, altrimenti non verrebbe inviato.
                 if (fileInput.files !== files) {
-                    // TRUCCO: Usiamo l'oggetto DataTransfer per impostare i file dell'input (che è read-only)
                     const dataTransfer = new DataTransfer();
                     dataTransfer.items.add(file);
                     fileInput.files = dataTransfer.files;
                 }
 
-                // Mostra l'anteprima visiva
+                // Faccio vedere l'immagine appena caricata
                 previewFile(file);
             }
         }
     }
 
-    // Controlla che il file sia un'immagine valida
+    // Controllo banale sul tipo di file: accettiamo solo immagini comuni
     function validateFile(file) {
         const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
         if (validTypes.indexOf(file.type) === -1) {
@@ -105,22 +100,25 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     }
 
-    // Legge il file locale e lo mostra nel tag <img>
+    // Leggo il file dal disco locale e lo visualizzo al volo cambiando l'src dell'immagine
     function previewFile(file) {
         const reader = new FileReader();
-        reader.readAsDataURL(file); // Converte il file in stringa Base64
+        reader.readAsDataURL(file);
         reader.onloadend = function () {
             avatarPreview.src = reader.result;
             avatarPreview.classList.remove('preview-hidden');
             avatarPreview.style.display = 'block';
-            dropZoneContent.style.display = 'none'; // Nasconde il testo "Trascina qui..."
+            dropZoneContent.style.display = 'none'; // Nascondo la scritta "Trascina qui..."
         }
     }
 
-    // Controllo Attuale: Se l'utente ha già un avatar caricato dal server
+    // Controllo Iniziale: 
+    // Se l'utente ha già un avatar (diverso da quello di default o vuoto), 
+    // lo mostro subito nascondendo l'area di drop vuota.
     if (avatarPreview.getAttribute('src') && avatarPreview.getAttribute('src') !== '') {
-        // Se non è l'icona di default, mostriamo l'anteprima nascondendo il testo di drop
-        if (!avatarPreview.src.includes('/immagini/usericon.png') && avatarPreview.src !== window.location.href) {
+        const currentSrc = avatarPreview.src;
+        // Se non è l'immagine di default e non è l'URL della pagina corrente (errore comune di caricamento src vuoti)
+        if (!currentSrc.includes('/immagini/usericon.png') && currentSrc !== window.location.href) {
             avatarPreview.classList.remove('preview-hidden');
             avatarPreview.style.display = 'block';
             dropZoneContent.style.display = 'none';
