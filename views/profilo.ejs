@@ -19,8 +19,7 @@
 
 <body data-user-id="<%= typeof user !== 'undefined' && user ? user.id : 'guest' %>">
 
-    <!-- Navbar (Reused) -->
-    <!-- Simple Navbar -->
+    <!-- Navbar Semplificata -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-transaparent">
         <div class="container-fluid">
             <a href="/home" class="text-decoration-none">
@@ -86,7 +85,7 @@
                     </div>
                     <% } %>
 
-                        <!-- Extra Details: DoB, Born City, Country ONLY - INSIDE HEADER -->
+                        <!-- Dettagli Extra: Data di nascita, Città, Paese -->
                         <div class="profile-extra">
                             <% if (user.date_of_birth) { %>
                                 <span class="extra-tag"><i class="fa-solid fa-cake-candles"></i>
@@ -142,7 +141,7 @@
                                     <div class="mb-3">
                                         <label class="form-label text-light">Immagine Profilo</label>
 
-                                        <!-- Drag & Drop Zone -->
+                                        <!-- Area di Trascinamento (Drag & Drop) -->
                                         <div id="drop-zone" class="drop-zone">
                                             <div class="drop-zone-content">
                                                 <i class="fa-solid fa-cloud-arrow-up fa-2x mb-2 text-muted"></i>
@@ -155,7 +154,7 @@
                                                 accept="image/png, image/jpeg" hidden>
                                         </div>
 
-                                        <!-- Fallback/Hidden URL for maintaining current if no file -->
+                                        <!-- URL nascosto per mantenere l'avatar attuale se non viene caricato un nuovo file -->
                                         <input type="hidden" name="avatar_url" value="<%= user.avatar_url || '' %>">
                                     </div>
 
@@ -222,8 +221,7 @@
 
     </div>
 
-    <!-- Footer (Reused) -->
-    <!-- Footer (Reused) -->
+    <!-- Footer -->
     <footer class="site-footer">
         <div class="footer-container">
             <div class="footer-column">

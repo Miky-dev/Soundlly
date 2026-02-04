@@ -1,8 +1,7 @@
 /**
- * Questo script gestisce il caricamento della foto profilo.
- * Permette all'utente di trascinare un'immagine nel box (Drag & Drop) 
- * oppure di cliccare per selezionarla dal computer.
- * Mostra anche un'anteprima immediata prima che il form venga salvato.
+ * Script per la gestione del caricamento della foto profilo.
+ * Supporta il Drag & Drop e la selezione manuale del file,
+ * mostrando un'anteprima immediata prima del salvataggio.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -11,39 +10,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const avatarPreview = document.getElementById('avatar-preview');
     const dropZoneContent = dropZone.querySelector('.drop-zone-content');
 
-    // Se non trovo gli elementi (magari sono su un'altra pagina), non faccio nulla
+    // Verifiche preliminari sulla presenza degli elementi nel DOM
     if (!dropZone || !fileInput) return;
 
     // --- GESTIONE DRAG & DROP ---
 
-    // Disabilito il comportamento standard del browser che aprirebbe il file in una nuova scheda
+    // Disabilita il comportamento standard del browser (apertura file in nuova scheda)
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
         dropZone.addEventListener(eventName, preventDefaults, false);
         document.body.addEventListener(eventName, preventDefaults, false);
     });
 
-    // Quando l'utente trascina un file sopra l'area, la illumino per fargli capire che può rilasciare
+    // Evidenzia l'area quando un file viene trascinato sopra
     ['dragenter', 'dragover'].forEach(eventName => {
         dropZone.addEventListener(eventName, highlight, false);
     });
 
-    // Tolgo l'effetto visivo se l'utente esce dall'area o lascia il file
+    // Rimuove l'evidenziazione quando il trascinamento termina o esce dall'area
     ['dragleave', 'drop'].forEach(eventName => {
         dropZone.addEventListener(eventName, unhighlight, false);
     });
 
-    // Gestisco il rilascio vero e proprio del file
+    // Gestione del rilascio del file (drop)
     dropZone.addEventListener('drop', handleDrop, false);
 
 
     // --- GESTIONE CLICK E SELEZIONE ---
 
-    // Se clicco nell'area tratteggiata, apro il classico selettore file di Windows/Mac
+    // Apre il selettore file di sistema al click sull'area
     dropZone.addEventListener('click', () => {
         fileInput.click();
     });
 
-    // Quando l'utente sceglie un file dal dialogo di sistema
+    // Gestione della selezione file tramite dialogo di sistema
     fileInput.addEventListener('change', function () {
         handleFiles(this.files);
     });
@@ -57,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function highlight(e) {
-        dropZone.classList.add('highlight'); // Aggiungo classe CSS per bordo colorato
+        dropZone.classList.add('highlight'); // Aggiunge classe CSS per bordo colorato
     }
 
     function unhighlight(e) {
@@ -75,22 +74,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const file = files[0];
             if (validateFile(file)) {
 
-                // Problema: l'input type="file" è di sola lettura per motivi di sicurezza.
-                // Se il file arriva dal Drag & Drop, devo usare questo trucco con DataTransfer
-                // per "spostare" il file dentro l'input del form, altrimenti non verrebbe inviato.
+                // Workaround: L'input type="file" è read-only.
+                // Si utilizza DataTransfer per assegnare il file droppato all'input del form.
                 if (fileInput.files !== files) {
                     const dataTransfer = new DataTransfer();
                     dataTransfer.items.add(file);
                     fileInput.files = dataTransfer.files;
                 }
 
-                // Faccio vedere l'immagine appena caricata
+                // Mostra l'anteprima dell'immagine
                 previewFile(file);
             }
         }
     }
 
-    // Controllo banale sul tipo di file: accettiamo solo immagini comuni
+    // Validazione del tipo di file (solo immagini JPEG/PNG)
     function validateFile(file) {
         const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
         if (validTypes.indexOf(file.type) === -1) {
@@ -100,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     }
 
-    // Leggo il file dal disco locale e lo visualizzo al volo cambiando l'src dell'immagine
+    // Legge il file locale e aggiorna l'anteprima (src dell'immagine)
     function previewFile(file) {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -108,16 +106,15 @@ document.addEventListener('DOMContentLoaded', () => {
             avatarPreview.src = reader.result;
             avatarPreview.classList.remove('preview-hidden');
             avatarPreview.style.display = 'block';
-            dropZoneContent.style.display = 'none'; // Nascondo la scritta "Trascina qui..."
+            dropZoneContent.style.display = 'none'; // Nasconde il messaggio di trascinamento
         }
     }
 
-    // Controllo Iniziale: 
-    // Se l'utente ha già un avatar (diverso da quello di default o vuoto), 
-    // lo mostro subito nascondendo l'area di drop vuota.
+    // Controllo Iniziale:
+    // Se è già presente un avatar personalizzato, lo mostra nascondendo l'area di drop.
     if (avatarPreview.getAttribute('src') && avatarPreview.getAttribute('src') !== '') {
         const currentSrc = avatarPreview.src;
-        // Se non è l'immagine di default e non è l'URL della pagina corrente (errore comune di caricamento src vuoti)
+        // Verifica che non sia l'immagine di default e che l'src sia valido
         if (!currentSrc.includes('/immagini/usericon.png') && currentSrc !== window.location.href) {
             avatarPreview.classList.remove('preview-hidden');
             avatarPreview.style.display = 'block';

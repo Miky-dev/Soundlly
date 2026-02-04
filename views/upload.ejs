@@ -16,8 +16,7 @@
 
 <body data-user-id="<%= typeof user !== 'undefined' && user ? user.id : 'guest' %>">
 
-    <!-- Navbar (Simplified) -->
-    <!-- Navbar (Simplified) -->
+    <!-- Navbar Semplificata -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-transparent">
         <div class="container-fluid">
             <a href="/home" class="text-decoration-none">
@@ -42,7 +41,7 @@
 
                     <form action="/upload/api/upload" method="POST" enctype="multipart/form-data">
 
-                        <!-- Category Selection -->
+                        <!-- Selezione Categoria -->
                         <label class="form-label mb-2">Categoria</label>
                         <div class="category-selector">
                             <div class="category-option">
@@ -89,7 +88,7 @@
                                     <option value="premium">Solo Premium</option>
                                 </select>
                             </div>
-                            <!-- Icon Field for Ambient (Right of Access Level) -->
+                            <!-- Campo Icona per Ambient (A destra del Livello Accesso) -->
                             <div class="col-md-6" id="icon-container">
                                 <label for="icon" class="form-label">Icona (FontAwesome) <small class="text-muted">-
                                         Solo Ambient</small></label>
@@ -98,9 +97,9 @@
                             </div>
                         </div>
 
-                        <!-- Audio and Cover Row -->
+                        <!-- Riga Audio e Copertina -->
                         <div class="row g-3 mb-4">
-                            <!-- Audio File -->
+                            <!-- File Audio -->
                             <div class="col-md-6">
                                 <label class="form-label">File Audio (MP3)</label>
                                 <div class="drop-zone" id="drop-zone-audio">
@@ -113,7 +112,7 @@
                                 </div>
                             </div>
 
-                            <!-- Cover File (Music only) -->
+                            <!-- File Copertina (Solo Musica) -->
                             <div class="col-md-6 d-none" id="cover-container">
                                 <label class="form-label">Copertina</label>
                                 <div class="drop-zone" id="drop-zone-cover">

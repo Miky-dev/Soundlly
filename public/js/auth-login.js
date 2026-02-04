@@ -1,7 +1,6 @@
 /**
- * Qui gestisco tutto quello che succede nella pagina di login e registrazione.
- * Mi occupo di switchare tra i due form, validare i dati inseriti dall'utente
- * (come età, password, ecc.) e mostrare eventuali errori se qualcosa non va.
+ * Gestione delle funzionalità della pagina di login e registrazione.
+ * Gestisce lo switch tra i form, la validazione dei dati e i messaggi di errore.
  */
 
 class AuthManager {
@@ -9,7 +8,7 @@ class AuthManager {
     // Funzione comoda per selezionare elementi senza scrivere ogni volta tutto
     this.$ = (sel) => document.querySelector(sel);
 
-    // Qui mi salvo i riferimenti agli elementi del DOM che userò spesso
+    // Riferimenti agli elementi del DOM utilizzati frequentemente
     this.els = {
       loginForm: this.$('#login-form'),
       registerForm: this.$('#register-form'),
@@ -29,7 +28,7 @@ class AuthManager {
   }
 
   // --- GESTIONE EVENTI ---
-  // Qui collego i click dei pulsanti e l'invio dei form alle funzioni giuste
+  // Gestione degli eventi sui pulsanti e invio form
   bindEvents() {
     // Se premo su "Registrati", cambio vista
     if (this.els.showRegisterBtn) {

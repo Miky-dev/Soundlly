@@ -61,7 +61,7 @@
   <!-- Contenitore per "ospitare" il timer in modalità immersive -->
   <div class="immersive-timer-wrapper"></div>
 
-  <!-- Standard View Wrapper -->
+  <!-- Wrapper Vista Standard -->
   <div id="standard-view">
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-transaparent">
@@ -152,13 +152,13 @@
       <section class="box box-1" aria-label="Benvenuto e Todo">
         <div class="todo-box">
           <div class="header">
-            <div class="input-row"> <!-- Removed input-group -->
+            <div class="input-row">
               <input type="text" id="todo-input" placeholder="Aggiungi nuova attività...">
               <button id="add-btn">+</button>
             </div>
           </div>
           <ul id="todo-list">
-            <!-- Items added via JS -->
+            <!-- Elementi aggiunti via JS -->
           </ul>
           <div class="todo-footer todo-footer-center">
             <button id="clear-completed-btn" class="btn-sm btn-clear-completed">
@@ -208,7 +208,7 @@
                   class="fa-solid fa-gear"></i></button>
             </div>
 
-            <!-- Settings Panel (Hidden by default) -->
+            <!-- Pannello Impostazioni (Nascosto di default) -->
             <div id="pomoSettingsPanel">
               <div class="setting-row">
                 <label>Pomodoro (min)</label>
@@ -337,9 +337,9 @@
          ================================================================== -->
     <section class="horizontal-box" aria-label="Music Discovery">
       <div class="horizontal-header">
-        <!-- User Info (Left) -->
+        <!-- Info Utente (Sinistra) -->
         <div class="user-profile">
-          <!-- Assuming user object exists, otherwise fallback -->
+          <!-- Fallback se l'oggetto user non esiste -->
           <img src="<%= (user && user.avatar_url) ? user.avatar_url : '/immagini/usericon.png' %>" alt="User"
             class="user-avatar" data-fallback="/immagini/usericon.png">
           <span class="user-name">
@@ -347,7 +347,7 @@
           </span>
         </div>
 
-        <!-- Search Bar (Center) -->
+        <!-- Barra di Ricerca (Centro) -->
         <form id="footer-searchbar" class="search-bar-modern">
           <input class="search-input-modern" type="search" placeholder="Cerca suoni, artisti..." aria-label="Cerca">
           <button type="submit" class="search-btn-modern" aria-label="Cerca">
@@ -355,9 +355,9 @@
           </button>
         </form>
 
-        <!-- Actions (Right: Button) -->
+        <!-- Azioni (Destra) -->
         <div class="header-actions">
-          <!-- Playlist creation disabled for now -->
+          <!-- Creazione playlist disabilitata per ora -->
         </div>
       </div>
 
@@ -386,64 +386,61 @@
         <div class="horizontal" data-grid="suoni"></div>
       </section>
 
-      <!-- Sezione per i suoni caricati dai creator -->
+      <!-- Sezione Preferiti -->
       <% if (user) { %>
         <section class="horizontal-scroll-container" id="pref">
           <h2 class="scroll-title">Preferiti</h2>
           <div class="horizontal" data-grid="pref"></div>
-          <% } %>
-
-            <!-- Sezione per le playlist dell'utente -->
-
         </section>
+        <% } %>
 
 
 
-        <!-- =================================================================
+          <!-- =================================================================
        FOOTER - Piè di pagina del sito con informazioni, link e contatti.
        ================================================================== -->
-        <footer class="site-footer">
-          <div class="footer-container">
-            <div class="footer-column">
-              <h4>Informazioni</h4>
-              <p>La nostra azienda si impegna a fornire i migliori servizi dal 2025. I nostri servizi si basano
-                sull'intratteminemto multimediale, all'interno della piattaforma sei in grado di ascoltare suoni
-                rilassanti e
-                musica mentre studi in completa tranquillità.</p>
-            </div>
-            <div class="footer-column">
-              <h4>Link Rapidi</h4>
-              <ul>
-                <li><a href="/about#about">Chi Siamo</a></li>
-                <li><a href="/about#servizi">Servizi</a></li>
-                <li><a href="/about#contatti">Contatti</a></li>
-              </ul>
-            </div>
-            <div class="footer-column">
-              <h4>Contatti</h4>
-              <p>Email: info@abcd.com</p>
-              <p>Tel: +39 0123 456789</p>
-              <p>Via Roma 123, Milano</p>
-            </div>
-            <div class="footer-column">
-              <h4>Seguici</h4>
-              <div class="social-icons">
-                <a href="https://www.facebook.com" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-                <a href="https://x.com" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
-                <a href="https://www.instagram.com" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                <a href="https://github.com/Miky-dev" aria-label="GitHub"><i class="fab fa-github"></i></a>
+          <footer class="site-footer">
+            <div class="footer-container">
+              <div class="footer-column">
+                <h4>Informazioni</h4>
+                <p>La nostra azienda si impegna a fornire i migliori servizi dal 2025. I nostri servizi si basano
+                  sull'intratteminemto multimediale, all'interno della piattaforma sei in grado di ascoltare suoni
+                  rilassanti e
+                  musica mentre studi in completa tranquillità.</p>
+              </div>
+              <div class="footer-column">
+                <h4>Link Rapidi</h4>
+                <ul>
+                  <li><a href="/about#about">Chi Siamo</a></li>
+                  <li><a href="/about#servizi">Servizi</a></li>
+                  <li><a href="/about#contatti">Contatti</a></li>
+                </ul>
+              </div>
+              <div class="footer-column">
+                <h4>Contatti</h4>
+                <p>Email: info@abcd.com</p>
+                <p>Tel: +39 0123 456789</p>
+                <p>Via Roma 123, Milano</p>
+              </div>
+              <div class="footer-column">
+                <h4>Seguici</h4>
+                <div class="social-icons">
+                  <a href="https://www.facebook.com" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                  <a href="https://x.com" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+                  <a href="https://www.instagram.com" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                  <a href="https://github.com/Miky-dev" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="footer-bottom">
-            <p>© 2025 Soundlly. Tutti i diritti riservati.</p>
-          </div>
-        </footer>
+            <div class="footer-bottom">
+              <p>© 2025 Soundlly. Tutti i diritti riservati.</p>
+            </div>
+          </footer>
 
 
   </div> <!-- End of #standard-view -->
 
-  <!-- Music Player Bar -->
+  <!-- Barra Riproduzione Musicale -->
   <div id="music-player-bar">
     <button id="player-close-btn" class="player-close-btn" title="Chiudi">&times;</button>
     <div class="player-track-info">
@@ -478,7 +475,7 @@
     </div>
   </div>
 
-  <!-- Playlist Creation Modal (Moved to root for better positioning) -->
+
 
 
   <!-- =================================================================

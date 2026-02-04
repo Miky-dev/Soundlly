@@ -17,8 +17,7 @@
 
 <body data-user-id="<%= typeof user !== 'undefined' && user ? user.id : 'guest' %>">
 
-    <!-- Simple Navbar -->
-    <!-- Simple Navbar -->
+    <!-- Navbar Semplificata -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-transaparent">
         <div class="container-fluid">
             <a href="/home" class="text-decoration-none">
@@ -37,7 +36,7 @@
             <h1 class="mb-5">Le Tue Statistiche</h1>
 
 
-            <!-- Hidden Data for Chart & Progress -->
+            <!-- Dati Nascosti per Grafici e Progressi -->
             <input type="hidden" id="chartDataInput"
                 value="<%= encodeURIComponent(JSON.stringify(chart || { labels: [], data: [] })) %>">
             <input type="hidden" id="progressDataInput" value="<%= encodeURIComponent(JSON.stringify({
@@ -46,7 +45,7 @@
                 month: Math.min((progress.month / userGoals.monthly_focus_goal) * 100, 100)
             })) %>">
 
-            <!-- Goals Section -->
+            <!-- Sezione Obiettivi -->
             <div class="row mb-5">
                 <div class="col-12">
                     <div class="stat-card-box stat-card-box-aligned">
@@ -108,7 +107,7 @@
                 </div>
             </div>
 
-            <!-- Goals Modal -->
+            <!-- Modale Obiettivi -->
             <div class="modal fade" id="goalsModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content modal-content-dark">
@@ -209,7 +208,7 @@
                 </div>
             </div>
 
-            <!-- Overview Cards -->
+            <!-- Card di Riepilogo -->
             <div class="row g-4 mb-5">
                 <div class="col-md-3">
                     <div class="stat-card-box">
@@ -249,7 +248,7 @@
                 </div>
             </div>
 
-            <!-- Weekly Chart Section -->
+            <!-- Sezione Grafico Settimanale -->
             <div class="row mb-5">
                 <div class="col-12">
                     <div class="stat-card-box stat-card-box-aligned">
@@ -263,9 +262,9 @@
                 </div>
             </div>
 
-            <!-- Detailed Tables -->
+            <!-- Tabelle Dettagliate -->
             <div class="row g-4">
-                <!-- Top Ambient Sounds -->
+                <!-- Suoni Ambientali Più Ascoltati -->
                 <div class="col-lg-6">
                     <div class="stat-card-box stat-card-box-aligned">
                         <div class="section-header">
@@ -302,7 +301,7 @@
                     </div>
                 </div>
 
-                <!-- Recent Focus Sessions -->
+                <!-- Sessioni Focus Recenti -->
                 <div class="col-lg-6">
                     <div class="stat-card-box stat-card-box-aligned">
                         <div class="section-header">
@@ -348,7 +347,7 @@
 
         </div>
 
-        <!-- Footer (Reused) -->
+        <!-- Footer -->
         <footer class="site-footer">
             <div class="footer-container">
                 <div class="footer-column">

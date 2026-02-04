@@ -13,7 +13,7 @@
 </head>
 
 <body data-user-id="<%= typeof user !== 'undefined' && user ? user.id : 'guest' %>">
-    <!-- Simple Navbar -->
+    <!-- Navbar Semplificata -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-transparent">
         <div class="container-fluid">
             <a href="/home" class="text-decoration-none">
@@ -37,7 +37,6 @@
                     <li>Accesso catalogo base</li>
                     <li>Ascolto con pubblicità</li>
                     <li>Immersive mode</li>
-                    <li>Ascolto senza pubblicità</li>
                 </ul>
                 <% if (user.plan==='standard' ) { %>
                     <button class="plan-btn" disabled>Piano Attuale</button>
@@ -53,7 +52,7 @@
                 <p class="plan-price"><span style="font-family: sans-serif;">€</span>5.99</p>
                 <ul>
                     <li>Privilegi dei precedenti</li>
-                    <li>Audio DOLBY ATMOS</li>s
+                    <li>Audio DOLBY ATMOS</li>
                     <li>Creazione playlist pubbliche</li>
                     <li>Accesso a suoni premium</li>
                 </ul>
@@ -66,7 +65,7 @@
                         <% } %>
             </div>
 
-            <!-- Creator Plan -->
+            <!-- Piano Creator -->
             <div class="plan-card <%= (user.role === 'creator') ? 'active' : '' %>">
                 <h3>Creator</h3>
                 <p class="plan-price"><span style="font-family: sans-serif;">€</span>40.00</p>
@@ -80,8 +79,7 @@
                     <% } else { %>
                         <button class="plan-btn" data-action="subscribe" data-plan="creator">Diventa Creator</button>
                         <button class="plan-btn btn-outline" data-action="fast-track" data-plan="creator">Passa
-                            Velocemente
-                            (Sim)</button>
+                            Velocemente</button>
                         <% } %>
             </div>
         </div>
@@ -90,10 +88,8 @@
 
 
 
-        <!-- Script for Logic -->
+        <!-- Logica Frontend -->
         <script src="/js/background-timer.js"></script>
-        <script>
-        </script>
         <script src="/js/abbonamento.js"></script>
 </body>
 
