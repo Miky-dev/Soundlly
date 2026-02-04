@@ -1,6 +1,4 @@
 /**
- * timer.js
- * 
  * Gestore principale del Timer Focus (Tecnica del Pomodoro).
  * 
  * Questo script gestisce:

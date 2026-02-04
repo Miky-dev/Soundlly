@@ -1,5 +1,5 @@
 /**
- * Questo script gestisce tutta la sezione dei "Suoni Ambientali".
+ * Gestisce tutta la sezione dei "Suoni Ambientali".
  * Si occupa di scaricare la lista dei suoni dal server, costruire le card
  * nell'interfaccia, gestire la riproduzione audio, il volume e salvare
  * le preferenze dell'utente (quali suoni sono attivi e a che volume).

@@ -1,76 +1,72 @@
 /**
  * todo.js
  * 
- * Gestore della Lista "To-Do" (Compiti da svolgere).
- * 
- * Funzionalità:
- * 1. Aggiunta task: Invia al server il testo (POST).
- * 2. Visualizzazione: Renderizza la lista con checkbox personalizzati.
- * 3. Stato Check/Uncheck: Aggiorna lo stato sul server in tempo reale (PUT).
- * 4. Eliminazione: Rimuove task e pulizia completati (DELETE).
+ * Gestisce la lista dei compiti (To-Do List).
+ * Permette di aggiungere nuovi task, segnarli come fatti e cancellarli.
+ * Tutte le modifiche vengono salvate subito sul server così le ritrovi anche se cambi dispositivo.
  */
 
 class TodoManager {
     constructor() {
-        // Riferimenti DOM
+        // I pezzi della pagina che ci servono
         this.input = document.getElementById('todo-input');
         this.addBtn = document.getElementById('add-btn');
         this.list = document.getElementById('todo-list');
         this.clearBtn = document.getElementById('clear-completed-btn');
 
-        // Avvia solo se i componenti esistono
+        // Parto solo se la lista esiste in questa pagina
         if (this.input && this.addBtn && this.list) {
             this.init();
         }
     }
 
     init() {
-        this.loadTasks(); // Carica task esistenti
-        this.bindEvents(); // Attiva pulsanti e input
+        this.loadTasks(); // Chiedo al server i compiti vecchi
+        this.bindEvents(); // Attivo i bottoni
     }
 
     bindEvents() {
-        // Event delegation sulla lista per gestire click su item dinamici
+        // Ascolto i click su tutta la lista (così funziona anche per gli elementi creati dinamicamente dopo)
         this.list.addEventListener('click', (e) => this.handleListClick(e));
 
-        // Click Bottone Aggiungi
+        // Click sul bottone "+"
         this.addBtn.addEventListener('click', () => this.addTask());
 
-        // Tasto Invio nell'input
+        // Invio dalla tastiera
         this.input.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.addTask();
         });
 
-        // Bottone "Pulisci Completati"
+        // Bottone "Pulisci Completati" (il cestino generale)
         if (this.clearBtn) {
             this.clearBtn.addEventListener('click', () => this.clearCompleted());
         }
     }
 
-    // Gestore unico click sulla lista (per performance e elementi dinamici)
+    // Gestisco un solo listener per tanti elementi (Performance migliore)
     handleListClick(e) {
         const target = e.target;
-        // Trova l'elemento <li> padre
+        // Risalgo all'elemento <li> che contiene tutto
         const li = target.closest('li');
         if (!li) return;
 
         const id = li.dataset.id;
 
-        // Caso 1: Click bottone Cancella (X)
+        // 1. Hanno cliccato la X per cancellare?
         if (target.classList.contains('delete-btn') || target.closest('.delete-btn')) {
-            e.stopPropagation();
+            e.stopPropagation(); // Evito che il click si propaghi
             this.deleteTask(id, li);
             return;
         }
 
-        // Caso 2: Click Checkbox
+        // 2. Hanno cliccato la spunta (checkbox)?
         if (target.type === 'checkbox') {
             const isChecked = target.checked;
             this.updateTaskStatus(id, isChecked, li);
             return;
         }
 
-        // Caso 3: Click sulla riga vuota (opzionale: toggle checkbox)
+        // 3. (Opzionale) Se cliccano sulla riga vuota, attivo la spunta lo stesso
         if (target === li) {
             const checkbox = li.querySelector('input[type="checkbox"]');
             if (checkbox) {
@@ -80,11 +76,11 @@ class TodoManager {
         }
     }
 
-    // --- LOGICA API e UI ---
+    // --- COMUNICAZIONE CON IL SERVER ---
 
     async addTask() {
         const text = this.input.value.trim();
-        if (text === '') return;
+        if (text === '') return; // Niente task vuoti
 
         try {
             const res = await fetch('/api/todos', {
@@ -93,7 +89,7 @@ class TodoManager {
                 body: JSON.stringify({ text })
             });
 
-            // Gestione utente non loggato
+            // Se la sessione è scaduta, rimando al login
             if (res.status === 401) {
                 window.location.href = '/login';
                 return;
@@ -101,23 +97,23 @@ class TodoManager {
 
             if (res.ok) {
                 const task = await res.json();
-                // Aggiunge visivamente il task appena creato
+                // Disegno subito il nuovo task nella lista
                 this.appendTaskToUI(task.text, task.completed, task.id);
-                this.input.value = ''; // Pulisce input
+                this.input.value = ''; // Pulisco il campo
                 this.input.focus();
             }
         } catch (err) {
-            console.error('Errore aggiunta task:', err);
+            console.error('Impossibile aggiungere il task:', err);
         }
     }
 
-    // Crea l'HTML per il singolo task
+    // Costruisco l'HTML del task (li, checkbox, label, bottone elimina)
     appendTaskToUI(text, isCompleted, id) {
         const li = document.createElement('li');
         li.dataset.id = id;
         if (isCompleted) li.classList.add('checked');
 
-        // Wrapper per checkbox custom
+        // Div contenitore per lo stile checkbox personalizzato (da CSS)
         const wrapper = document.createElement('div');
         wrapper.className = 'checkbox-wrapper-11';
 
@@ -136,7 +132,7 @@ class TodoManager {
         wrapper.appendChild(checkbox);
         wrapper.appendChild(label);
 
-        // Bottone Eliminazione
+        // Bottone "X"
         const deleteBtn = document.createElement('button');
         deleteBtn.innerHTML = '&times;';
         deleteBtn.classList.add('delete-btn');
@@ -145,12 +141,12 @@ class TodoManager {
         li.appendChild(deleteBtn);
         this.list.appendChild(li);
 
-        // Auto-scroll in fondo per vedere il nuovo task
+        // Scrollo in basso per mostrare l'ultimo arrivato
         this.list.scrollTop = this.list.scrollHeight;
     }
 
     async updateTaskStatus(id, completed, liElement) {
-        // Feedback visuale immediato
+        // Feedback visuale istantaneo (prima ancora che risponda il server)
         if (completed) {
             liElement.classList.add('checked');
         } else {
@@ -170,7 +166,7 @@ class TodoManager {
     }
 
     async deleteTask(id, liElement) {
-        liElement.remove(); // Rimozione visuale immediata (Optimistic UI)
+        liElement.remove(); // Lo tolgo subito dalla vista (Optimistic UI)
         try {
             const res = await fetch(`/api/todos/${id}`, { method: 'DELETE' });
             if (res.status === 401) window.location.href = '/login';
@@ -180,7 +176,7 @@ class TodoManager {
     }
 
     async loadTasks() {
-        // Verifica preliminare se l'utente è loggato tramite data-attribute nel body
+        // Controllo veloce se siamo loggati (l'attributo è messo da EJS nel body)
         const isLoggedIn = document.body.dataset.loggedIn === 'true';
         if (!isLoggedIn) return;
 
@@ -188,29 +184,29 @@ class TodoManager {
             const res = await fetch('/api/todos');
             if (res.ok) {
                 const tasks = await res.json();
-                this.list.innerHTML = ''; // Pulisce lista attuale
+                this.list.innerHTML = ''; // Pulisco per sicurezza
                 tasks.forEach(task => this.appendTaskToUI(task.text, task.completed, task.id));
             }
         } catch (err) {
-            console.error('Errore caricamento tasks:', err);
+            console.error('Impossibile caricare i task:', err);
         }
     }
 
     async clearCompleted() {
-        // Rimuove visualmente tutti i task completati
+        // Tolgo subito dalla vista quelli spuntati
         const completedItems = this.list.querySelectorAll('li.checked');
         completedItems.forEach(li => li.remove());
 
         try {
-            // Chiede al server di fare pulizia
+            // Dico al server di fare lo stesso nel database
             await fetch('/api/todos/completed', { method: 'DELETE' });
         } catch (err) {
-            console.error('Errore pulizia tasks:', err);
+            console.error('Errore pulizia completa:', err);
         }
     }
 }
 
-// Inizializzazione Globale
+// Avvio tutto quando la pagina è pronta
 document.addEventListener('DOMContentLoaded', () => {
     window.Soundlly = window.Soundlly || {};
     window.Soundlly.todo = new TodoManager();

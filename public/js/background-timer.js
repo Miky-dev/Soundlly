@@ -1,6 +1,6 @@
 /**
  * Gestione Timer in Background
- * Questa classe permette al timer di "funzionare" anche se l'utente cambia pagina o naviga nel sito.
+ * Permette al timer di "funzionare" anche se l'utente cambia pagina o naviga nel sito.
  * 
  * Funzionamento:
  * 1. Legge lo stato del timer salvato dal componente principale (timer.js) nel LocalStorage.

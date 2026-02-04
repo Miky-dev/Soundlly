@@ -1,5 +1,5 @@
 /**
- * Questo file gestisce la navigazione "lato client" (SPA - Single Page Application).
+ * Gestisce la navigazione "lato client" (SPA - Single Page Application).
  * In pratica, usa la libreria 'page.js' per intercettare i click sui link e cambiare
  * il contenuto della pagina senza doverla ricaricare da zero ogni volta.
  * È un requisito tecnico del progetto per rendere la navigazione fluida.

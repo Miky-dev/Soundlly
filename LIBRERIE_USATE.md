@@ -31,6 +31,7 @@ Queste librerie sono utili solo durante la fase di scrittura del codice e non so
 | **Bootstrap** | Framework CSS per il layout responsivo e componenti UI (es. navbar, cards). |
 | **Font Awesome** | Libreria di icone vettoriali utilizzata per le icone dell'interfaccia (es. `fa-cloud`, `fa-heart`). |
 | **Page.js** | Router lato client per gestire la navigazione senza ricaricare la pagina (SPA feel). |
+| **Chart.js** | Libreria JavaScript per la creazione di grafici interattivi e responsivi (usata per le statistiche). |
 
 ## Risorse Esterne
 | Risorsa | Descrizione |
