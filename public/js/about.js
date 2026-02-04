@@ -1,6 +1,5 @@
 /**
- * Gestione della pagina "Chi Siamo" (About)
- * Funzionalità minime: gestione anno footer.
+ * Gestione della pagina About
  */
 
 document.addEventListener('DOMContentLoaded', () => {

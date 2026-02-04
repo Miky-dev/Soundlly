@@ -1,22 +1,25 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Event Delegation for Buttons
+    // Gestisco i click su tutta la pagina per intercettare i pulsanti dei piani
     document.body.addEventListener('click', (e) => {
         const target = e.target;
+        // Recupero le informazioni dal bottone cliccato
         const action = target.getAttribute('data-action');
         const plan = target.getAttribute('data-plan');
 
-        if (!action) return; // Not an action button
+        if (!action) return; // Se non è un bottone che ci interessa, ignoro
 
-        // Unify actions: both 'subscribe', 'fast-track', and 'select-plan' now just do the simulated upgrade
+        // Unifico le azioni: che sia "abbonati", "fast-track" o "seleziona", 
+        // alla fine eseguo sempre la simulazione di upgrade.
         if (action === 'subscribe' || action === 'fast-track' || action === 'select-plan') {
             fastTrack(plan);
         }
     });
 
+    // Funzione che simula il passaggio rapido a un nuovo piano
     function fastTrack(plan) {
         if (!plan) return;
 
-        // Visual feedback
+        // Do un feedback visivo all'utente mentre aspetto
         const feedback = document.getElementById('feedback-message');
         if (feedback) feedback.textContent = 'Elaborazione in corso...';
 
@@ -29,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(data => {
                 if (data.success) {
                     alert('Upgrade Simulato Riuscito!');
-                    location.reload();
+                    location.reload(); // Ricarico per aggiornare l'interfaccia col nuovo piano
                 } else {
                     alert('Errore: ' + data.message);
                     if (feedback) feedback.textContent = '';
