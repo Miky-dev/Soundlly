@@ -1,20 +1,17 @@
 /**
  * auth-login.js
  * 
- * Gestisce la logica di login e registrazione lato client.
- * Funzionalità:
- * 1. Switch tra Login e Registrazione.
- * 2. Gestione messaggi di errore (da URL o validazione).
- * 3. Caricamento token CSRF per la sicurezza.
- * 4. Validazione form (campi vuoti, password, età, email).
+ * Qui gestisco tutto quello che succede nella pagina di login e registrazione.
+ * Mi occupo di switchare tra i due form, validare i dati inseriti dall'utente
+ * (come età, password, ecc.) e mostrare eventuali errori se qualcosa non va.
  */
 
 class AuthManager {
   constructor() {
-    // Alias breve per selezione elementi
+    // Funzione comoda per selezionare elementi senza scrivere ogni volta tutto
     this.$ = (sel) => document.querySelector(sel);
 
-    // Riferimenti agli elementi del DOM
+    // Qui mi salvo i riferimenti agli elementi del DOM che userò spesso
     this.els = {
       loginForm: this.$('#login-form'),
       registerForm: this.$('#register-form'),
@@ -22,8 +19,6 @@ class AuthManager {
       backToLoginBtn: this.$('#back-to-login'),
       loginAlert: this.$('#login-alert'),
       registerError: this.$('#register-error'),
-      loginCsrf: this.$('#login-csrf'),
-      registerCsrf: this.$('#register-csrf'),
       formTitle: this.$('#form-title')
     };
 
@@ -33,35 +28,35 @@ class AuthManager {
   init() {
     this.bindEvents();
     this.checkUrlParams();
-    this.loadCsrf();
   }
 
-  // --- GESTIONE EVENTI (Click & Submit) ---
+  // --- GESTIONE EVENTI ---
+  // Qui collego i click dei pulsanti e l'invio dei form alle funzioni giuste
   bindEvents() {
-    // Switch Login -> Registrazione
+    // Se premo su "Registrati", cambio vista
     if (this.els.showRegisterBtn) {
       this.els.showRegisterBtn.addEventListener('click', () => this.toggleView('register'));
     }
 
-    // Switch Registrazione -> Login
+    // Se voglio tornare al Login
     if (this.els.backToLoginBtn) {
       this.els.backToLoginBtn.addEventListener('click', () => this.toggleView('login'));
     }
 
-    // Submit Form Login
+    // Quando provo a fare login
     if (this.els.loginForm) {
       this.els.loginForm.addEventListener('submit', (e) => this.handleLoginSubmit(e));
     }
 
-    // Submit Form Registrazione
+    // Quando provo a registrarmi
     if (this.els.registerForm) {
       this.els.registerForm.addEventListener('submit', (e) => this.handleRegisterSubmit(e));
     }
   }
 
-  // --- LOGICA UI ---
+  // --- INTERFACCIA UTENTE ---
 
-  // Cambia vista tra login e registrazione
+  // Questa funzione gestisce lo switch visivo tra Login e Registrazione
   toggleView(view) {
     if (view === 'register') {
       this.els.registerForm.style.display = 'block';
@@ -76,16 +71,17 @@ class AuthManager {
     }
   }
 
-  // Mostra messaggio di errore/successo
+  // Mostro un messaggio di feedback (errore o successo) all'utente
   showMessage(el, msg, type = 'error') {
     if (!el) return;
     el.textContent = msg;
     el.classList.remove('hidden');
     el.classList.remove('ok', 'error', 'info');
     el.classList.add(type);
-    el.style.display = 'block'; // Assicura visibilità
+    el.style.display = 'block';
   }
 
+  // Nascondo i messaggi quando non servono più
   hideMessage(el) {
     if (!el) return;
     el.textContent = '';
@@ -95,7 +91,8 @@ class AuthManager {
 
   // --- CONTROLLI INIZIALI ---
 
-  // Controlla parametri URL (es. ?error=1) per feedback server
+  // Controllo se nell'URL ci sono parametri di errore o conferma
+  // (es. quando il server mi rimanda qui dopo un login fallito)
   checkUrlParams() {
     const params = new URLSearchParams(location.search);
 
@@ -110,25 +107,9 @@ class AuthManager {
     }
   }
 
-  // Carica token CSRF (Cross-Site Request Forgery) dal server
-  async loadCsrf() {
-    try {
-      const res = await fetch('/api/csrf', { credentials: 'include' });
-      if (!res.ok) return;
-      const data = await res.json();
-
-      // Inietta il token negli input hidden dei form
-      if (data?.csrfToken) {
-        const inputs = document.querySelectorAll('input[name="_csrf"]');
-        inputs.forEach(inp => inp.value = data.csrfToken);
-      }
-    } catch (e) {
-      console.error('Errore caricamento CSRF', e);
-    }
-  }
-
   // --- VALIDAZIONE ---
 
+  // Controllo veloce prima di inviare il login
   handleLoginSubmit(e) {
     this.hideMessage(this.els.loginAlert);
 
@@ -142,11 +123,12 @@ class AuthManager {
     }
   }
 
+  // Controllo validità dati registrazione
   handleRegisterSubmit(e) {
     const form = this.els.registerForm;
     const errBox = this.els.registerError;
 
-    // Reset errori
+    // Resetto eventuali errori precedenti
     errBox.style.display = 'none';
     errBox.textContent = '';
 
@@ -154,7 +136,7 @@ class AuthManager {
     const pwd = form.elements['password']?.value;
     const birth = form.elements['birth_date']?.value;
 
-    // 1. Validazione Email
+    // 1. Controllo che l'email sia scritta bene
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       e.preventDefault();
@@ -163,7 +145,7 @@ class AuthManager {
       return;
     }
 
-    // 2. Validazione Password (>6 caratteri)
+    // 2. La password non deve essere troppo corta
     if (!pwd || pwd.length < 6) {
       e.preventDefault();
       errBox.textContent = 'La password deve contenere almeno 6 caratteri.';
@@ -171,7 +153,7 @@ class AuthManager {
       return;
     }
 
-    // 3. Validazione Età (Minimo 14 anni)
+    // 3. Controllo l'età (serve avere almeno 14 anni)
     const bd = birth ? new Date(birth) : null;
     if (!bd || isNaN(bd.getTime())) {
       e.preventDefault();
@@ -188,10 +170,12 @@ class AuthManager {
     }
   }
 
+  // Calcolo l'età a partire dalla data di nascita
   calculateAge(birthDate) {
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
     const m = today.getMonth() - birthDate.getMonth();
+    // Se non ho ancora compiuto gli anni quest'anno, tolgo 1
     if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
       age--;
     }
@@ -199,7 +183,7 @@ class AuthManager {
   }
 }
 
-// Inizializzazione al caricamento del documento
+// Quando la pagina è pronta, avvio tutto
 document.addEventListener('DOMContentLoaded', () => {
   new AuthManager();
 });
