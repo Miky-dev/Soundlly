@@ -1,38 +1,44 @@
-// db/sqlite.js
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
-
-// Definiamo il percorso del file del database "database.sqlite"
-const dbFile = path.join(__dirname, '..', 'database.sqlite');
-
-// Ci connettiamo al database (se non esiste, viene creato vuoto)
-const db = new sqlite3.Database(dbFile);
 const fs = require('fs');
 
-// Leggiamo il file SQL di inizializzazione (lo schema delle tabelle)
-const initSql = fs.readFileSync(path.join(__dirname, '..', 'migrations', 'init-v3.sql'), 'utf-8');
+// Definizione del percorso del file database SQLite
+const dbFile = path.join(__dirname, '..', 'database.sqlite');
 
-// Eseguiamo lo script SQL per creare le tabelle se non esistono
+// Connessione al database (se il file non esiste, viene creato vuoto)
+const db = new sqlite3.Database(dbFile);
+
+// Percorso del file SQL per l'inizializzazione dello schema (tabelle e struttura)
+const initSqlPath = path.join(__dirname, '..', 'migrations', 'init-v3.sql');
+const initSql = fs.readFileSync(initSqlPath, 'utf-8');
+
+// Esecuzione dello script SQL per creare le tabelle se non sono già presenti
 db.exec(initSql, (err) => {
   if (err) {
-    console.error("Database initialization failed:", err);
+    console.error("Errore durante l'inizializzazione del database:", err);
   } else {
-    console.log("Database initialized with V3 Schema.");
+    // Log commentato per pulizia console, scommentare per debug
+    // console.log("Database inizializzato correttamente (Schema V3).");
   }
 });
 
-// Funzione "run": Esegue comandi che NON restituiscono dati (es. INSERT, UPDATE, DELETE)
-// Ritorna una Promise per poter usare "await" invece delle callback.
+/**
+ * Esegue un comando SQL che non restituisce dati (es. INSERT, UPDATE, DELETE).
+ * Restituisce una Promise che si risolve con il contesto di esecuzione (es. this.lastID).
+ */
 function run(sql, params = []) {
   return new Promise((resolve, reject) => {
     db.run(sql, params, function (err) {
       if (err) reject(err);
-      else resolve(this); // "this" contiene info come l'ID dell'ultimo record inserito
+      else resolve(this); // 'this' contiene info come l'ID dell'ultimo record inserito o le righe modificate
     });
   });
 }
 
-// Funzione "get": Esegue una query e restituisce SOLO LA PRIMA riga trovata (es. SELECT per ID)
+/**
+ * Esegue una query SQL e restituisce la PRIMA riga trovata (es. SELECT per ID).
+ * Utile per cercare un singolo record.
+ */
 function get(sql, params = []) {
   return new Promise((resolve, reject) => {
     db.get(sql, params, (err, row) => {
@@ -42,7 +48,10 @@ function get(sql, params = []) {
   });
 }
 
-// Funzione "all": Esegue una query e restituisce TUTTE le righe trovate (es. lista utenti)
+/**
+ * Esegue una query SQL e restituisce TUTTE le righe trovate.
+ * Utile per liste ed elenchi.
+ */
 function all(sql, params = []) {
   return new Promise((resolve, reject) => {
     db.all(sql, params, (err, rows) => {
@@ -52,4 +61,5 @@ function all(sql, params = []) {
   });
 }
 
+// Esporta l'oggetto database e le funzioni helper (Promise-based)
 module.exports = { db, run, get, all };

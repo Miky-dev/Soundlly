@@ -1,4 +1,3 @@
-// auth/passport-setup.js
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const UserModel = require('../models/UserModel');

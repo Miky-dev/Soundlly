@@ -1,6 +1,6 @@
 -- migrations/init-v3.sql
--- Schema Database V3 - Professional & Statistics Optimized
--- Unifies Users, Profiles, Social Graph, and Advanced Analytics
+-- Schema Database V3 - Ottimizzato per Professionisti e Statistiche
+-- Unifica Utenti, Profili, Grafo Sociale e Analisi Avanzate
 
 PRAGMA foreign_keys = ON;
 
@@ -10,12 +10,12 @@ PRAGMA foreign_keys = ON;
 CREATE TABLE IF NOT EXISTS users (
   id                    INTEGER PRIMARY KEY AUTOINCREMENT,
 
--- Credentials
+-- Credenziali
 username TEXT NOT NULL UNIQUE COLLATE NOCASE,
 email TEXT UNIQUE COLLATE NOCASE,
 password_hash TEXT NOT NULL,
 
--- Profile Info
+-- Informazioni Profilo
 display_name TEXT,
 bio TEXT,
 avatar_url TEXT,
@@ -26,12 +26,12 @@ date_of_birth DATE,
 mood TEXT,
 subscription_expiry DATE,
 
--- Timer Settings
+-- Impostazioni Timer
 focus_minutes INTEGER DEFAULT 25,
 short_break_minutes INTEGER DEFAULT 5,
 long_break_minutes INTEGER DEFAULT 15,
 
--- Account Status
+-- Stato Account
 role TEXT NOT NULL DEFAULT 'user' CHECK (
     role IN ('user', 'creator', 'admin')
 ),
@@ -50,7 +50,7 @@ status TEXT NOT NULL DEFAULT 'active' CHECK (
     )
 ),
 
--- Timestamps
+-- Timestamp Gestione Record
 created_at            DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at            DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   last_login_at         DATETIME
@@ -79,19 +79,18 @@ CREATE TABLE IF NOT EXISTS sounds (
   id                    INTEGER PRIMARY KEY AUTOINCREMENT,
   owner_id              INTEGER NOT NULL,
 
--- Content
+-- Contenuti
 title TEXT NOT NULL,
 description TEXT,
 filename TEXT NOT NULL, -- path
 media_type TEXT NOT NULL DEFAULT 'audio',
 duration_seconds INTEGER DEFAULT 0,
 
--- Categorization
--- Categorization
+-- Categorizzazione
 mood TEXT,
-genre_primary TEXT, -- Simple string tag for fast filtering
+genre_primary TEXT, -- Tag semplice per filtraggio rapido
 
--- Access Control
+-- Controllo Accessi
 access_level TEXT NOT NULL DEFAULT 'public' CHECK (
     access_level IN (
         'public',
@@ -104,20 +103,20 @@ category TEXT DEFAULT 'ambient' CHECK (
     category IN ('ambient', 'music', 'sound')
 ),
 
--- NEW: Icon/Cover Column with Constraint for Music
+-- Icona/Copertina con vincolo per Musica
 icon TEXT,
 is_restricted INTEGER NOT NULL DEFAULT 0 CHECK (is_restricted IN (0, 1)),
 
--- Stats (Cached Counters)
+-- Statistiche (Contatori in cache)
 play_count INTEGER DEFAULT 0, like_count INTEGER DEFAULT 0,
 
--- Timestamps
+-- Timestamp Gestione Record
 created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 deleted_at DATETIME,
 FOREIGN KEY (owner_id) REFERENCES users (id) ON DELETE CASCADE,
 
--- CONSTRAINT: If category is music, icon MUST NOT BE NULL
+-- VINCOLO: Se la categoria è musica, l'icona NON DEVE ESSERE NULLA
 CONSTRAINT check_music_has_cover CHECK (
      category != 'music' OR icon IS NOT NULL
   )
@@ -168,7 +167,7 @@ CREATE TABLE IF NOT EXISTS playlist_items (
 ) WITHOUT ROWID;
 
 -- =================================================================
--- 5. ENGAGEMENT (Strict FKs)
+-- 5. INTERAZIONI (Foreign Key Strette)
 -- =================================================================
 CREATE TABLE IF NOT EXISTS sound_likes (
     user_id INTEGER NOT NULL,
@@ -189,15 +188,15 @@ CREATE TABLE IF NOT EXISTS playlist_likes (
 ) WITHOUT ROWID;
 
 -- =================================================================
--- 6. ANALYTICS & STATISTICHE
+-- 6. ANALITICA E STATISTICHE
 -- =================================================================
 
--- Storico Ascolti (Granulare)
+-- Storico Ascolti (Dettagliato)
 CREATE TABLE IF NOT EXISTS listening_history (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER, -- Nullable for anonymous plays
+    user_id INTEGER, -- Opzionale per ascolti anonimi
     sound_id INTEGER NOT NULL,
-    playlist_id INTEGER, -- Context: played from a playlist?
+    playlist_id INTEGER, -- Contesto: riprodotto da una playlist?
     listened_seconds INTEGER DEFAULT 0,
     completed_percent INTEGER DEFAULT 0,
     device_type TEXT,
@@ -231,7 +230,7 @@ CREATE TABLE IF NOT EXISTS focus_sessions (
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
--- Mood Tracking
+-- Tracciamento Umore
 CREATE TABLE IF NOT EXISTS mood_entries (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
@@ -242,20 +241,20 @@ CREATE TABLE IF NOT EXISTS mood_entries (
 );
 
 -- =================================================================
--- 7. FEATURES UTILITÀ
+-- 7. FUNZIONALITÀ UTILI
 -- =================================================================
 CREATE TABLE IF NOT EXISTS todos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
     text TEXT NOT NULL,
     is_done INTEGER DEFAULT 0,
-    completed_at DATETIME, -- Added for statistics
+    completed_at DATETIME, -- Aggiunto per le statistiche
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 -- =================================================================
--- 8. AMBIENT SOUNDS PREFERENCES & STATS
+-- 8. PREFERENZE SUONI AMBIENTALI E STATISTICHE
 -- =================================================================
 CREATE TABLE IF NOT EXISTS user_ambient_sounds (
     user_id INTEGER NOT NULL,

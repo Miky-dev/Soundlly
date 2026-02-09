@@ -1,13 +1,13 @@
-// models/UserModel.js
 const bcrypt = require('bcrypt');
 const { run, get, all } = require('../db/sqlite');
 
 class UserModel {
-  // Table creation is now handled by mutations/init-v3.sql loaded in db/sqlite.js
+  // La creazione della tabella è gestita dal file di migrazione 'migrations/init-v3.sql'
+  // caricato automaticamente all'avvio in 'db/sqlite.js'
 
   static async create(username, plainPassword, role = 'user') {
     const hash = await bcrypt.hash(plainPassword, 10);
-    // V3 Schema: password_hash instead of password
+    // Nota: Schema V3 usa 'password_hash' invece di 'password'
     const res = await run(`INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)`, [username, hash, role]);
     return { id: res.lastID, username, role };
   }

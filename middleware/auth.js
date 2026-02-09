@@ -1,5 +1,3 @@
-// middleware/auth.js
-
 // Si mette in mezzo tra la richiesta dell'utente e la pagina finale.
 
 // Questa funzione controlla se l'utente è loggato.
