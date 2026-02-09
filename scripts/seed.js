@@ -1,63 +1,59 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
 const bcrypt = require('bcrypt');
-
-const dbPath = path.join(__dirname, '..', 'database.sqlite');
-const db = new sqlite3.Database(dbPath);
+const { run, db } = require('../db/sqlite');
 
 const SALT_ROUNDS = 10;
 
+/**
+ * Helper per generare l'hash delle password.
+ */
 async function hashPassword(password) {
   return await bcrypt.hash(password, SALT_ROUNDS);
 }
 
-function run(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.run(sql, params, function (err) {
-      if (err) reject(err);
-      else resolve(this);
-    });
-  });
-}
-
+/**
+ * Popola il database con alcuni utenti di prova iniziali.
+ */
 async function seed() {
-  console.log('Seeding database...');
+  console.log('Inizio popolamento database (seed)...');
 
   try {
-    // 1. Create Admin User
+    // 1. Creazione Utente Amministratore
     const adminPass = await hashPassword('admin123');
     await run(`
       INSERT INTO users (username, email, password_hash, role, plan, display_name, bio)
       VALUES (?, ?, ?, ?, ?, ?, ?)
-    `, ['admin', 'admin@example.com', adminPass, 'admin', 'premium', 'Admin User', 'System Administrator']);
-    console.log('Admin user created (admin / admin123)');
+    `, ['admin', 'admin@example.com', adminPass, 'admin', 'premium', 'Amministratore', 'Gestore del sistema']);
+    console.log('Creato utente Admin (admin / admin123)');
 
-    // 2. Create Standard User
+    // 2. Creazione Utente Standard
     const userPass = await hashPassword('user123');
     await run(`
       INSERT INTO users (username, email, password_hash, role, plan, display_name, bio)
       VALUES (?, ?, ?, ?, ?, ?, ?)
-    `, ['mario', 'mario@example.com', userPass, 'user', 'standard', 'Mario Rossi', 'Just a music lover']);
-    console.log('Standard user created (mario / user123)');
+    `, ['mario', 'mario@example.com', userPass, 'user', 'standard', 'Mario Rossi', 'Appassionato di musica rilassante']);
+    console.log('Creato utente Standard (mario / user123)');
 
-    // 3. Create Creator User
+    // 3. Creazione Utente Creatore
     const creatorPass = await hashPassword('creator123');
     await run(`
       INSERT INTO users (username, email, password_hash, role, plan, display_name, bio)
       VALUES (?, ?, ?, ?, ?, ?, ?)
-    `, ['luigi', 'luigi@example.com', creatorPass, 'creator', 'premium', 'Luigi Verdi', 'Indie Artist']);
-    console.log('Creator user created (luigi / creator123)');
+    `, ['luigi', 'luigi@example.com', creatorPass, 'creator', 'premium', 'Luigi Verdi', 'Artista Indie']);
+    console.log('Creato utente Creatore (luigi / creator123)');
 
-    console.log('Seeding complete!');
+    console.log('Popolamento completato con successo!');
   } catch (err) {
+    // Gestione specifica per inserimenti duplicati
     if (err.message.includes('UNIQUE constraint failed')) {
-      console.log('Users already exist, skipping creation.');
+      console.log('Gli utenti di test esistono già, inserimento saltato.');
     } else {
-      console.error('Error seeding database:', err);
+      console.error('Errore durante il popolamento del database:', err);
     }
   } finally {
+    // Chiudiamo la connessione al database
     db.close();
   }
 }
 
+// Avvio dello script
 seed();

@@ -1,64 +1,64 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
-const { exec } = require('child_process');
 
+// Percorsi per il database e il file di dump SQL
 const dbPath = path.join(__dirname, '..', 'database.sqlite');
-const initSqlPath = path.join(__dirname, '..', 'migrations', 'init-v3.sql');
+const initSqlPath = path.join(__dirname, '..', 'dump.sql');
 
-function runCommand(command) {
-    return new Promise((resolve, reject) => {
-        console.log(`Running: ${command}`);
-        exec(command, (error, stdout, stderr) => {
-            if (error) {
-                console.error(`Error executing ${command}:`, error);
-                reject(error);
-                return;
-            }
-            if (stdout) console.log(stdout);
-            if (stderr) console.error(stderr);
-            resolve();
-        });
-    });
-}
-
+/**
+ * Inizializza il database caricando lo schema e i dati dal file dump.sql
+ */
 function initDatabase() {
     return new Promise((resolve, reject) => {
-        console.log('Initializing database from init-v3.sql...');
-        const db = new sqlite3.Database(dbPath);
-        const sql = fs.readFileSync(initSqlPath, 'utf8');
+        console.log('Inizializzazione del database tramite dump.sql...');
 
-        db.exec(sql, (err) => {
-            if (err) {
-                console.error('Error running init-v3.sql:', err);
-                reject(err);
-            } else {
-                console.log('Base schema applied successfully.');
-                db.close(resolve);
-            }
-        });
+        // Se il file del database esiste già, lo rimuoviamo per partire da uno stato pulito
+        if (fs.existsSync(dbPath)) {
+            console.log('Rimozione del database esistente...');
+            fs.unlinkSync(dbPath);
+        }
+
+        const db = new sqlite3.Database(dbPath);
+
+        // Lettura del file SQL
+        try {
+            const sql = fs.readFileSync(initSqlPath, 'utf8');
+
+            // Esecuzione di tutti i comandi SQL nel dump
+            db.exec(sql, (err) => {
+                if (err) {
+                    console.error('Errore durante l\'esecuzione di dump.sql:', err);
+                    reject(err);
+                } else {
+                    console.log('Database inizializzato correttamente.');
+                    db.close(resolve);
+                }
+            });
+        } catch (readErr) {
+            console.error('Impossibile leggere il file dump.sql:', readErr);
+            reject(readErr);
+        }
     });
 }
 
+/**
+ * Funzione principale per il setup del progetto
+ */
 async function main() {
     try {
-        console.log('--- STARTING PROJECT INITIALIZATION ---');
+        console.log('--- INIZIO INIZIALIZZAZIONE PROGETTO ---');
 
-        // 1. Apply Base Schema
+        // Caricamento dei dati iniziali
         await initDatabase();
 
-        // 2. Run Database V4 Migration (updates 'sounds' table)
-        await runCommand('node scripts/database-v4.js');
-
-        // 3. Seed Database (Creates users)
-        await runCommand('node scripts/seed.js');
-
-        console.log('--- INITIALIZATION COMPLETE ---');
-        console.log('You can now run "npm start" to launch the server.');
+        console.log('--- INIZIALIZZAZIONE COMPLETATA ---');
+        console.log('Ora puoi avviare il server usando "npm start".');
     } catch (err) {
-        console.error('Initialization failed:', err);
+        console.error('Inizializzazione fallita:', err);
         process.exit(1);
     }
 }
 
+// Avvio dello script
 main();

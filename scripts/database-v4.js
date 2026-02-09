@@ -5,126 +5,112 @@ const fs = require('fs');
 const dbPath = path.join(__dirname, '..', 'database.sqlite');
 const backupPath = path.join(__dirname, '..', 'database.sqlite.bak-v4');
 
-console.log('--- START MIGRATION V4 ---');
+console.log('--- INIZIO MIGRAZIONE DATABASE (V4) ---');
 
-// 1. Backup
+// 1. Creazione Backup di sicurezza
 if (fs.existsSync(dbPath)) {
     fs.copyFileSync(dbPath, backupPath);
-    console.log(`Backup created at: ${backupPath}`);
+    console.log(`Backup creato in: ${backupPath}`);
 } else {
-    console.error('Database file not found!');
+    console.error('File del database non trovato! Impossibile procedere.');
     process.exit(1);
 }
 
 const db = new sqlite3.Database(dbPath);
 
 db.serialize(() => {
-
-    // 2. Disable Foreign Keys
+    // 2. Disabilita temporaneamente i vincoli di integrità (Foreign Keys)
     db.run("PRAGMA foreign_keys = OFF");
 
-    // 3. Rename old table
-    console.log("Renaming old 'sounds' table...");
+    // 3. Rinomina la vecchia tabella 'sounds' per backup interno
+    console.log("Ridenominazione della vecchia tabella 'sounds'...");
     db.run("ALTER TABLE sounds RENAME TO sounds_old", (err) => {
         if (err) {
-            console.error("Error renaming sounds table:", err);
-            return; // Try to continue or handle error
+            console.error("Errore durante la ridenominazione della tabella:", err);
+            return;
         }
     });
 
-    // 4. Create new table with strict constraint and ICON column
-    console.log("Creating new 'sounds' table...");
+    // 4. Creazione della nuova tabella 'sounds' con colonna ICON e vincoli aggiornati
+    console.log("Creazione della nuova tabella 'sounds'...");
     db.run(`
         CREATE TABLE IF NOT EXISTS sounds (
-          id                    INTEGER PRIMARY KEY AUTOINCREMENT,
-          owner_id              INTEGER NOT NULL,
+          id                INTEGER PRIMARY KEY AUTOINCREMENT,
+          owner_id          INTEGER NOT NULL,
         
-          -- Content
-          title TEXT NOT NULL,
-          description TEXT,
-          filename TEXT NOT NULL, -- path
-          media_type TEXT NOT NULL DEFAULT 'audio',
-          duration_seconds INTEGER DEFAULT 0,
+          -- Info contenuto
+          title             TEXT NOT NULL,
+          description       TEXT,
+          filename          TEXT NOT NULL,
+          media_type        TEXT NOT NULL DEFAULT 'audio',
+          duration_seconds  INTEGER DEFAULT 0,
         
-          -- Categorization
-          mood TEXT,
-          genre_primary TEXT,
+          -- Classificazione
+          mood              TEXT,
+          genre_primary     TEXT,
         
-          -- Access Control
-          access_level TEXT NOT NULL DEFAULT 'public' CHECK (
-              access_level IN (
-                  'public',
-                  'registered',
-                  'premium',
-                  'private'
-              )
+          -- Controllo Accesso
+          access_level      TEXT NOT NULL DEFAULT 'public' CHECK (
+              access_level IN ('public', 'registered', 'premium', 'private')
           ),
-          category TEXT DEFAULT 'ambient' CHECK (
+          category          TEXT DEFAULT 'ambient' CHECK (
               category IN ('ambient', 'music')
           ),
           
-          -- NEW: Icon/Cover Column with Constraint for Music
-          icon TEXT, 
-          
-          is_restricted INTEGER NOT NULL DEFAULT 0 CHECK (is_restricted IN (0, 1)),
+          -- Nuova colonna per Icona/Copertina
+          icon              TEXT, 
+          is_restricted     INTEGER NOT NULL DEFAULT 0 CHECK (is_restricted IN (0, 1)),
         
-          -- Stats
-          play_count INTEGER DEFAULT 0, 
-          like_count INTEGER DEFAULT 0,
+          -- Statistiche
+          play_count        INTEGER DEFAULT 0, 
+          like_count        INTEGER DEFAULT 0,
         
-          -- Timestamps
-          created_at            DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-          updated_at            DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-          deleted_at            DATETIME,
+          -- Metadati temporali
+          created_at        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          updated_at        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          deleted_at        DATETIME,
           
           FOREIGN KEY(owner_id) REFERENCES users(id) ON DELETE CASCADE,
           
-          -- CONSTRAINT: If category is music, icon MUST NOT BE NULL
+          -- VINCOLO: Se la categoria è 'music', l'icona deve essere obbligatoria
           CONSTRAINT check_music_has_cover CHECK (
              category != 'music' OR icon IS NOT NULL
           )
         );
     `, (err) => {
         if (err) {
-            console.error("Error creating new sounds table:", err);
+            console.error("Errore nella creazione della nuova tabella:", err);
             process.exit(1);
         }
     });
 
-    // 5. Indexing (Recreating indices)
+    // 5. Ricreazione degli indici per le performance
     db.run("CREATE INDEX IF NOT EXISTS idx_sounds_owner ON sounds (owner_id)");
     db.run("CREATE INDEX IF NOT EXISTS idx_sounds_access ON sounds (access_level)");
     db.run("CREATE INDEX IF NOT EXISTS idx_sounds_created ON sounds (created_at DESC)");
 
-    // 6. Copy Data
-    console.log("Copying data from old table...");
-    // Note: We blindly copy 'icon' if it existed, otherwise we might need default
-    // We assume the old table might NOT have 'icon' in the schema file, 
-    // but the live DB *might* (based on my earlier thought, but check_schema showed only category/mood etc. 
-    // Actually check_schema showed NO icon column in the first attempt? 
-    // Wait, the 'check_schema' output was chopped. 
-    // Let's assume 'icon' column MIGHT be missing in old data, so we need to handle that.
-
-    // We map:
-    // id, owner_id, title, description, filename, media_type, access_level, category, mood, genre_primary, is_restricted, play_count, like_count, created_at, updated_at, deleted_at
-    // AND we need to migrate 'icon' if it exists or provide default for music if missing.
+    // 6. Migrazione dei dati
+    console.log("Copia dei dati dalla vecchia tabella alla nuova...");
 
     db.all("PRAGMA table_info(sounds_old)", (err, columns) => {
+        if (err) {
+            console.error("Errore nel recupero dello schema originale:", err);
+            return;
+        }
+
         const colNames = columns.map(c => c.name);
         const hasIcon = colNames.includes('icon');
         const hasDuration = colNames.includes('duration_seconds');
 
+        // Selezione dinamica delle colonne per gestire vecchi schemi
         let selectCols = `
            id, owner_id, title, description, filename, media_type, 
            access_level, category, mood, genre_primary, is_restricted, 
            play_count, like_count, created_at, updated_at, deleted_at
        `;
 
-        if (hasDuration) selectCols += ", duration_seconds";
-        else selectCols += ", 0 as duration_seconds";
-
-        if (hasIcon) selectCols += ", icon";
-        else selectCols += ", NULL as icon"; // Will fail constraint if music has null icon!
+        selectCols += hasDuration ? ", duration_seconds" : ", 0 as duration_seconds";
+        selectCols += hasIcon ? ", icon" : ", NULL as icon";
 
         const insertSql = `
          INSERT INTO sounds (
@@ -133,21 +119,15 @@ db.serialize(() => {
            play_count, like_count, created_at, updated_at, deleted_at,
            duration_seconds, icon
          )
-         SELECT 
-            ${selectCols}
-         FROM sounds_old
+         SELECT ${selectCols} FROM sounds_old
        `;
 
         db.run(insertSql, function (err) {
             if (err) {
-                console.error("Error migrating data:", err);
-                // Fallback: update Music items to have a default icon if migration failed due to constraint
+                // Gestione specifica per errore vincolo (musica senza icona)
                 if (err.message.includes("constraint")) {
-                    console.log("Constraint violation detected. Attempting to fix 'music' items with null icon...");
-                    // We can't insert directly into 'sounds' if it fails. 
-                    // We need to FIX data in 'sounds_old' or handle it during SELECT.
+                    console.log("Violazione vincolo rilevata: correzione automatica per brani senza icona...");
 
-                    // Force a default icon for music
                     const safeSelect = `
                         id, owner_id, title, description, filename, media_type, 
                         access_level, category, mood, genre_primary, is_restricted, 
@@ -172,29 +152,31 @@ db.serialize(() => {
 
                     db.run(safeInsert, (err2) => {
                         if (err2) {
-                            console.error("Retry failed:", err2);
+                            console.error("Errore nel tentativo di migrazione con recupero:", err2);
                         } else {
-                            console.log("Data migration with fix successful.");
+                            console.log("Migrazione dati completata con correzione automatica.");
                             finishMigration();
                         }
                     });
+                } else {
+                    console.error("Errore critico durante la migrazione dati:", err);
                 }
             } else {
-                console.log(`Copied ${this.changes} rows.`);
+                console.log(`Migrazione completata: ${this.changes} righe copiate.`);
                 finishMigration();
             }
         });
     });
 
     function finishMigration() {
-        // 7. Drop old table
+        // 7. Pulizia: Eliminazione vecchia tabella
         db.run("DROP TABLE sounds_old", (err) => {
-            if (!err) console.log("Dropped old 'sounds' table.");
+            if (!err) console.log("Vecchia tabella 'sounds' rimossa.");
         });
 
-        // 8. Restore FK
+        // 8. Ripristino vincoli di integrità
         db.run("PRAGMA foreign_keys = ON");
 
-        console.log("Migration V4 Completed Successfully.");
+        console.log("--- MIGRAZIONE V4 COMPLETATA CON SUCCESSO ---");
     }
 });

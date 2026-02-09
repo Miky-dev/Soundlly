@@ -1,34 +1,36 @@
 const { db, run, get } = require('../db/sqlite');
 const bcrypt = require('bcrypt');
 
+/**
+ * Script per migrare la proprietà dei suoni ambientali a un utente di sistema dedicato.
+ * Questo assicura che i suoni "ufficiali" della piattaforma siano separati dai caricamenti degli utenti.
+ */
 (async () => {
     try {
-        console.log("Starting System User Migration...");
+        console.log("Inizio migrazione utente di sistema...");
 
-        // 1. Create System User if not exists
+        // 1. Creazione dell'utente 'System' se non esiste già
+        // Usiamo una password sicura (hashata) per l'utente amministrativo di sistema
         const hash = await bcrypt.hash('system_secure_pass', 10);
         await run(`INSERT OR IGNORE INTO users (username, password_hash, role) VALUES ('System', ?, 'admin')`, [hash]);
 
         const sysUser = await get(`SELECT id FROM users WHERE username='System'`);
-        if (!sysUser) throw new Error("Could not create/find System user");
-        console.log("System User ID:", sysUser.id);
+        if (!sysUser) {
+            throw new Error("Impossibile creare o trovare l'utente System.");
+        }
+        console.log("ID Utente di Sistema:", sysUser.id);
 
-        // 2. Migrate EXISTING ambient sounds (Box 4 candidates) to System User
-        // We migrate ALL sounds currently in 'ambient' category that are owned by Admin (1)
-        // OR we migrate ALL ambient sounds regardless? 
-        // Safer: Migrate ALL 'ambient' sounds to System.
-        // If the admin had "personal" ambient sounds, they become System sounds. 
-        // This is a one-time setup. Future uploads by Admin will stay Admin.
-
+        // 2. Migrazione dei suoni ambientali esistenti
+        // Tutti i suoni nella categoria 'ambient' vengono assegnati all'utente System.
+        // Questa è un'operazione di setup una tantum.
+        console.log("Assegnazione suoni ambientali all'utente System...");
         await run(`UPDATE sounds SET owner_id = ? WHERE category = 'ambient'`, [sysUser.id]);
 
-        console.log("Migration Complete. All ambient sounds are now owned by System.");
-
-        // Debug
+        // Verifica della migrazione
         const count = await get(`SELECT count(*) as c FROM sounds WHERE owner_id = ?`, [sysUser.id]);
-        console.log(`Verified: ${count.c} sounds owned by System.`);
+        console.log(`Migrazione completata con successo: ${count.c} suoni ora appartengono a System.`);
 
-    } catch (e) {
-        console.error("Migration Failed:", e);
+    } catch (err) {
+        console.error("Errore durante la migrazione:", err.message);
     }
 })();

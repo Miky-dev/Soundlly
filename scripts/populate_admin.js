@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const UserModel = require("../models/UserModel");
 const { db, run, get, all } = require("../db/sqlite");
 
+// Helper per formattare le date
 function formatDateOnly(date) {
   return date.toISOString().slice(0, 10);
 }
@@ -12,6 +13,9 @@ function formatDateTime(date) {
   return date.toISOString().replace("T", " ").replace("Z", "");
 }
 
+/**
+ * Assicura che lo schema del database sia aggiornato caricando il file SQL di migrazione.
+ */
 async function ensureSchema() {
   const migrationsPath = path.join(__dirname, "..", "migrations", "init-v3.sql");
   if (fs.existsSync(migrationsPath)) {
@@ -25,29 +29,10 @@ async function ensureSchema() {
   }
 }
 
-async function ensureAdminUser() {
-  // Cerchiamo utente 'Admin'
-  let admin = await UserModel.findByUsername("Admin");
-  const birthDate = new Date();
-  birthDate.setFullYear(birthDate.getFullYear() - 34); // 34 anni
-  const now = new Date();
-
-  if (!admin) {
-    // crea l'utente con password temporanea
-    const created = await UserModel.create("Admin", "admin123", "admin");
-    admin = await UserModel.findById(created.id);
-    console.log("Creato utente Admin (record di base).");
-  }
-
-  // Crea un secondo amministratore
-  let secondAdmin = await UserModel.findByUsername("SecondAdmin");
-  if (!secondAdmin) {
-    const createdSecondAdmin = await UserModel.create("SecondAdmin", "password123", "admin");
-    secondAdmin = await UserModel.findById(createdSecondAdmin.id);
-    console.log("Creato secondo utente Admin.");
-  }
-
-  // Imposta i dettagli per il primo admin
+/**
+ * Funzione di utilità per aggiornare i dettagli di un utente amministratore.
+ */
+async function updateAdminDetails(userId, password, displayName, birthDate) {
   await run(
     `UPDATE users
        SET password_hash = ?,
@@ -61,53 +46,59 @@ async function ensureAdminUser() {
            subscription_expiry = ?
      WHERE id = ?`,
     [
-      await bcrypt.hash("admin123", 10),
-      "Soundlly Admin",
-      formatDateOnly(birthDate),
-      "Milano",
-      "Italia",
-      null, // subscription_expiry
-      admin.id,
-    ]
-  );
-
-  // Imposta i dettagli per il secondo admin
-  await run(
-    `UPDATE users
-       SET password_hash = ?,
-           role = 'admin',
-           plan = 'admin',
-           status = 'active',
-           display_name = ?,
-           date_of_birth = ?,
-           born_city = ?,
-           location_country = ?,
-           subscription_expiry = ?
-     WHERE id = ?`,
-    [
-      await bcrypt.hash("password123", 10),
-      "Second Admin",
+      await bcrypt.hash(password, 10),
+      displayName,
       formatDateOnly(birthDate),
       "Milano",
       "Italia",
       null,
-      secondAdmin.id,
+      userId,
     ]
   );
+}
 
-  console.log("Utenti Admin configurati.");
+/**
+ * Crea o aggiorna gli utenti amministratori di test.
+ */
+async function ensureAdminUsers() {
+  const birthDate = new Date();
+  birthDate.setFullYear(birthDate.getFullYear() - 34);
+
+  // Gestione primo Admin
+  let admin = await UserModel.findByUsername("Admin");
+  if (!admin) {
+    const created = await UserModel.create("Admin", "admin123", "admin");
+    admin = await UserModel.findById(created.id);
+    console.log("Creato utente Admin.");
+  }
+  await updateAdminDetails(admin.id, "admin123", "Soundlly Admin", birthDate);
+
+  // Gestione secondo Admin (SecondAdmin)
+  let secondAdmin = await UserModel.findByUsername("SecondAdmin");
+  if (!secondAdmin) {
+    const created = await UserModel.create("SecondAdmin", "password123", "admin");
+    secondAdmin = await UserModel.findById(created.id);
+    console.log("Creato secondo utente Admin.");
+  }
+  await updateAdminDetails(secondAdmin.id, "password123", "Second Admin", birthDate);
+
+  console.log("Configurazione utenti Admin completata.");
   return { admin, secondAdmin };
 }
 
+/**
+ * Inserisce o aggiorna un suono nel database.
+ */
 async function ensureSound(adminId, sound) {
   let row = await get(
     "SELECT id FROM sounds WHERE owner_id = ? AND title = ?",
     [adminId, sound.title]
   );
+
   if (!row) {
     const res = await run(
       `INSERT INTO sounds (title, description, filename, owner_id, media_type, access_level, is_restricted, duration_seconds, mood, category, genre_primary, icon)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)` ,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         sound.title,
         sound.description || null,
@@ -120,12 +111,11 @@ async function ensureSound(adminId, sound) {
         sound.mood || null,
         sound.category || 'ambient',
         sound.genre_primary || null,
-        sound.icon || null // Icona opzionale, ma necessaria per 'music'
+        sound.icon || null
       ]
     );
     row = { id: res.lastID };
   } else {
-    // Optional update
     await run(
       `UPDATE sounds
           SET description = ?,
@@ -153,16 +143,19 @@ async function ensureSound(adminId, sound) {
   return row.id;
 }
 
-// Helper per Playlist
+/**
+ * Crea una playlist e vi aggiunge i brani specificati.
+ */
 async function ensurePlaylist(adminId, playlist) {
   let row = await get(
     "SELECT id FROM playlists WHERE owner_id = ? AND name = ?",
     [adminId, playlist.name]
   );
+
   if (!row) {
     const res = await run(
       `INSERT INTO playlists (name, owner_id, visibility, description)
-       VALUES (?, ?, ?, ?)` ,
+       VALUES (?, ?, ?, ?)`,
       [
         playlist.name,
         adminId,
@@ -173,11 +166,12 @@ async function ensurePlaylist(adminId, playlist) {
     row = { id: res.lastID };
   }
 
-  // Gestione items playlist
+  // Sincronizzazione dei contenuti della playlist
   const existingItems = await all(
     "SELECT sound_id FROM playlist_items WHERE playlist_id = ?",
     [row.id]
   );
+
   const currentIds = new Set(existingItems.map((i) => i.sound_id));
   let position = 0;
   for (const soundId of playlist.items || []) {
@@ -192,32 +186,41 @@ async function ensurePlaylist(adminId, playlist) {
   return row.id;
 }
 
-async function ensureSoundLikes(adminId, soundIds) {
-  await run("DELETE FROM sound_likes WHERE user_id = ?", [adminId]);
+/**
+ * Imposta i "Mi piace" ai suoni per l'utente specificato.
+ */
+async function ensureSoundLikes(userId, soundIds) {
+  await run("DELETE FROM sound_likes WHERE user_id = ?", [userId]);
   for (const soundId of soundIds) {
-    await run("INSERT INTO sound_likes (user_id, sound_id) VALUES (?, ?)", [adminId, soundId]);
+    await run("INSERT INTO sound_likes (user_id, sound_id) VALUES (?, ?)", [userId, soundId]);
   }
 }
 
-async function ensureMoodEntries(adminId, entries) {
-  await run("DELETE FROM mood_entries WHERE user_id = ?", [adminId]);
+/**
+ * Inserisce le annotazioni dell'umore (Mood) per l'utente.
+ */
+async function ensureMoodEntries(userId, entries) {
+  await run("DELETE FROM mood_entries WHERE user_id = ?", [userId]);
   for (const entry of entries) {
     await run(
       `INSERT INTO mood_entries (user_id, mood, note, created_at)
-       VALUES (?, ?, ?, ?)` ,
-      [adminId, entry.mood, entry.note || null, formatDateTime(entry.date)]
+       VALUES (?, ?, ?, ?)`,
+      [userId, entry.mood, entry.note || null, formatDateTime(entry.date)]
     );
   }
 }
 
-async function ensureFocusSessions(adminId, sessions) {
-  await run("DELETE FROM focus_sessions WHERE user_id = ?", [adminId]);
+/**
+ * Popola le sessioni di focus per l'utente.
+ */
+async function ensureFocusSessions(userId, sessions) {
+  await run("DELETE FROM focus_sessions WHERE user_id = ?", [userId]);
   for (const session of sessions) {
     await run(
       `INSERT INTO focus_sessions (user_id, session_type, planned_minutes, completed_minutes, status, started_at, ended_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?)` ,
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
-        adminId,
+        userId,
         session.session_type,
         session.planned_minutes,
         session.completed_minutes || null,
@@ -229,16 +232,20 @@ async function ensureFocusSessions(adminId, sessions) {
   }
 }
 
+/**
+ * Script principale per il popolamento dei dati admin.
+ */
 async function main() {
   try {
+    // Inizializzazione schema e utenti base
     await ensureSchema();
-    const { admin } = await ensureAdminUser();
+    const { admin } = await ensureAdminUsers();
 
-    // Dati mock per V3
+    // Dati dei suoni da inserire
     const soundsData = [
       {
         title: "Forest Ambience",
-        description: "Registrazione ambientale della foresta con pioggia leggera.",
+        description: "Suoni ambientali della foresta con pioggia leggera.",
         category: 'ambient',
         genre_primary: 'Nature',
         access_level: "public",
@@ -248,18 +255,18 @@ async function main() {
       },
       {
         title: "Deep Focus Drone",
-        description: "Suono drone continuo per massima concentrazione.",
+        description: "Suono drone per massimizzare la concentrazione.",
         category: 'music',
         genre_primary: 'Drone',
         access_level: "premium",
         restricted: false,
         duration_seconds: 1200,
         mood: "focus",
-        icon: "/immagini/logo.png" // Placeholder icon per soddisfare il vincolo DB
+        icon: "/immagini/logo.png"
       },
       {
         title: "Ocean Waves Slow",
-        description: "Onde dell'oceano a ritmo lento per meditare.",
+        description: "Onde dell'oceano a ritmo lento per la meditazione.",
         category: 'ambient',
         genre_primary: 'Nature',
         access_level: "registered",
@@ -269,23 +276,25 @@ async function main() {
       }
     ];
 
+    // Inserimento suoni e salvataggio degli ID per dopo
     const soundIds = {};
     for (const sound of soundsData) {
       const id = await ensureSound(admin.id, sound);
       soundIds[sound.title] = id;
     }
 
+    // Creazione playlist
     const playlistsData = [
       {
         name: "Relax Totale",
         visibility: "public",
-        description: "Selezione di suoni naturali per rilassarsi.",
+        description: "Suoni naturali per staccare la spina.",
         items: [soundIds["Forest Ambience"], soundIds["Ocean Waves Slow"]],
       },
       {
         name: "Focus Giornaliero",
         visibility: "public",
-        description: "Sessioni per concentrarsi durante il lavoro.",
+        description: "Playlist per lo studio o il lavoro profondo.",
         items: [soundIds["Deep Focus Drone"]],
       }
     ];
@@ -294,19 +303,22 @@ async function main() {
       await ensurePlaylist(admin.id, playlist);
     }
 
+    // Aggiunta di alcuni 'Like'
     await ensureSoundLikes(admin.id, [
       soundIds["Forest Ambience"],
       soundIds["Deep Focus Drone"],
     ]);
 
+    // Inserimento dati umore
     const baseDate = new Date();
     const moodEntries = [
-      { mood: "centrato", note: "Sessione mattutina di meditazione.", date: new Date(baseDate.getTime() - 2 * 86400000) },
-      { mood: "rilassato", note: "Passeggiata nella natura.", date: new Date(baseDate.getTime() - 1 * 86400000) },
-      { mood: "focalizzato", note: "Lavoro profondo con tecnica Pomodoro.", date: baseDate }
+      { mood: "centrato", note: "Ottima sessione mattutina.", date: new Date(baseDate.getTime() - 2 * 86400000) },
+      { mood: "rilassato", note: "Passeggiata pomeridiana.", date: new Date(baseDate.getTime() - 1 * 86400000) },
+      { mood: "focalizzato", note: "Sessione Pomodoro molto produttiva.", date: baseDate }
     ];
     await ensureMoodEntries(admin.id, moodEntries);
 
+    // Inserimento sessioni focus
     const focusSessions = [
       {
         session_type: "pomodoro",
@@ -319,9 +331,9 @@ async function main() {
     ];
     await ensureFocusSessions(admin.id, focusSessions);
 
-    console.log("Popolamento dati admin V3 completato.");
+    console.log("Popolamento dati Admin completato.");
   } catch (err) {
-    console.error("Errore durante il popolamento:", err);
+    console.error("Si è verificato un errore durante il popolamento:", err);
     process.exitCode = 1;
   } finally {
     db.close();

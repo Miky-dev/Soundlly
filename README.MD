@@ -4,173 +4,96 @@ Piattaforma di intrattenimento multimediale per ascoltare suoni rilassanti e mus
 
 ---
 
-## 📁 Struttura Progetto
+##  Video Presentazione
+Link video presentazione: https://youtu.be/1234567890
+
+---
+
+##  Installazione e Avvio Rapido
+
+### 1. Installazione Dipendenze
+Apri il terminale nella cartella del progetto ed esegui:
+```bash
+npm install
+```
+
+### 2. Inizializzazione Database
+Per configurare il database con gli utenti di prova e i dati base, esegui:
+```bash
+npm run init-project
+```
+
+*Nota: Questo script (`scripts/init_project.js`) si occupa di creare il file `database.sqlite`, applicare le migrazioni e popolare il DB con i dati iniziali.*
+
+### 3. Avvio Server
+```bash
+npm start
+```
+Il server sarà attivo all'indirizzo: [http://localhost:3003](http://localhost:3003)
+
+---
+
+## � Credenziali di Accesso (Test)
+
+Il database viene inizializzato con 3 utenti preimpostati per testare i diversi ruoli:
+
+| Ruolo | Username | Password | Note |
+| :--- | :--- | :--- | :--- |
+| **Admin** | `admin` | `admin123` | Accesso completo, gestione upload e utenti. |
+| **Creatore** | `creator` | `admin123` | Piano Premium, può caricare brani e gestire album. |
+| **Utente** | `user` | `admin123` | Piano Standard, solo fruizione e playlist personali. |
+
+---
+
+## 📂 Struttura Progetto
 
 ```
 Soundlly/
 │
-├── 📂 auth/                            # Moduli autenticazione
-│   └── passport-setup.js               # Strategia Passport Local
+├── 📂 auth/                            # Moduli autenticazione (Passport)
+├── 📂 db/                              # Connessione Database (SQLite wrapper)
+├── 📂 middleware/                      # Middleware Express (Auth, Ruoli)
+├── 📂 migrations/                      # Schema Database SQL
+├── 📂 models/                          # Data Access Layer (User, Ambient)
 │
-├── 📂 db/                              # Connessione Database
-│   └── sqlite.js                       # Wrapper SQLite3
+├── 📂 public/                          # Frontend Statico (CSS, JS, Immagini)
+│   ├── 📂 css/                         # Fogli di stile modulari
+│   ├── 📂 js/                          # Logica Frontend (Timer, Player, SPA)
+│   └── 📂 uploads/                     # File multimediali utenti
 │
-├── 📂 middleware/                      # Middleware Express
-│   └── auth.js                         # Verifica autenticazione e ruoli
+├── 📂 routes/                          # API e Routing Pagine
+├── 📂 scripts/                         # Script di utilità e setup
+├── 📂 views/                           # Template EJS (Server-side rendering)
 │
-├── 📂 migrations/                      # Schema Database
-│   └── init-v3.sql                     # Schema esteso
-│
-├── 📂 models/                          # Data Access Layer
-│   ├── AmbientModel.js                 # Gestione suoni ambientali
-│   └── UserModel.js                    # Gestione utenti
-│
-├── 📂 public/                          # File statici serviti direttamente
-│   ├── 📂 audio/
-│   ├── 📂 css/
-│   │   ├── abbonamento.css
-│   │   ├── about.css
-│   │   ├── admin.css
-│   │   ├── horizontal.css
-│   │   ├── immersive.css
-│   │   ├── login.css
-│   │   ├── music-overlay.css
-│   │   ├── player.css
-│   │   ├── profilo.css
-│   │   ├── stats-blur.css
-│   │   ├── stats.css
-│   │   ├── styleHome.css               # Stili homepage
-│   │   ├── switch.css
-│   │   ├── timer.css
-│   │   ├── todo.css
-│   │   └── upload.css
-│   │
-│   ├── 📂 immagini/                    # Asset grafici
-│   │
-│   ├── 📂 js/
-│   │   ├── abbonamento.js
-│   │   ├── about.js
-│   │   ├── admin.js
-│   │   ├── auth-login.js
-│   │   ├── auth.js
-│   │   ├── background-timer.js
-│   │   ├── home.js
-│   │   ├── immersive-controls.js
-│   │   ├── loadSounds.js
-│   │   ├── music-search.js
-│   │   ├── player.js
-│   │   ├── profile-upload.js
-│   │   ├── router.js
-│   │   ├── session.js
-│   │   ├── stats.js
-│   │   ├── switch-handler.js
-│   │   ├── timer.js
-│   │   ├── todo.js
-│   │   ├── upload-modal.js
-│   │   └── upload.js
-│   │
-│   ├── 📂 temp_uploads/
-│   └── 📂 uploads/                     # File multimediali caricati dagli utenti
-│
-├── 📂 routes/                          # Definizione percorsi API e Pagine
-│   ├── abbonamento.js
-│   ├── admin.js
-│   ├── focus.js
-│   ├── music.js
-│   ├── profile.js
-│   ├── search.js
-│   ├── stats.js
-│   ├── stream.js
-│   ├── todo.js
-│   └── upload.js
-│
-├── 📂 scripts/                         # Script di utilità
-│   ├── create_test_users.js
-│   ├── database-v4.js
-│   ├── init_project.js
-│   ├── migrate_system_user.js
-│   ├── populate_admin.js
-│   ├── seed.js
-│   └── setup_aws.sh
-│
-├── 📂 storage/                         # Storage locale (se usato come fallback)
-│   ├── 📂 ambient/
-│   ├── 📂 musiche/
-│   └── 📂 suoni/
-│
-├── 📂 views/                           # Template EJS (renderizzati server-side)
-│   ├── abbonamento.ejs
-│   ├── about.ejs
-│   ├── admin.ejs
-│   ├── home.ejs
-│   ├── login.ejs
-│   ├── profilo.ejs
-│   ├── stats.ejs
-│   └── upload.ejs
-│
-├── .gitignore
 ├── database.sqlite                     # Database SQLite
-├── package.json
-├── server.js                           # Entry point server Express
-└── README.md                           # Documentazione
+├── server.js                           # Entry point Express
+└── README.md                           # Questo file
 ```
 
-## Descrizione Funzionalità Chiave
+---
+
+## ✨ Funzionalità Chiave
 
 ### Timer Pomodoro Avanzato (`public/js/timer.js`)
-Il cuore della produttività di Soundlly.
-- **Logica**: Cicli di 25 min (Pomodoro) / 5 min (Pausa Breve).
-- **Auto-Switch**: Al termine di un timer, il sistema passa **automaticamente** alla modalità successiva (es. da Studio a Pausa).
-- **Auto-Pause**: Il timer successivo **non** parte in automatico; attende il "Play" dell'utente per garantire una pausa effettiva e controllata.
-- **Session Tracking**: Ogni sessione viene registrata nel database (`focus_sessions`) per le statistiche.
-- **Notifiche**: Suoni e notifiche desktop avvisano del cambio fase.
+- **Ciclo Studio/Pausa**: Alternanza automatica 25min (Focus) / 5min (Pausa).
+- **Auto-Switch & Auto-Pause**: Cambio fase automatico ma avvio manuale per controllo totale.
+- **Tracking**: Ogni sessione completata viene salvata nel DB per le statistiche.
 
-### Gestione Ruoli e Upload (`routes/upload.js`)
-- L'accesso alla pagina di `upload` è ristretto.
-- Solo gli utenti con ruolo `admin` o `creator` possono accedere.
-- Gli altri utenti vengono reindirizzati alla pagina `/abbonamento`.
+### Player Audio Immersivo
+- Overlay persistente che permette la navigazione senza interrompere l'audio.
+- Supporto coda, volume e mix suoni ambientali.
 
-### Statistiche e Obiettivi
-- Tracciamento del tempo totale di focus, sessioni completate e streak giornaliere.
-- Visualizzazione dati tramite `chart.js` o progress bar custom.
-- Persistenza degli obiettivi giornalieri/settimanali nel DB sqlite.
+### Ruoli e Permessi (`routes/upload.js`)
+- **RBAC**: Accesso differenziato in base al ruolo (Admin/Creator/User).
+- **Upload**: Riservato a Admin e Creator.
 
----
-
-## Pagina Index (Homepage)
-
-### Panoramica
-
-La homepage è una SPA (Single Page Application) ibrida che integra navigazione dinamica e contenuti renderizzati server-side dove necessario.
-
-### Struttura e Sezioni
-
-#### 1. **Flip Card Produttività (Box 3)**
-- **Fronte**: Timer Pomodoro (con le funzionalità descritte sopra).
-- **Retro**: To-Do List persistente (localStorage) integrata nel flusso di lavoro.
-
-#### 2. **Player Audio Overlay**
-- Esperienza immersiva attivabile dal footer.
-- Riproduzione continua durante la navigazione nella pagina.
-- Supporto coda e controlli volume.
-
-#### 3. **Libreria Suoni**
-- Caricamento dinamico da API REST `/api/sounds`.
-- Filtraggio per categorie (Premium, Ultime Uscite, Community).
-
-#### 4. **Sezione "Ultime Uscite"**
-Requisiti per l'inclusione dei brani nella home:
-- **Categoria**: Deve essere `music` o `sound`.
-- **Visibilità**:
-    - `public`: Visibile a tutti.
-    - `registered`: Visibile solo se l'utente è loggato.
-    - I contenuti `premium` sono **esclusi** da questa lista.
-- **Ordinamento**: Decrescente per data di creazione (i più recenti in alto).
-- **Limite**: Mostra solo gli ultimi 10 brani.
+### Statistiche e Dashboard
+- Grafici interattivi (Chart.js) per visualizzare il tempo di focus.
+- Obiettivi giornalieri e settimanali persistenti.
 
 ---
 
-## Tecnologie
+## 🛠 Tecnologie
 
 - **Backend**: Node.js, Express.js
 - **Database**: SQLite3
@@ -180,25 +103,12 @@ Requisiti per l'inclusione dei brani nella home:
 
 ---
 
-## Avvio Rapido
+## ⚠️ Risoluzione Problemi Comuni
 
-```bash
-npm install
-npm run init-project
-npm start
-```
-
-L'app sarà disponibile su `http://localhost:3003`
+- **Database Locked**: Se riscontri errori di database bloccato durante il reset (`init-project`), assicurati di aver spento il server Node (`CTRL+C`).
+- **Tabelle Mancanti**: Se all'avvio il server segnala errori di tabella, riesegui `npm run init-project`.
 
 ---
 
-## Note Database
-
-Il database utilizza SQLite. Le migrazioni sono disponibili in `migrations/`.
-- `init.sql`: Tabelle base (`users`, `sounds`, `music`).
-- `init-v3.sql`: Tabelle avanzate per le statistiche (`focus_sessions`, `focus_goals`).
-
----
-
-**Autore**: Michele Vitella matricola: 20045272  
+**Autore**: Michele Vitella (Matricola: 20045272)
 **Anno**: 2025-2026
