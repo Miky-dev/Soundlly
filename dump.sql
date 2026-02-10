@@ -2,7 +2,6 @@ PRAGMA foreign_keys = OFF;
 
 BEGIN TRANSACTION;
 
--- Users Table
 CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL UNIQUE COLLATE NOCASE,
@@ -42,19 +41,8 @@ CREATE TABLE users (
     subscription_expiry DATETIME
 );
 
--- Seed Users (Password is 'admin123' for all)
 INSERT INTO
-    users (
-        id,
-        username,
-        email,
-        password_hash,
-        display_name,
-        bio,
-        role,
-        plan,
-        status
-    )
+    users
 VALUES (
         1,
         'admin',
@@ -62,34 +50,78 @@ VALUES (
         '$2b$10$KJcpvqJZI59hmOs4VD/2N.xXKy/gC/R2Q98x1mMuDHShCpd.vByrG',
         'Admin User',
         'System Administrator',
+        NULL,
+        'default',
+        NULL,
+        NULL,
+        NULL,
         'admin',
         'premium',
-        'active'
-    ),
-    (
+        'active',
+        '2026-02-10 10:18:40',
+        '2026-02-10 10:18:40',
+        NULL,
+        25,
+        5,
+        15,
+        NULL,
+        NULL
+    );
+
+INSERT INTO
+    users
+VALUES (
         2,
         'creator',
         'creator@example.com',
         '$2b$10$KJcpvqJZI59hmOs4VD/2N.xXKy/gC/R2Q98x1mMuDHShCpd.vByrG',
         'Creator User',
         'Content Creator',
+        NULL,
+        'default',
+        NULL,
+        NULL,
+        NULL,
         'creator',
         'premium',
-        'active'
-    ),
-    (
+        'active',
+        '2026-02-10 10:18:40',
+        '2026-02-10 10:18:40',
+        NULL,
+        25,
+        5,
+        15,
+        NULL,
+        NULL
+    );
+
+INSERT INTO
+    users
+VALUES (
         3,
         'user',
         'user@example.com',
         '$2b$10$KJcpvqJZI59hmOs4VD/2N.xXKy/gC/R2Q98x1mMuDHShCpd.vByrG',
         'Standard User',
         'Regular User',
+        NULL,
+        'default',
+        NULL,
+        NULL,
+        NULL,
         'user',
         'standard',
-        'active'
+        'active',
+        '2026-02-10 10:18:40',
+        '2026-02-10 10:18:40',
+        NULL,
+        25,
+        5,
+        15,
+        NULL,
+        NULL
     );
 
--- Playlists Table
 CREATE TABLE playlists (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     owner_id INTEGER NOT NULL,
@@ -115,7 +147,6 @@ CREATE TABLE playlists (
     FOREIGN KEY (owner_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
--- Playlist Likes Table
 CREATE TABLE playlist_likes (
     user_id INTEGER NOT NULL,
     playlist_id INTEGER NOT NULL,
@@ -125,7 +156,6 @@ CREATE TABLE playlist_likes (
     FOREIGN KEY (playlist_id) REFERENCES playlists (id) ON DELETE CASCADE
 ) WITHOUT ROWID;
 
--- Focus Sessions Table
 CREATE TABLE focus_sessions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
@@ -145,7 +175,318 @@ CREATE TABLE focus_sessions (
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
--- Mood Entries Table
+INSERT INTO
+    focus_sessions
+VALUES (
+        1,
+        1,
+        25,
+        25,
+        'pomodoro',
+        'completed',
+        '2026-02-10 09:18:40',
+        '2026-02-10 09:48:40'
+    );
+
+INSERT INTO
+    focus_sessions
+VALUES (
+        2,
+        1,
+        45,
+        45,
+        'pomodoro',
+        'completed',
+        '2026-02-10 07:18:40',
+        '2026-02-10 08:03:40'
+    );
+
+INSERT INTO
+    focus_sessions
+VALUES (
+        3,
+        1,
+        25,
+        25,
+        'pomodoro',
+        'completed',
+        '2026-02-09 09:18:40',
+        '2026-02-09 09:48:40'
+    );
+
+INSERT INTO
+    focus_sessions
+VALUES (
+        4,
+        1,
+        25,
+        10,
+        'pomodoro',
+        'abandoned',
+        '2026-02-09 07:18:40',
+        '2026-02-09 07:30:40'
+    );
+
+INSERT INTO
+    focus_sessions
+VALUES (
+        5,
+        1,
+        25,
+        25,
+        'pomodoro',
+        'completed',
+        '2026-02-09 05:18:40',
+        '2026-02-09 05:48:40'
+    );
+
+INSERT INTO
+    focus_sessions
+VALUES (
+        6,
+        1,
+        50,
+        50,
+        'pomodoro',
+        'completed',
+        '2026-02-08 01:18:40',
+        '2026-02-08 02:18:40'
+    );
+
+INSERT INTO
+    focus_sessions
+VALUES (
+        7,
+        1,
+        25,
+        25,
+        'pomodoro',
+        'completed',
+        '2026-02-07 02:18:40',
+        '2026-02-07 02:48:40'
+    );
+
+INSERT INTO
+    focus_sessions
+VALUES (
+        8,
+        1,
+        25,
+        5,
+        'pomodoro',
+        'abandoned',
+        '2026-02-04 23:18:40',
+        '2026-02-04 23:24:40'
+    );
+
+INSERT INTO
+    focus_sessions
+VALUES (
+        9,
+        1,
+        60,
+        60,
+        'pomodoro',
+        'completed',
+        '2026-02-03 21:18:40',
+        '2026-02-03 22:18:40'
+    );
+
+INSERT INTO
+    focus_sessions
+VALUES (
+        10,
+        1,
+        25,
+        15,
+        'pomodoro',
+        'in_progress',
+        '2026-02-10 11:08:40',
+        NULL
+    );
+
+INSERT INTO
+    focus_sessions
+VALUES (
+        11,
+        2,
+        45,
+        45,
+        'pomodoro',
+        'completed',
+        '2026-02-09 08:18:40',
+        '2026-02-09 09:03:40'
+    );
+
+INSERT INTO
+    focus_sessions
+VALUES (
+        12,
+        2,
+        45,
+        20,
+        'pomodoro',
+        'abandoned',
+        '2026-02-08 07:18:40',
+        '2026-02-08 07:42:40'
+    );
+
+INSERT INTO
+    focus_sessions
+VALUES (
+        13,
+        2,
+        25,
+        25,
+        'pomodoro',
+        'completed',
+        '2026-02-07 01:18:40',
+        '2026-02-07 01:48:40'
+    );
+
+INSERT INTO
+    focus_sessions
+VALUES (
+        14,
+        2,
+        90,
+        90,
+        'pomodoro',
+        'completed',
+        '2026-02-06 02:18:40',
+        '2026-02-06 03:48:40'
+    );
+
+INSERT INTO
+    focus_sessions
+VALUES (
+        15,
+        2,
+        25,
+        25,
+        'pomodoro',
+        'completed',
+        '2026-02-05 00:18:40',
+        '2026-02-05 00:48:40'
+    );
+
+INSERT INTO
+    focus_sessions
+VALUES (
+        16,
+        3,
+        25,
+        25,
+        'pomodoro',
+        'completed',
+        '2026-02-08 15:18:40',
+        '2026-02-08 15:48:40'
+    );
+
+INSERT INTO
+    focus_sessions
+VALUES (
+        17,
+        3,
+        25,
+        25,
+        'pomodoro',
+        'completed',
+        '2026-02-10 09:18:40',
+        '2026-02-10 09:48:40'
+    );
+
+INSERT INTO
+    focus_sessions
+VALUES (
+        18,
+        1,
+        25,
+        19,
+        'pomodoro',
+        'abandoned',
+        '2026-02-13 14:51:00',
+        '2026-02-13 15:10:00'
+    );
+
+INSERT INTO
+    focus_sessions
+VALUES (
+        19,
+        1,
+        45,
+        45,
+        'pomodoro',
+        'completed',
+        '2026-02-13 14:28:00',
+        '2026-02-13 15:13:00'
+    );
+
+INSERT INTO
+    focus_sessions
+VALUES (
+        20,
+        1,
+        45,
+        45,
+        'pomodoro',
+        'completed',
+        '2026-02-13 11:50:00',
+        '2026-02-13 12:35:00'
+    );
+
+INSERT INTO
+    focus_sessions
+VALUES (
+        36,
+        2,
+        60,
+        46,
+        'pomodoro',
+        'abandoned',
+        '2026-02-13 08:22:00',
+        '2026-02-13 09:08:00'
+    );
+
+INSERT INTO
+    focus_sessions
+VALUES (
+        37,
+        2,
+        25,
+        25,
+        'pomodoro',
+        'completed',
+        '2026-02-13 09:44:00',
+        '2026-02-13 10:09:00'
+    );
+
+INSERT INTO
+    focus_sessions
+VALUES (
+        52,
+        3,
+        45,
+        45,
+        'pomodoro',
+        'completed',
+        '2026-02-13 09:41:00',
+        '2026-02-13 10:26:00'
+    );
+
+INSERT INTO
+    focus_sessions
+VALUES (
+        53,
+        3,
+        60,
+        60,
+        'pomodoro',
+        'completed',
+        '2026-02-13 12:39:00',
+        '2026-02-13 13:39:00'
+    );
+
 CREATE TABLE mood_entries (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
@@ -155,7 +496,36 @@ CREATE TABLE mood_entries (
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
--- Todos Table
+INSERT INTO
+    mood_entries
+VALUES (
+        1,
+        1,
+        'stanco',
+        'Nota del 13/02/2026',
+        '2026-02-13 17:00:00'
+    );
+
+INSERT INTO
+    mood_entries
+VALUES (
+        7,
+        2,
+        'produttivo',
+        'Nota del 13/02/2026',
+        '2026-02-13 17:00:00'
+    );
+
+INSERT INTO
+    mood_entries
+VALUES (
+        13,
+        3,
+        'concentrato',
+        'Nota del 13/02/2026',
+        '2026-02-13 17:00:00'
+    );
+
 CREATE TABLE todos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
@@ -166,7 +536,160 @@ CREATE TABLE todos (
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
--- User Ambient Sounds Table
+INSERT INTO
+    todos
+VALUES (
+        1,
+        1,
+        'Controllare i log del server',
+        1,
+        '2026-02-07 11:18:40',
+        '2026-02-07 12:18:40'
+    );
+
+INSERT INTO
+    todos
+VALUES (
+        2,
+        1,
+        'Aggiornare la documentazione',
+        1,
+        '2026-02-08 11:18:40',
+        '2026-02-08 13:18:40'
+    );
+
+INSERT INTO
+    todos
+VALUES (
+        3,
+        1,
+        'Backup del database',
+        1,
+        '2026-02-09 11:18:40',
+        '2026-02-09 11:33:40'
+    );
+
+INSERT INTO
+    todos
+VALUES (
+        4,
+        1,
+        'Rispondere alle email di supporto',
+        0,
+        '2026-02-10 06:18:40',
+        NULL
+    );
+
+INSERT INTO
+    todos
+VALUES (
+        5,
+        1,
+        'Pianificare la prossima release',
+        0,
+        '2026-02-10 10:18:40',
+        NULL
+    );
+
+INSERT INTO
+    todos
+VALUES (
+        6,
+        2,
+        'Registrare nuovo brano piano',
+        1,
+        '2026-02-06 11:18:40',
+        '2026-02-07 11:18:40'
+    );
+
+INSERT INTO
+    todos
+VALUES (
+        7,
+        2,
+        'Scrivere testo per la nuova canzone',
+        0,
+        '2026-02-08 11:18:40',
+        NULL
+    );
+
+INSERT INTO
+    todos
+VALUES (
+        8,
+        2,
+        'Caricare album su Soundlly',
+        0,
+        '2026-02-10 06:18:40',
+        NULL
+    );
+
+INSERT INTO
+    todos
+VALUES (
+        9,
+        3,
+        'Studiare per esame di storia',
+        0,
+        '2026-02-09 11:18:40',
+        NULL
+    );
+
+INSERT INTO
+    todos
+VALUES (
+        10,
+        3,
+        'Fare la spesa',
+        0,
+        '2026-02-10 13:18:40',
+        NULL
+    );
+
+INSERT INTO
+    todos
+VALUES (
+        11,
+        1,
+        'Task demo 1 del 13/02/2026',
+        1,
+        '2026-02-13 09:00:00',
+        '2026-02-13 13:00:00'
+    );
+
+INSERT INTO
+    todos
+VALUES (
+        12,
+        1,
+        'Task demo 2 del 13/02/2026',
+        0,
+        '2026-02-13 09:00:00',
+        NULL
+    );
+
+INSERT INTO
+    todos
+VALUES (
+        21,
+        2,
+        'Task demo 1 del 13/02/2026',
+        1,
+        '2026-02-13 09:00:00',
+        '2026-02-13 13:00:00'
+    );
+
+INSERT INTO
+    todos
+VALUES (
+        22,
+        2,
+        'Task demo 2 del 13/02/2026',
+        1,
+        '2026-02-13 09:00:00',
+        '2026-02-13 13:00:00'
+    );
+
 CREATE TABLE user_ambient_sounds (
     user_id INTEGER NOT NULL,
     sound_id TEXT NOT NULL,
@@ -177,7 +700,36 @@ CREATE TABLE user_ambient_sounds (
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 ) WITHOUT ROWID;
 
--- Ambient Listening Stats Table
+INSERT INTO
+    user_ambient_sounds
+VALUES (
+        1,
+        '1',
+        50,
+        0,
+        '2026-02-10 10:19:27'
+    );
+
+INSERT INTO
+    user_ambient_sounds
+VALUES (
+        1,
+        '2',
+        50,
+        0,
+        '2026-02-10 10:19:28'
+    );
+
+INSERT INTO
+    user_ambient_sounds
+VALUES (
+        1,
+        '5',
+        50,
+        0,
+        '2026-02-10 10:20:26'
+    );
+
 CREATE TABLE ambient_listening_stats (
     user_id INTEGER NOT NULL,
     sound_id TEXT NOT NULL,
@@ -187,7 +739,60 @@ CREATE TABLE ambient_listening_stats (
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 ) WITHOUT ROWID;
 
--- User Goals Table
+INSERT INTO
+    ambient_listening_stats
+VALUES (
+        1,
+        '1',
+        3600,
+        '2026-02-08 11:18:40'
+    );
+
+INSERT INTO
+    ambient_listening_stats
+VALUES (
+        1,
+        '2',
+        500,
+        '2026-02-10 07:18:40'
+    );
+
+INSERT INTO
+    ambient_listening_stats
+VALUES (
+        1,
+        '3',
+        1800,
+        '2026-02-09 11:18:40'
+    );
+
+INSERT INTO
+    ambient_listening_stats
+VALUES (
+        2,
+        '1',
+        1200,
+        '2026-02-10 06:18:40'
+    );
+
+INSERT INTO
+    ambient_listening_stats
+VALUES (
+        2,
+        '3',
+        7200,
+        '2026-02-08 11:18:40'
+    );
+
+INSERT INTO
+    ambient_listening_stats
+VALUES (
+        3,
+        '2',
+        5400,
+        '2026-02-10 10:18:40'
+    );
+
 CREATE TABLE user_goals (
     user_id INTEGER PRIMARY KEY,
     daily_focus_goal INTEGER DEFAULT 60, -- Minutes
@@ -197,10 +802,36 @@ CREATE TABLE user_goals (
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
--- Default Goals for Seed Users
-INSERT INTO user_goals (user_id) VALUES (1), (2), (3);
+INSERT INTO
+    user_goals
+VALUES (
+        1,
+        60,
+        300,
+        1200,
+        '2026-02-10 10:18:40'
+    );
 
--- Sounds Table
+INSERT INTO
+    user_goals
+VALUES (
+        2,
+        60,
+        300,
+        1200,
+        '2026-02-10 10:18:40'
+    );
+
+INSERT INTO
+    user_goals
+VALUES (
+        3,
+        60,
+        300,
+        1200,
+        '2026-02-10 10:18:40'
+    );
+
 CREATE TABLE IF NOT EXISTS "sounds" (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     owner_id INTEGER,
@@ -233,46 +864,6 @@ CREATE TABLE IF NOT EXISTS "sounds" (
 INSERT INTO
     sounds
 VALUES (
-        1,
-        1,
-        'Fuoco',
-        'Suono Ambientale',
-        'camino.mp3',
-        'audio',
-        'public',
-        'ambient',
-        NULL,
-        NULL,
-        'fa-fire',
-        0,
-        0,
-        '2026-02-09 15:46:09',
-        '2026-02-09 15:46:09'
-    );
-
-INSERT INTO
-    sounds
-VALUES (
-        2,
-        1,
-        'Pioggia',
-        'Suono Ambientale',
-        'pioggia1.mp3',
-        'audio',
-        'public',
-        'ambient',
-        NULL,
-        NULL,
-        'fa-cloud-rain',
-        0,
-        0,
-        '2026-02-09 15:46:36',
-        '2026-02-09 15:46:36'
-    );
-
-INSERT INTO
-    sounds
-VALUES (
         3,
         1,
         'Pianoforte',
@@ -293,24 +884,63 @@ VALUES (
 INSERT INTO
     sounds
 VALUES (
-        4,
+        5,
         1,
-        'Oceano',
-        'Suono rilassante dell''oceano',
-        'oceano1.mp3',
+        'Messaggio',
+        'Suono Ambientale',
+        'messaggitelefono1.mp3',
+        'audio',
+        'public',
+        'ambient',
+        NULL,
+        NULL,
+        'fa-phone',
+        0,
+        0,
+        '2026-02-10 10:20:15',
+        '2026-02-10 10:20:15'
+    );
+
+INSERT INTO
+    sounds
+VALUES (
+        6,
+        1,
+        'Piano premium',
+        '',
+        'piano1.mp3',
         'audio',
         'premium',
-        'music',
+        'sound',
         'Rilassante',
-        'Natura',
+        'Piano',
         'fa-music',
         20,
         0,
-        '2026-02-09 16:42:05',
-        '2026-02-09 16:42:05'
+        '2026-02-10 10:20:53',
+        '2026-02-10 10:20:53'
     );
 
--- Playlist Items Table
+INSERT INTO
+    sounds
+VALUES (
+        7,
+        1,
+        'Piano solo registrati',
+        '',
+        'piano1.mp3',
+        'audio',
+        'registered',
+        'sound',
+        'Rilassante',
+        'Piano',
+        'fa-music',
+        20,
+        0,
+        '2026-02-10 10:21:14',
+        '2026-02-10 10:21:14'
+    );
+
 CREATE TABLE IF NOT EXISTS "playlist_items" (
     playlist_id INTEGER NOT NULL,
     sound_id INTEGER NOT NULL,
@@ -321,7 +951,6 @@ CREATE TABLE IF NOT EXISTS "playlist_items" (
     FOREIGN KEY (sound_id) REFERENCES sounds (id) ON DELETE CASCADE
 ) WITHOUT ROWID;
 
--- Listening History Table
 CREATE TABLE IF NOT EXISTS "listening_history" (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER,
@@ -336,7 +965,6 @@ CREATE TABLE IF NOT EXISTS "listening_history" (
     FOREIGN KEY (playlist_id) REFERENCES playlists (id) ON DELETE SET NULL
 );
 
--- Sound Likes Table
 CREATE TABLE sound_likes (
     user_id INTEGER NOT NULL,
     sound_id INTEGER NOT NULL,
@@ -346,7 +974,18 @@ CREATE TABLE sound_likes (
     FOREIGN KEY (sound_id) REFERENCES sounds (id) ON DELETE CASCADE
 );
 
--- Indices
+INSERT INTO sound_likes VALUES (1, 3, '2026-02-10 10:21:19');
+
+INSERT INTO sqlite_sequence VALUES ('users', 3);
+
+INSERT INTO sqlite_sequence VALUES ('sounds', 7);
+
+INSERT INTO sqlite_sequence VALUES ('focus_sessions', 53);
+
+INSERT INTO sqlite_sequence VALUES ('todos', 39);
+
+INSERT INTO sqlite_sequence VALUES ('mood_entries', 13);
+
 CREATE INDEX idx_users_username ON users (username);
 
 CREATE INDEX idx_users_email ON users (email);
@@ -362,568 +1001,5 @@ CREATE INDEX idx_sounds_created ON sounds (created_at DESC);
 CREATE INDEX idx_listening_history_user ON listening_history (user_id);
 
 CREATE INDEX idx_listening_history_sound ON listening_history (sound_id);
-
---
--- POPULATING STATS DATA
---
-
--- 1. Focus Sessions
--- Admin (User 1): ~10 sessions (Mix of completed/abandoned)
-INSERT INTO
-    focus_sessions (
-        user_id,
-        planned_minutes,
-        completed_minutes,
-        session_type,
-        status,
-        started_at,
-        ended_at
-    )
-VALUES
-    -- Today (2 completed sessions)
-    (
-        1,
-        25,
-        25,
-        'pomodoro',
-        'completed',
-        datetime(
-            'now',
-            '-2 hours',
-            'localtime'
-        ),
-        datetime(
-            'now',
-            '-1.5 hours',
-            'localtime'
-        )
-    ),
-    (
-        1,
-        45,
-        45,
-        'pomodoro',
-        'completed',
-        datetime(
-            'now',
-            '-4 hours',
-            'localtime'
-        ),
-        datetime(
-            'now',
-            '-3.25 hours',
-            'localtime'
-        )
-    ),
-    -- Yesterday (3 sessions)
-    (
-        1,
-        25,
-        25,
-        'pomodoro',
-        'completed',
-        datetime(
-            'now',
-            '-1 day',
-            '-2 hours',
-            'localtime'
-        ),
-        datetime(
-            'now',
-            '-1 day',
-            '-1.5 hours',
-            'localtime'
-        )
-    ),
-    (
-        1,
-        25,
-        10,
-        'pomodoro',
-        'abandoned',
-        datetime(
-            'now',
-            '-1 day',
-            '-4 hours',
-            'localtime'
-        ),
-        datetime(
-            'now',
-            '-1 day',
-            '-3.8 hours',
-            'localtime'
-        )
-    ),
-    (
-        1,
-        25,
-        25,
-        'pomodoro',
-        'completed',
-        datetime(
-            'now',
-            '-1 day',
-            '-6 hours',
-            'localtime'
-        ),
-        datetime(
-            'now',
-            '-1 day',
-            '-5.5 hours',
-            'localtime'
-        )
-    ),
-    -- 2 Days Ago
-    (
-        1,
-        50,
-        50,
-        'pomodoro',
-        'completed',
-        datetime(
-            'now',
-            '-2 days',
-            '-10 hours',
-            'localtime'
-        ),
-        datetime(
-            'now',
-            '-2 days',
-            '-9 hours',
-            'localtime'
-        )
-    ),
-    -- 3 Days Ago
-    (
-        1,
-        25,
-        25,
-        'pomodoro',
-        'completed',
-        datetime(
-            'now',
-            '-3 days',
-            '-9 hours',
-            'localtime'
-        ),
-        datetime(
-            'now',
-            '-3 days',
-            '-8.5 hours',
-            'localtime'
-        )
-    ),
-    -- 5 Days Ago
-    (
-        1,
-        25,
-        5,
-        'pomodoro',
-        'abandoned',
-        datetime(
-            'now',
-            '-5 days',
-            '-12 hours',
-            'localtime'
-        ),
-        datetime(
-            'now',
-            '-5 days',
-            '-11.9 hours',
-            'localtime'
-        )
-    ),
-    -- Last Week
-    (
-        1,
-        60,
-        60,
-        'pomodoro',
-        'completed',
-        datetime(
-            'now',
-            '-6 days',
-            '-14 hours',
-            'localtime'
-        ),
-        datetime(
-            'now',
-            '-6 days',
-            '-13 hours',
-            'localtime'
-        )
-    ),
-    -- Today (In Progress)
-    (
-        1,
-        25,
-        15,
-        'pomodoro',
-        'in_progress',
-        datetime(
-            'now',
-            '-10 minutes',
-            'localtime'
-        ),
-        NULL
-    );
-
--- Creator (User 2): ~5 sessions
-INSERT INTO
-    focus_sessions (
-        user_id,
-        planned_minutes,
-        completed_minutes,
-        session_type,
-        status,
-        started_at,
-        ended_at
-    )
-VALUES (
-        2,
-        45,
-        45,
-        'pomodoro',
-        'completed',
-        datetime(
-            'now',
-            '-1 day',
-            '-3 hours',
-            'localtime'
-        ),
-        datetime(
-            'now',
-            '-1 day',
-            '-2.25 hours',
-            'localtime'
-        )
-    ),
-    (
-        2,
-        45,
-        20,
-        'pomodoro',
-        'abandoned',
-        datetime(
-            'now',
-            '-2 days',
-            '-4 hours',
-            'localtime'
-        ),
-        datetime(
-            'now',
-            '-2 days',
-            '-3.6 hours',
-            'localtime'
-        )
-    ),
-    (
-        2,
-        25,
-        25,
-        'pomodoro',
-        'completed',
-        datetime(
-            'now',
-            '-3 days',
-            '-10 hours',
-            'localtime'
-        ),
-        datetime(
-            'now',
-            '-3 days',
-            '-9.5 hours',
-            'localtime'
-        )
-    ),
-    (
-        2,
-        90,
-        90,
-        'pomodoro',
-        'completed',
-        datetime(
-            'now',
-            '-4 days',
-            '-9 hours',
-            'localtime'
-        ),
-        datetime(
-            'now',
-            '-4 days',
-            '-7.5 hours',
-            'localtime'
-        )
-    ),
-    (
-        2,
-        25,
-        25,
-        'pomodoro',
-        'completed',
-        datetime(
-            'now',
-            '-5 days',
-            '-11 hours',
-            'localtime'
-        ),
-        datetime(
-            'now',
-            '-5 days',
-            '-10.5 hours',
-            'localtime'
-        )
-    );
-
--- User (User 3): ~2 sessions
-INSERT INTO
-    focus_sessions (
-        user_id,
-        planned_minutes,
-        completed_minutes,
-        session_type,
-        status,
-        started_at,
-        ended_at
-    )
-VALUES (
-        3,
-        25,
-        25,
-        'pomodoro',
-        'completed',
-        datetime(
-            'now',
-            '-1 day',
-            '-20 hours',
-            'localtime'
-        ),
-        datetime(
-            'now',
-            '-1 day',
-            '-19.5 hours',
-            'localtime'
-        )
-    ),
-    (
-        3,
-        25,
-        25,
-        'pomodoro',
-        'completed',
-        datetime(
-            'now',
-            '-2 hours',
-            'localtime'
-        ),
-        datetime(
-            'now',
-            '-1.5 hours',
-            'localtime'
-        )
-    );
-
--- 2. Todos
--- Admin (User 1)
-INSERT INTO
-    todos (
-        user_id,
-        text,
-        is_done,
-        created_at,
-        completed_at
-    )
-VALUES (
-        1,
-        'Controllare i log del server',
-        1,
-        datetime('now', '-3 days', 'localtime'),
-        datetime(
-            'now',
-            '-3 days',
-            '+1 hour',
-            'localtime'
-        )
-    ),
-    (
-        1,
-        'Aggiornare la documentazione',
-        1,
-        datetime('now', '-2 days', 'localtime'),
-        datetime(
-            'now',
-            '-2 days',
-            '+2 hours',
-            'localtime'
-        )
-    ),
-    (
-        1,
-        'Backup del database',
-        1,
-        datetime('now', '-1 day', 'localtime'),
-        datetime(
-            'now',
-            '-1 day',
-            '+15 minutes',
-            'localtime'
-        )
-    ),
-    (
-        1,
-        'Rispondere alle email di supporto',
-        0,
-        datetime(
-            'now',
-            '-5 hours',
-            'localtime'
-        ),
-        NULL
-    ),
-    (
-        1,
-        'Pianificare la prossima release',
-        0,
-        datetime('now', '-1 hour', 'localtime'),
-        NULL
-    );
-
--- Creator (User 2)
-INSERT INTO
-    todos (
-        user_id,
-        text,
-        is_done,
-        created_at,
-        completed_at
-    )
-VALUES (
-        2,
-        'Registrare nuovo brano piano',
-        1,
-        datetime('now', '-4 days', 'localtime'),
-        datetime('now', '-3 days', 'localtime')
-    ),
-    (
-        2,
-        'Scrivere testo per la nuova canzone',
-        0,
-        datetime('now', '-2 days', 'localtime'),
-        NULL
-    ),
-    (
-        2,
-        'Caricare album su Soundlly',
-        0,
-        datetime(
-            'now',
-            '-5 hours',
-            'localtime'
-        ),
-        NULL
-    );
-
--- User (User 3)
-INSERT INTO
-    todos (
-        user_id,
-        text,
-        is_done,
-        created_at,
-        completed_at
-    )
-VALUES (
-        3,
-        'Studiare per esame di storia',
-        0,
-        datetime('now', '-1 day', 'localtime'),
-        NULL
-    ),
-    (
-        3,
-        'Fare la spesa',
-        0,
-        datetime(
-            'now',
-            '+2 hours',
-            'localtime'
-        ),
-        NULL
-    );
-
--- 3. Ambient Listening Stats
--- Admin (User 1) - Listens to own sounds
-INSERT INTO
-    ambient_listening_stats (
-        user_id,
-        sound_id,
-        total_seconds,
-        last_listened_at
-    )
-VALUES (
-        1,
-        '1',
-        3600,
-        datetime('now', '-2 days', 'localtime')
-    ), -- Fuoco
-    (
-        1,
-        '3',
-        1800,
-        datetime('now', '-1 day', 'localtime')
-    ), -- Pianoforte
-    (
-        1,
-        '2',
-        500,
-        datetime(
-            'now',
-            '-4 hours',
-            'localtime'
-        )
-    );
--- Pioggia
-
--- Creator (User 2)
-INSERT INTO
-    ambient_listening_stats (
-        user_id,
-        sound_id,
-        total_seconds,
-        last_listened_at
-    )
-VALUES (
-        2,
-        '3',
-        7200,
-        datetime('now', '-2 days', 'localtime')
-    ), -- Pianoforte (inspiration)
-    (
-        2,
-        '1',
-        1200,
-        datetime(
-            'now',
-            '-5 hours',
-            'localtime'
-        )
-    );
--- Fuoco
-
--- User (User 3)
-INSERT INTO
-    ambient_listening_stats (
-        user_id,
-        sound_id,
-        total_seconds,
-        last_listened_at
-    )
-VALUES (
-        3,
-        '2',
-        5400,
-        datetime('now', '-1 hour', 'localtime')
-    );
--- Pioggia for studying
 
 COMMIT;
