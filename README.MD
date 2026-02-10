@@ -14,6 +14,7 @@ Link video presentazione: https://youtu.be/1234567890
 ### 1. Installazione Dipendenze
 Apri il terminale nella cartella del progetto ed esegui:
 ```bash
+cd Soundlly
 npm install
 ```
 
@@ -33,7 +34,7 @@ Il server sarà attivo all'indirizzo: [http://localhost:3003](http://localhost:3
 
 ---
 
-## � Credenziali di Accesso (Test)
+## Credenziali di Accesso (Test)
 
 Il database viene inizializzato con 3 utenti preimpostati per testare i diversi ruoli:
 
@@ -45,7 +46,7 @@ Il database viene inizializzato con 3 utenti preimpostati per testare i diversi 
 
 ---
 
-## 📂 Struttura Progetto
+## Struttura Progetto
 
 ```
 Soundlly/
@@ -72,7 +73,7 @@ Soundlly/
 
 ---
 
-## ✨ Funzionalità Chiave
+## Funzionalità Chiave
 
 ### Timer Pomodoro Avanzato (`public/js/timer.js`)
 - **Ciclo Studio/Pausa**: Alternanza automatica 25min (Focus) / 5min (Pausa).
@@ -93,7 +94,7 @@ Soundlly/
 
 ---
 
-## 🛠 Tecnologie
+## Tecnologie
 
 - **Backend**: Node.js, Express.js
 - **Database**: SQLite3
@@ -103,7 +104,7 @@ Soundlly/
 
 ---
 
-## ⚠️ Risoluzione Problemi Comuni
+## Risoluzione Problemi Comuni
 
 - **Database Locked**: Se riscontri errori di database bloccato durante il reset (`init-project`), assicurati di aver spento il server Node (`CTRL+C`).
 - **Tabelle Mancanti**: Se all'avvio il server segnala errori di tabella, riesegui `npm run init-project`.
