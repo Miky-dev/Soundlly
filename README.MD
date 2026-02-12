@@ -9,6 +9,12 @@ Link video presentazione: https://youtu.be/1234567890
 
 ---
 
+## Link web App was
+
+Link server aws: http://16.170.251.183:3003
+
+---
+
 ##  Installazione e Avvio Rapido
 
 ### 1. Installazione Dipendenze
