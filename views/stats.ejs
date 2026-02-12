@@ -31,6 +31,17 @@
     <% function formatTime(minutes) { if (minutes < 60) return minutes + " min" ; const h=Math.floor(minutes / 60);
         const m=minutes % 60; return h + "h " + (m> 0 ? m + "m" : "");
         }
+
+        function formatDuration(totalSeconds) {
+        if (!totalSeconds || totalSeconds < 0) return "0s" ; const h=Math.floor(totalSeconds / 3600); const
+            m=Math.floor((totalSeconds % 3600) / 60); const s=Math.floor(totalSeconds % 60); if (h> 0) {
+            return h + "h " + m + "m " + s + "s";
+            }
+            if (m > 0) {
+            return m + "m " + s + "s";
+            }
+            return s + "s";
+            }
         %>
         <div class="stats-container">
             <h1 class="mb-5">Le Tue Statistiche</h1>
