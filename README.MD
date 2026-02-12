@@ -42,7 +42,7 @@ Il database viene inizializzato con 3 utenti preimpostati per testare i diversi 
 | :--- | :--- | :--- | :--- |
 | **Admin** | `admin` | `admin123` | Accesso completo, gestione upload e utenti. |
 | **Creatore** | `creator` | `admin123` | Piano Premium, può caricare brani e gestire album. |
-| **Utente** | `user` | `admin123` | Piano Standard, solo fruizione e playlist personali. |
+| **Utente** | `user` | `admin123` | Piano Standard. |
 
 ---
 
