@@ -18,20 +18,22 @@ router.get('/', async (req, res) => {
 
         // Prepariamo il pattern per la ricerca parziale (wildcard)
         const searchTerm = `%${query}%`;
+        const userId = req.user ? req.user.id : null;
 
         // Eseguiamo la query cercando corrispondenze in titolo, descrizione, mood o nome autore
-        // Mostriamo solo contenuti pubblici o premium (se l'utente ha accesso)
+        // Mostriamo contenuti pubblici o premium (se l'utente ha accesso)
+        // Aggiungiamo 'registered' se l'utente è loggato
         const sql = `
             SELECT s.id, s.title, s.description, s.filename, s.icon, s.category, u.username as author
             FROM sounds s
             LEFT JOIN users u ON s.owner_id = u.id
             WHERE (s.title LIKE ? OR s.description LIKE ? OR u.username LIKE ? OR s.mood LIKE ? OR s.genre_primary LIKE ?)
-            AND (s.access_level = 'public' OR s.access_level = 'premium')
+            AND (s.access_level = 'public' OR s.access_level = 'premium' OR (s.access_level = 'registered' AND ? IS NOT NULL))
             ORDER BY s.created_at DESC
             LIMIT 20
         `;
 
-        const results = await all(sql, [searchTerm, searchTerm, searchTerm, searchTerm, searchTerm]);
+        const results = await all(sql, [searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, userId]);
         res.json(results);
     } catch (err) {
         console.error('Errore durante la ricerca:', err);
