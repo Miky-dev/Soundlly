@@ -11,7 +11,7 @@ CREATE TABLE users (
     bio TEXT,
     avatar_url TEXT,
     mood_theme TEXT DEFAULT 'default',
-    location_city TEXT,
+    born_city TEXT,
     location_country TEXT,
     date_of_birth DATE,
     role TEXT NOT NULL DEFAULT 'user' CHECK (
